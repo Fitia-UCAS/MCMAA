@@ -19,6 +19,9 @@ from model.latex_extractor import LatexExtractor
 
 
 class Screen2_LaTeX_Extractor(ttk.Frame):
+
+    MODE_NAME = "LaTeX提取器"
+
     def __init__(self, master):
         super().__init__(master, **SCREEN_CONFIG)
         self.place(relx=0, rely=0, relwidth=1, relheight=1)
@@ -53,15 +56,8 @@ class Screen2_LaTeX_Extractor(ttk.Frame):
 
         tmp0 = ttk.Frame(self.button_frame, **FLAT_SUBFRAME_CONFIG)
         tmp0.place(relx=0, y=0, relwidth=1, height=button_height)
-        self.button_mode = ttk.OptionMenu(
-            tmp0,
-            DATA_CONFIG["mode"],
-            "LaTeX提取器",
-            "MCM论文辅助",
-            "LaTeX提取器",
-            "Text替换器",
-            command=self.master.change_mode,
-        )
+        self.button_mode = ttk.OptionMenu(tmp0, DATA_CONFIG["mode"], "", command=self.master.change_mode)
+        self.button_mode.set_menu(self.MODE_NAME, *DATA_CONFIG["modes"])
         self.button_mode.place(relx=0, rely=0, relwidth=1, height=button_height)
 
         tmp1 = ttk.Frame(self.button_frame, **FLAT_SUBFRAME_CONFIG)
@@ -71,36 +67,24 @@ class Screen2_LaTeX_Extractor(ttk.Frame):
 
         tmp2 = ttk.Frame(self.button_frame, **FLAT_SUBFRAME_CONFIG)
         tmp2.place(relx=0, y=2 * button_height, relwidth=1, height=button_height)
-        self.button_keyword = ttk.OptionMenu(
-            tmp2, self.keyword_var, "问题编号", "问题编号"
-        )
+        self.button_keyword = ttk.OptionMenu(tmp2, self.keyword_var, "问题编号", "问题编号")
         self.button_keyword.place(relx=0, rely=0, relwidth=1, height=button_height)
-        self.keyword_var.trace_add(
-            "write", lambda *args: self.update_preview(self.keyword_var.get())
-        )
+        self.keyword_var.trace_add("write", lambda *args: self.update_preview(self.keyword_var.get()))
 
         tmp4 = ttk.Frame(self.button_frame, **FLAT_SUBFRAME_CONFIG)
         tmp4.place(relx=0, y=3 * button_height, relwidth=1, height=button_height)
-        self.button_section = ttk.OptionMenu(
-            tmp4, self.section_var, "选择章节", "选择章节"
-        )
+        self.button_section = ttk.OptionMenu(tmp4, self.section_var, "选择章节", "选择章节")
         self.button_section.place(relx=0, rely=0, relwidth=1, height=button_height)
-        self.section_var.trace_add(
-            "write", lambda *args: self.update_section_preview(self.section_var.get())
-        )
+        self.section_var.trace_add("write", lambda *args: self.update_section_preview(self.section_var.get()))
 
         tmp3 = ttk.Frame(self.button_frame, **FLAT_SUBFRAME_CONFIG)
         tmp3.place(relx=0, y=4 * button_height, relwidth=1, height=button_height)
-        self.button_save_problem = ttk.Button(
-            tmp3, text="问题提取并保存", command=self.extract_and_save_problem
-        )
+        self.button_save_problem = ttk.Button(tmp3, text="问题提取并保存", command=self.extract_and_save_problem)
         self.button_save_problem.place(relx=0, rely=0, relwidth=1, height=button_height)
 
         tmp6 = ttk.Frame(self.button_frame, **FLAT_SUBFRAME_CONFIG)
         tmp6.place(relx=0, y=5 * button_height, relwidth=1, height=button_height)
-        self.button_save_section = ttk.Button(
-            tmp6, text="章节提取并保存", command=self.extract_and_save_section
-        )
+        self.button_save_section = ttk.Button(tmp6, text="章节提取并保存", command=self.extract_and_save_section)
         self.button_save_section.place(relx=0, rely=0, relwidth=1, height=button_height)
 
     def add_text_box(self, weight):
@@ -134,10 +118,7 @@ class Screen2_LaTeX_Extractor(ttk.Frame):
             ],
         )
         if file_path:
-            if not (
-                file_path.lower().endswith(".tex")
-                or file_path.lower().endswith(".template")
-            ):
+            if not (file_path.lower().endswith(".tex") or file_path.lower().endswith(".template")):
                 self.info_text_append("警告: 请选择 .tex 或 .template 文件")
                 return
             self.file_path = file_path
@@ -151,9 +132,7 @@ class Screen2_LaTeX_Extractor(ttk.Frame):
             self.extractor = LatexExtractor(self.file_path, max_level=3)
             self.keywords = self.extractor.get_unique_keywords()
             self.button_keyword.set_menu("问题编号", *self.keywords)
-            self.section_titles = [
-                title for _, title, level, _ in self.extractor.sections if level == 1
-            ]
+            self.section_titles = [title for _, title, level, _ in self.extractor.sections if level == 1]
             self.button_section.set_menu("选择章节", *self.section_titles)
             self.info_text_append(f"文件已加载: {self.file_path}")
         except Exception as e:
@@ -217,9 +196,7 @@ class Screen2_LaTeX_Extractor(ttk.Frame):
         if "Modeling" in parts:
             all_content.extend(parts["Modeling"])
 
-        output_file = os.path.join(
-            os.path.dirname(self.file_path), f"问题{keyword}.tex"
-        )
+        output_file = os.path.join(os.path.dirname(self.file_path), f"问题{keyword}.tex")
         try:
             self.extractor.save_to_file(all_content, output_file)
             self.info_text_append(f"成功: 内容已保存到 {output_file}")

@@ -12,6 +12,9 @@ from ..config import DATA_CONFIG, SCREEN_CONFIG, MAIN_FRAME_CONFIG, FLAT_SUBFRAM
 
 
 class Screen3_Text_Replacer(ttk.Frame):
+
+    MODE_NAME = "Text替换器"
+
     def __init__(self, master):
         super().__init__(master, **SCREEN_CONFIG)
         self.place(relx=0, rely=0, relwidth=1, relheight=1)
@@ -54,15 +57,8 @@ class Screen3_Text_Replacer(ttk.Frame):
         # Mode selection
         tmp0 = ttk.Frame(self.button_frame, **FLAT_SUBFRAME_CONFIG)
         tmp0.place(relx=0, rely=0, relwidth=1, height=50)
-        self.button_mode = ttk.OptionMenu(
-            tmp0,
-            DATA_CONFIG["mode"],
-            "Text替换器",
-            "MCM论文辅助",
-            "LaTeX提取器",
-            "Text替换器",
-            command=self.master.change_mode,
-        )
+        self.button_mode = ttk.OptionMenu(tmp0, DATA_CONFIG["mode"], "", command=self.master.change_mode)
+        self.button_mode.set_menu(self.MODE_NAME, *DATA_CONFIG["modes"])
         self.button_mode.place(relx=0, rely=0, relwidth=1, relheight=1)
 
         # Open file
@@ -80,9 +76,7 @@ class Screen3_Text_Replacer(ttk.Frame):
         # Replace button
         tmp4 = ttk.Frame(self.button_frame, **FLAT_SUBFRAME_CONFIG)
         tmp4.place(relx=0, rely=0.6, relwidth=1, height=50)
-        self.button_replace = ttk.Button(
-            tmp4, text="执行替换", command=self.replace_text
-        )
+        self.button_replace = ttk.Button(tmp4, text="执行替换", command=self.replace_text)
         self.button_replace.place(relx=0, rely=0, relwidth=1, relheight=1)
 
         # Save file

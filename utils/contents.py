@@ -64,6 +64,7 @@ IGNORE_FILES = [
     "warn-main.txt",
     "info.tex",
     "main.tex",
+    "cumcmthesis.cls",
     "references.bib",
 ]
 
@@ -107,9 +108,7 @@ def clean_content(content):
     return content
 
 
-def write_directory_contents_to_file(
-    scan_directory, output_directory, output_file_name, IGNORE_FOLDERS=None
-):
+def write_directory_contents_to_file(scan_directory, output_directory, output_file_name, IGNORE_FOLDERS=None):
     """
     将目录内容和文件内容写入到指定的输出文件
     :param scan_directory: 要扫描的目录路径
@@ -134,9 +133,7 @@ def write_directory_contents_to_file(
 
     with open(output_file_path, "w", encoding="utf-8") as output_file:
         # 写入目录结构
-        directory_structure = generate_directory_structure(
-            current_dir, IGNORE_FOLDERS=IGNORE_FOLDERS
-        )
+        directory_structure = generate_directory_structure(current_dir, IGNORE_FOLDERS=IGNORE_FOLDERS)
         output_file.write("目录结构:\n")
         output_file.write(directory_structure)
         output_file.write("\n\n")
@@ -148,11 +145,7 @@ def write_directory_contents_to_file(
             dirs[:] = [d for d in dirs if d != ".git"]  # 额外忽略 .git 文件夹
 
             # 过滤掉忽略的文件
-            files = [
-                f
-                for f in files
-                if not (any(f.endswith(ext) for ext in IGNORE_EXTENSIONS) or f in IGNORE_FILES)
-            ]
+            files = [f for f in files if not (any(f.endswith(ext) for ext in IGNORE_EXTENSIONS) or f in IGNORE_FILES)]
 
             # 处理文件内容
             for file in files:
@@ -205,6 +198,4 @@ if __name__ == "__main__":
     output_file_name = "contents.txt"
 
     # 将目录内容写入文件
-    write_directory_contents_to_file(
-        scan_directory, output_directory, output_file_name, IGNORE_FOLDERS
-    )
+    write_directory_contents_to_file(scan_directory, output_directory, output_file_name, IGNORE_FOLDERS)
