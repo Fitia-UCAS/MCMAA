@@ -7,3 +7,4 @@
 
 # Third-party dependencies
 ttkbootstrap
+appdirs
