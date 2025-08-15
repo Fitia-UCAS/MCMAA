@@ -1,4 +1,5 @@
 # %% utils/contents.py
+# -*- coding: utf-8 -*-
 
 # 内置库
 import sys

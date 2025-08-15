@@ -1,4 +1,5 @@
-# %% view/common_widget.py
+# %% view/common_widgets.py
+# -*- coding: utf-8 -*-
 
 # 内置库
 from tkinter import *

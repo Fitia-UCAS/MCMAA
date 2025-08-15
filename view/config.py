@@ -1,4 +1,5 @@
 # %% view/config.py
+# -*- coding: utf-8 -*-
 
 # 内置库
 import os

@@ -1,5 +1,5 @@
+# %% model/latex_extractor.py
 # -*- coding: utf-8 -*-
-# model/latex_extractor.py
 
 import re
 

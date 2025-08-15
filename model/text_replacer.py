@@ -1,4 +1,5 @@
 # %% model/text_replacer.py
+# -*- coding: utf-8 -*-
 
 import re
 
