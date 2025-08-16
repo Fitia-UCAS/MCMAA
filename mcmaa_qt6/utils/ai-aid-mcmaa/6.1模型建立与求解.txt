@@ -1,0 +1,1022 @@
+提示词：
+<-----我的提示词----->
+"""
+用中文回答。
+
+我们只进行论文部分问题一的模型建立与求解部分的重写或编写，而不关注其他部分。
+
+请你用我提供的语法、仿照我的参考范文的样式仿写。
+
+禁止使用"\noindent\textbf{1. 坐标系与螺线方程}"这种编号的方法。这是不被允许的。
+
+用下面这些命令\numtitle[]{标题}、\circtitle[]{标题}、\dingtitle[]{标题}、\squatitle[]{标题}：
+
+    """
+    % 1. 标题命令
+    % 以下命令用于生成带特定前缀和格式的标题，适用于论文中不同层级的标题。命令之间存在层级关系，通常按以下顺序使用：
+    %   - \numtitle[]{标题}：一级标题，生成带括号数字编号的标题，如 (1) 标题，用于最高层级（每个\subsubsection{标题}重置计数）
+    %     - 示例：\numtitle{太阳的高度角和方位角} 生成 (1) 太阳的高度角和方位角
+    %     - 示例：\numtitle[]{太阳的高度角和方位角} 生成 (1) 太阳的高度角和方位角（不换行）
+    %
+    %   - \circtitle[]{标题}：二级标题，生成带圈数字编号的标题，如 ① 标题，用于次级主题（每个\numtitle后重置计数）
+    %     - 示例：\circtitle{太阳高度角} 生成 ① 太阳高度角
+    %     - 示例：\circtitle[]{太阳高度角} 生成 ① 太阳高度角（不换行）
+    %
+    %   - \dingtitle[]{标题}：三级标题，生成带丁字形符号和数字编号的标题，如 ● 1. 标题，用于更细分的主题（每个\circtitle后重置计数）
+    %     - 示例：\dingtitle{太阳赤纬} 生成 ● 1. 太阳赤纬
+    %     - 示例：\dingtitle[]{太阳赤纬} 生成 ● 1. 太阳赤纬（不换行）
+    %
+    %   - \squatitle[]{标题}：四级标题，生成带方框和罗马数字编号的标题，如 ■ i. 标题，用于最细分的主题（每个\dingtitle后重置计数）
+    %     - 示例：\squatitle{入射遮挡区域} 生成 ■ i. 入射遮挡区域
+    %     - 示例：\squatitle[]{入射遮挡区域} 生成 ■ i. 入射遮挡区域（不换行）
+    """
+
+如果有算法步骤的语法就用\begin{algorithmsteps}{xxx求解步骤}，示例如下：
+    """
+    \begin{algorithmsteps}{舞龙队位置与速度求解步骤}
+        \addstep{初始化参数}{设定螺线参数 $k = \frac{0.55}{2\pi}$，龙头速度 $v_h = 1 \, \text{m/s}$，初始极角 $\theta_s = 32\pi$，龙头长度 $l_h = 3.41 \, \text{m}$，龙身和龙尾长度 $l_b = 2.20 \, \text{m}$。}
+        \addstep{计算龙头极角}{对于每一秒 $t = 0, 1, \dots, 300$，通过数值方法求解公式 (8)，得到龙头前把手的极角 $\theta_h(t)$。}
+        \addstep{递推节点极角}{根据公式 (11) 和 (12)，通过数值方法（如 MATLAB 的 fsolve 函数）依次求解各节点的极角 $\theta_i$（$i = 1, 2, \dots, 223$）。}
+        \addstep{计算节点速度}{根据公式 (14)，从龙头速度 $v_h = 1 \, \text{m/s}$ 开始，递推计算各节点的速度 $v_i$。}
+        \addstep{计算节点位置}{利用公式 (15)，将各节点的极角 $\theta_i$ 转换为直角坐标 $(x_i, y_i)$。}
+        \addstep{存储结果}{将各节点的位置 $(x_i, y_i)$ 和速度 $v_i$ 存储到结果文件中，保留 6 位小数。}
+    \end{algorithmsteps}
+    """
+
+如果有算法就用\begin{algchunk}{算法标题}...\end{algchunk}，示例如下：
+
+    """
+    \begin{algchunk}{Monte Carlo Estimation of Truncation Efficiency}
+        \textbf{Input:} Heliostat information (position, orientation, size, etc.); receiver surface equation $F(x,y,z)=0$; maximum cone angle $\theta_{\max}=4.3\times10^{-3}\,\mathrm{rad}$
+        
+        \textbf{Output:} Truncation efficiency $\eta_{\mathrm{trunc}}$
+        
+        Initialize $N \gets 10000$, $M \gets 0$, and random number generator.
+        
+        \For{$i=1$ to $N$}{
+            Sample $\theta \sim \mathcal{U}(0,\theta_{\max})$, $\phi \sim \mathcal{U}(0,2\pi)$\;
+            $\boldsymbol{d}_{\mathrm{in}} \gets (\sin\theta\cos\phi,\;\sin\theta\sin\phi,\;\cos\theta)$\;
+        
+            Sample a point $\boldsymbol{p}_r$ uniformly on heliostat surface\;
+            Compute unit normal $\boldsymbol{n}$ at $\boldsymbol{p}_r$\;
+            $\boldsymbol{d}_{\mathrm{ref}} \gets \boldsymbol{d}_{\mathrm{in}} - 2(\boldsymbol{d}_{\mathrm{in}}\cdot \boldsymbol{n})\boldsymbol{n}$\;
+            Define ray $\boldsymbol{\ell}(t)=\boldsymbol{p}_r+t\boldsymbol{d}_{\mathrm{ref}},\;t\ge0$\;
+        
+            Substitute $\boldsymbol{\ell}(t)$ into $F(x,y,z)=0$, solve for $t\ge0$\;
+            \If{a real root exists and intersection point lies in receiver domain}{
+                $M \gets M+1$\;
+            }
+        }
+        
+        Compute $\eta_{\mathrm{trunc}} \gets M/N$\;
+        \Return $\eta_{\mathrm{trunc}}$\;
+    \end{algchunk}
+    """
+
+参考参考范文的逻辑连词，分析方法，但是不要参考里面的内容（参考范文的内容与我们要解决的问题无关）返回重写或编写后的模型建立与求解部分内容（不要综上所述，也不要例如什么什么文件，这些都不是关键的；“如最大起跳力906.5,N，方向90°”这种类似的话术出现在结果中的也不要）你应该返回latex代码；不要中英文混用；用中文输出，不要markdown和latex混用####这些不要；同时你应该兼顾我现有的论文的部分；每个公式都要用\begin{equation}编号，所有符号都用$$包裹而不是用\(和\)；latex中没有“**”加粗的用法；列表的话用\begin{enumerate}；但是针对模型建立的时候我们需要手动编号用\noindent\textbf{1.xxx}；求解步骤那里不用\begin{enumerate}而是手动编号\noindent\textbf{Step.1};\noindent\textbf{Step.2};\noindent\textbf{Step.3}...这种； 不要“未来怎么怎么样”这种我们只针对当前的模型就好。
+
+返回问题一的模型建立与求解部分的编写。
+<-----我的提示词----->
+
+题目内容：
+<-----我的题目内容----->
+"""
+
+"""
+<-----我的题目内容----->
+
+我的内容架构：
+<-----我的内容架构----->
+"""
+\section{模型建立与求解}
+    \subsection{问题一模型的建立与求解}
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+            \caption{XXXXX}
+        \end{figure}
+        \subsubsection{XXXXX模型}
+            \numtitle{XXXXX}
+                \begin{figure}[H]
+                    \centering
+                    \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                    \caption{XXXXX}
+                \end{figure}
+                \circtitle{XXXXX}
+                    \dingtitle{XXXXX}
+                        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{figure}
+                    \dingtitle{XXXXX}
+                \circtitle{XXXXX}
+            \numtitle{XXXXX}
+                \circtitle{XXXXX}
+                \circtitle{XXXXX}
+                \circtitle{XXXXX}
+                    \dingtitle{XXXXX}
+                    \dingtitle{XXXXX}
+                    \begin{figure}[H]
+                        \centering
+                        \begin{minipage}[t]{0.48\textwidth}
+                            \centering
+                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{minipage}
+                        \hfill
+                        \begin{minipage}[t]{0.48\textwidth}
+                            \centering
+                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{minipage}
+                    \end{figure}
+            \numtitle{XXXXX}
+                \circtitle{XXXXX}
+                \circtitle{XXXXX}
+                \circtitle{XXXXX}
+                    \begin{figure}[H]
+                        \centering
+                        \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                        \caption{XXXXX}
+                    \end{figure}
+                \circtitle{XXXXX}
+                    \dingtitle{XXXXX}
+                        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{figure}
+                    \dingtitle{XXXXX}
+                        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{figure}
+                        \squatitle{XXXXX}
+                            \plaintitle{XXXXX}
+                                \begin{figure}[H]
+                                    \centering
+                                    \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                                    \caption{XXXXX}
+                                \end{figure}
+                            \plaintitle{XXXXX}
+                            \plaintitle{XXXXX}
+                                \begin{figure}[H]
+                                    \centering
+                                    \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                                    \caption{XXXXX}
+                                \end{figure}
+                        \squatitle{XXXXX}
+                            \begin{figure}[H]
+                                \centering
+                                \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                                \caption{XXXXX}
+                            \end{figure}
+                        \squatitle{XXXXX}
+                            \begin{figure}[H]
+                                \centering
+                                \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                                \caption{XXXXX}
+                            \end{figure}
+                \circtitle{XXXXX}
+                    \begin{figure}[H]
+                        \centering
+                        \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                        \caption{XXXXX}
+                    \end{figure}
+                    \dingtitle{XXXXX}
+                        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{figure}
+                    \dingtitle{XXXXX}
+                    \dingtitle{XXXXX}
+                    \dingtitle{XXXXX}
+                    \dingtitle{XXXXX}
+                \circtitle{XXXXX}
+            \numtitle{XXXXX}
+                \circtitle{XXXXX}
+                \circtitle{XXXXX}
+                \circtitle{XXXXX}
+                \circtitle{XXXXX}
+        \subsubsection{模型的求解}
+            \numtitle{XXXXX}
+                \begin{algorithmsteps}{XXXXX算法步骤}
+                    \addstep{...}{...}
+                    \addstep{...}{...}
+                    \addstep{...}{...}
+                    \addstep{...}{...}
+                    \addstep{...}{...}
+                    ...
+                \end{algorithmsteps}
+                \begin{algchunk}{XXXXX}
+                    ...
+                \end{algchunk}
+            \numtitle{求解结果及分析}
+                \begin{longtable}{p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{100pt}<{\centering}}
+                    \caption{XXXXX}
+                    ...
+                \end{longtable}
+                \begin{longtable}{p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{80pt}<{\centering}}
+                    \caption{XXXXX}
+                    ...
+                \end{longtable}
+                \plaintitle{XXXXX}
+                    \circtitle{XXXXX}
+                        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{figure}
+                        \dingtitle[]{}
+                        \dingtitle[]{}
+                        \dingtitle[]{}
+                        \dingtitle[]{}
+                        \dingtitle[]{}
+                    \circtitle{XXXXX}
+                        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{figure}
+                        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{figure}
+                        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                            \caption{XXXXX}
+                        \end{figure}
+            \subsubsection{模型检验}
+                \begin{figure}[H]
+                    \centering
+                    \includegraphics[width=\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                    \caption{XXXXX}
+                \end{figure}
+"""
+<-----我的内容架构----->
+
+参考范文：
+<-----我的参考范文----->
+"""
+\subsection{问题一模型的建立与求解}
+
+问题一要求我们求解给定条件下定日镜场的年平均光学效率、年平均输出热功率以及单位镜面面积年平均输出热功率。首先，我们可以通过求解太阳高度角和太阳方位角来确定每一时刻太阳所在位置；接着，通过定日镜的工作原理我们可以由某一时刻入射光线和反射光线的方向推得定日镜在该时刻的法向，进而推得定日镜在时刻的俯仰角和方位角；然后，基于上述信息我们可以计算每一块定日镜在该时刻的阴影遮挡效率、余弦效率、大气透射率、集热器截断效率以及镜面反射率，从而得出定日镜的光学效率，我们将不同时刻不同定日镜的光学效率求和取平均即可得到年平均光学效率；最后，结合定日镜场的输出热功率的计算公式，代入法向直接辐射照度DNI 以及定日镜的光学效率等数据，我们就可以求出定日镜场在不同时刻的输出热功率，进而求出年平均输出热功率以及单位面积镜面年平均输出热功率。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,keepaspectratio]{figures/问题一流程图.pdf}
+    \caption{问题一流程图}
+\end{figure}
+
+\subsubsection{定日镜场年平均输出热功率模型}
+
+\numtitle{太阳的高度角 $\alpha_s$ 和方位角 $\gamma_s$}
+
+随着地球的自转和公转，太阳在一年中各个时刻相对于地面的位置都在不断发生改变，其变化轨迹被称为太阳的视运动轨迹。为了表述的方便，我们通常在地平坐标系下来描述太阳的位置，以正东方向为 $\mathbf{x}$ 轴，正北方向为 $\mathbf{y}$ 轴，垂直于地面向上的方向为 $z$ 轴建立坐标系，如图 2 所示。此时，我们就可以用太阳高度角 $\mathbf{\alpha_s}$ 和太阳方位角 $\mathbf{\gamma_s}$这两个参数来描述太阳的视运动轨迹。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/地平坐标系示意图.pdf}
+    \caption{地平坐标系示意图}
+\end{figure}
+
+\circtitle{太阳高度角 $\alpha_s$}
+
+太阳高度角是指的是太阳到坐标原点的连线与地平面的夹角，通过查阅文献 ${ }^{[1]}$ ，我们得到了太阳高度角的计算公式为：
+\begin{equation}
+    \sin \alpha_s=\cos \delta \cos \varphi \cos \omega+\sin \delta \sin \varphi
+\end{equation}
+其中，$\alpha_s$ 为太阳高度角，其范围为 $\left[0,90^{\circ}\right], \delta$ 为太阳赤纬，即太阳直射纬度，$\varphi$为当地纬度，$\omega$ 为太阳时角，即正午时圈到当地时圈的角度。
+
+\dingtitle{太阳赤纬 $\delta$}
+
+太阳赤纬即太阳直射纬度，在一年中，太阳直射纬度在南北回归线之间作往返运动，如图 3 所示，通过查阅文献［2］，我们得到了其计算公式，如下所示：
+\begin{equation}
+\sin \delta=\sin \frac{2 \pi D}{365} \sin \left(\frac{2 \pi}{360} 23.45\right)
+\end{equation}
+其中，$\delta$ 为太阳赤纬，以北纬为正向，其范围为 $\left[-23.26^{\circ}, 23.26^{\circ}\right]$ ，当 $\delta>0$时，太阳直射纬度在北半球，当 $\delta=0$ 时，太阳直射纬度在赤道上，当 $\delta<0$ 时，太阳直射纬度在南半球。 $D$ 表示当日距离春分日的天数。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/太阳赤纬在一年中的变化曲线.pdf}
+    \caption{太阳赤纬在一年中的变化曲线}
+\end{figure}
+
+\dingtitle{太阳时角 $\omega$}
+
+太阳时角表示正午时圈到当地时圈的角度，其可以通过当地时间 $S T$ 与正午 12 点之差求出，其计算公式为：
+\begin{equation}
+\omega=\frac{\pi}{12}(S T-12)
+\end{equation}
+其中，$\omega$ 为太阳时角，$S T$ 为当地时间。太阳时角为 0 ，说明当地时间为正午，时角为负，说明当地时间是上午，时角为正，说明当地时间是下午。
+
+因此，当我们确定当地纬度、当天日期以及当日的时刻时，我们就可以求出太阳赤纬以及太阳时角，从而求出该地在特定时刻下的太阳高度角。
+
+\circtitle{太阳方位角 $\gamma_s$}
+
+太阳方位角指的从正北方向开始沿着地平线顺时针旋转，一直到太阳在地面的投影与坐标原点的连线的角度，在已知太阳高度角、太阳赤线以及太阳时角时，我们便可以求得太阳方位角，其计算公式如下所示：
+\begin{equation}
+\cos \gamma_s=\frac{\sin \delta-\sin \alpha_s \sin \varphi}{\cos \alpha_s \cos \varphi}
+\end{equation}
+其中，$\gamma_s$ 为太阳方位角，其范围为 $\left[0,360^{\circ}\right], \delta$ 为太阳赤纬，$\alpha_s$ 为太阳高度角， $\varphi$ 为当地纬度。
+
+\numtitle{定日镜的俯仰角 $\alpha_m$ 和方位角 $\gamma_m$}
+
+通过上文对太阳高度角和太阳方位角的求解，我们可以得到题目给出的定日镜场所在地点在一年中任意一天任意一时刻太阳所在的位置，又因为定日镜在工作时，控制系统会根据太阳所在的位置对定日镜实行实时控制，通过转动水平转轴和坚直转轴改变定日镜的方位角和俯仰角，从而改变定日镜的法向，使得太阳中心点发出的光线经过定日镜的中心反射后能指向集热器的中心，因此，我们可以通过对太阳中心的入射光线以及指向集热器中心的反射光线进行分析，并结合反射定理，以此求得不同时刻下不同定日镜的法向量，得到定日镜的俯仰角 $\alpha_m$ 和方位角 $\gamma_m$ 。
+
+\circtitle{定日镜场坐标系的建立}
+
+在本题中，定日镜场为一个半径 350 m 的圆形区域，为了更好地描述太阳、定日镜以及集热器之间的位置关系，我们以圆心为原点，正东方向为 $x$ 轴正向，正北方向为 $y$ 轴正向，垂直于地面向上为 $z$ 轴正向建立坐标系，称为镜场坐标系，显然，该坐标系与上文建立的地平坐标系保持一致。
+
+\circtitle{定日镜中心点的法向量}
+
+通过物理光学知识我们知道，当光线在镜面上发生反射时，入射角等于反射角，因此，定日镜中心点的法向量平分入射光线和反射光线之间的夹角，通过对入射光线和反射光线向量的计算我们便可以求得法向量
+
+我们假设在镜场坐标系下某一条入射光线的单位向量为 $\vec{e}_{in}\left(x_{in}, y_{in}, z_{in}\right)$ ，由于在确定时刻太阳的高度角 $\alpha_s$ 和方位角 $\gamma_s$ 是确定的，所以 $\vec{e}_{in}\left(x_{in}, y_{in}, z_{in}\right)$ 的计算公式为：
+\begin{equation}
+\left\{
+    \begin{array}{l}
+        x_{in}=-\cos \alpha_s \cos \left(90^{\circ}-\gamma_s\right) \\
+        y_{in}=-\cos \alpha_s \sin \left(90^{\circ}-\gamma_s\right) \\
+        z_{in}=-\sin \alpha_s
+    \end{array}
+\right.
+\end{equation}
+即：
+\begin{equation}
+\vec{e}_{in}=
+\left(
+    -\cos \alpha_s \sin \gamma_s,-\cos \alpha_s \cos \gamma_s,-\sin \alpha_s
+\right)
+\end{equation}
+
+对于反射光线，由于题目要求入射光线经定日镜中心应反射到集热器中心，因此在定日镜中心和集热器中心的坐标确定时，两者的连线即为反射光线。在本问中，每一块定日镜中心点在镜场坐标系下的坐标已经在附件中给出，我们假设定日镜中心点的坐标为 $(x, y, z)$ ，又由题目可知集热器中心点的坐标为 $\left(0,0, H_T\right)$ ，因此，反射光线的单位向量为：
+\begin{equation}
+\vec{e}_{\text {out }}=\frac{\left(-x,-y, H_T-z\right)}{\sqrt{x^2+y^2+\left(H_T-z\right)^2}}
+\end{equation}
+
+由此，我们可以推得定日镜中心点的单位法向量 $\vec{e}\left(e_x, e_y, e_z\right)$ ：
+\begin{equation}
+\vec{e}=\frac{\vec{e}_{\text {out }}-e_{\text {in }}}{\left|\vec{e}_{\text {out }}-\vec{e}_{\text {in }}\right|}
+\end{equation}
+
+\circtitle{定日镜的俯仰角和方位角}
+
+通过上述对定日镜中心点法向量的计算，我们便可以通过简单的几何推理得到定日镜的俯仰角和方向角。
+
+\dingtitle{定日镜的俯仰角 $\alpha_m$}
+
+定日镜通过水平转轴的转动，其反射镜与水平地面形成的夹角即为定日镜的俯仰角 $\alpha_m$ ，如下图4所示，通过简单的几何推导，我们发现其值与定日镜的法向量与坚直方向形成的夹角相等，若我们已知定日镜中心点的法向量在镜场坐标系下的坐标为 $\vec{e}\left(e_x, e_y, e_z\right)$ ，因此，定日镜的俯仰角 $\alpha_m$ 与其法向量 $\vec{e}\left(e_x, e_y, e_z\right)$ 的关系为：
+\begin{equation}
+\cos \alpha_m=e_z
+\end{equation}
+
+\dingtitle{定日镜的方位角 $\gamma_m$}
+
+定日镜通过纵向转轴的转动，其法向量在水平面的投影与正北方向的夹角即为定日镜的方位角 $\gamma_m$ ，如图5所示，同样地，若我们已知定日镜中心点的法向量在镜场坐标系下的坐标为 $\vec{e}\left(e_x, e_y, e_z\right)$ ，那么定日镜的方位角 $\alpha_m$ 与其法向量 $\vec{e}\left(e_z, e_y, e_z\right)$ 的关系为：
+\begin{equation}
+\tan \gamma_m=\frac{e_x}{e_y}
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/定日镜的俯仰角示意图.pdf}
+        \caption{定日镜的俯仰角示意图}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/定日镜的方位角示意图.pdf}
+        \caption{定日镜的方位角示意图}
+    \end{minipage}
+\end{figure}
+
+\numtitle{定日镜场的年平均光学效率 $\bar{\eta}$}
+
+定日镜的光学效率 $\eta$ 是综合衡量定日镜场工作性能的重要指标，其反映的是在排除各项影响因素之后定日镜实际能反射到集热器上的能量与其理论上能接收到的最大太阳能之比 ${ }^{[2]}$ ，其值受到多个因素的影响，包括阴影遮挡效率 $\eta_{s b}$ 、余弦效率 $\eta_{\text {coss }}$ 、大气透射率 $\eta_{a t}$ 、集热器截断效率 $\eta_{t r u n c}$ 以及镜面反射率 $\eta_{r e f}$ 等，具体的计算公式如下所示：
+\begin{equation}
+\eta=\eta_{s b} \eta_{\mathrm{cos}} \eta_{a t} \eta_{t r u n c} \eta_{r e f}
+\end{equation}
+
+\circtitle{镜面反射率 $\eta_{\text{ref}}$}
+
+镜面反射率与镜面的材料及清洁程度等因素有关，通过查阅资料可知，在大多数
+
+情况下，镜面反射率可取为一个常数，我们取其值为 0.92 ，即：
+\begin{equation}
+\eta_{\mathrm{ref}}=0.92
+\end{equation}
+
+\circtitle{大气透射率 $\eta_{\text{at}}$}
+
+由于光线在大气中传播时，可能受到大气成分和水汽含量的影响，导致一定程度上的能量衰减，通过查阅文献，大气透射率与镜面中心到集热器中心的距离 $d_{H R}$ 有关，其计算公式为：
+\begin{equation}
+\eta_{a t}=0.99321-0.0001176 d_{H R}+1.97 \times 10^{-8} \times d_{H R}^2 \quad\left(d_{H R} \leqslant 1000\right)
+\end{equation}
+
+\circtitle{余弦效率}
+
+入射光线倾斜入射到定日镜所在平面时，与定日镜中心法线存在着夹角 $\theta$ ，如图 6 所示，当 $\theta$ 不为 0 时会产生一定的能量损失，即为余弦损失，减去这部分损失的能量之后即为余弦效率，其计算公式如下所示：
+\begin{equation}
+\eta_{\mathrm{ccsa}}=\cos \theta
+\end{equation}
+
+因此，当入射光线与法线的夹角越大时，余弦效率越低，反之，余弦效率越高。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/余弦效率计算的示意图.pdf}
+    \caption{余弦效率计算的示意图}
+\end{figure}
+
+通过第（2）小节中的求解，我们知道了定日镜的单位法向量为 $\vec{e}$ 以及入射光线的单位向量 $\vec{e}_{in}$ ，因此，夹角 $\theta$ 的余弦值 $\cos \theta=-\vec{e}_{in} \cdot \vec{e}$ ，从而可以求得余弦效率。
+
+\circtitle{阴影遮挡效率$\eta_{sb}$}
+
+阴影遮挡的损失主要包括两个部分：吸收塔与集热器的阴影对太阳光线的遮挡以及前排定日镜对后排定日镜的遮挡，我们对其进行分开考虑。
+
+\dingtitle{吸收塔与集热器的遮挡区域面积 $S_t$}
+
+我们假设吸收塔与集热器构成一个完整的圆柱体，其高为吸收塔的高度 $H_t$ 加上集热器的高度 $H_r$ ，底面直径即为集热器的的直径 $d$ ，在任意时刻，规则圆柱体的影子永远为一矩形，该矩形的长为由圆柱高度和太阳高度角决定，如图7所示，矩形的宽即为圆柱体的底面直径。因此，吸收塔与集热器的阴影区域面积 $S_t$ 的计算公式如下：
+\begin{equation}
+S_t = \frac{(H_t + H_r)}{\tan \alpha_s} \cdot d
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/吸收塔与集热器的影子长度.pdf}
+    \caption{吸收塔与集热器的影子长度}
+\end{figure}
+
+该面积与圆形定日镜场的总面积之比即为吸收塔与集热器的阴影造成的遮挡损失比 $\eta_{a b 1}$ ，即：
+\begin{equation}
+\eta_{a b 1}=\frac{S_t}{S_{\text {镜场 }}}=\frac{\left(H_t+H_r\right) d}{\tan \alpha_s \cdot S_{\text {镜场 }}}
+\end{equation}
+
+\dingtitle{定日镜的遮挡区域面积 $S_m$}
+
+场地中任意定日镜都可能受到前排定日镜对其产生的遮挡，遮挡情况主要分为两种，如图8所示，一种情况是前排定日镜 B 在阳光照射下产生阴影，其阴影在后排定日镜 A 上的投影即为入射光线的遮挡区域，另一种情况是经后排定日镜 A 反射的光线被前排定日镜 B 阻挡，该区域称为反射光线遮挡区域。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/定日镜遮挡的两种情况.pdf}
+    \caption{定日镜遮挡的两种情况}
+\end{figure}
+
+\squatitle{入射遮挡区域 $S_{m1}$}
+
+我们假设定日镜 B 投影在定日镜 A 上的遮挡区域都为规则的矩形，在求解入射遮挡区域时，我们需要知道遮挡区域的四个顶点在定日镜 A 上的坐标，为了便于计算，我们需要进行多次的坐标变换，具体的求解流程图如下所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,keepaspectratio]{figures/求解入射遮挡区域的流程图.pdf}
+    \caption{求解入射遮挡区域的流程图}
+\end{figure}
+
+\plaintitle{镜面直角坐标系}
+
+我们对造成遮挡的定日镜 $B$ 的四个顶点沿入射光线向定日镜 $A$ 所在平面 $S_A$ 投影，以确定入射遮挡区域 $S_{m 1}$ 。为了后续计算的方便，我们建立如下镜面直角坐标系：对于任意一块平面反射镜，以平面镜的中心为坐标原点，过原点的法向量为 $z$ 轴正向，过原点垂直于俯仰轴偏东为 $x$ 轴正向，过原点平行于俯仰轴偏北为 $y$ 轴正向，如下图 10所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/镜面坐标系示意图.pdf}
+    \caption{镜面坐标系示意图}
+\end{figure}
+
+则对于定日镜 $B$ 而言，其四个顶点在镜面坐标系下的坐标分别为：
+\begin{equation}
+P_{Bn}=
+\begin{cases}
+    \left(-\frac{l}{2}, \frac{w}{2}, 0\right)^T & , n=1 \\
+    \left(\frac{l}{2}, \frac{w}{2}, 0\right)^T & , n=2 \\
+    \left(\frac{l}{2},-\frac{w}{2}, 0\right)^T & , n=3 \\
+    \left(-\frac{l}{2},-\frac{w}{2}, 0\right)^T & , n=4
+\end{cases}
+\end{equation}
+
+其中，$l$ 为定日镜 $B$ 的镜面高度，$w$ 为定日镜 $B$ 的镜面宽度。
+
+此外，我们还需要建立镜面坐标系与镜场坐标系之间的转换关系，以此求得这四个顶点在镜场坐标系下的坐标。对于一个俯仰角为 $\alpha_m$ 、方位角为 $\gamma_m$ 的定日镜而言，其镜面坐标系只需要先绕 $x$ 轴逆时针旋转 $90^{\circ}-\alpha_m$ ，再绕 $z$ 轴逆时针旋转 $\gamma_m$ ，加上对应的平移向量即可得到镜场坐标系。由此我们可以求得 $P_{B_n}$ 在镜场坐标系下的坐标 $V_{Bn}$ ：
+\begin{equation}
+    \begin{aligned}
+    V_{Bn} &= R_Z \cdot R_X \cdot \begin{pmatrix}
+    x_n \\
+    y_n \\
+    z_n
+    \end{pmatrix} + C_B \\
+    &= \begin{pmatrix}
+    \cos \gamma_m & \sin \gamma_m \sin \alpha_m & -\sin \gamma_m \cos \alpha_m \\
+    -\sin \alpha_m & \cos \gamma_m \sin \alpha_m & -\cos \gamma_m \cos \alpha_m \\
+    0 & \cos \alpha_m & \sin \alpha_m
+    \end{pmatrix} P_{Bn} + C_B
+    \end{aligned}
+\end{equation}
+
+其中，其中，$n=1,2,3,4, \alpha_m$ 为定日镜的俯仰角，$\gamma_m$ 为定日镜的方位角，$C_B$ 为定日镜 $B$ 的中心点在镜场坐标系下的坐标，$R_Z$ 为坐标轴绕 $z$ 轴旋转产生的旋转矩阵，$R_X$ 为坐标轴绕 $x$ 轴旋转产生的旋转矩阵。
+
+\plaintitle{空间方程}
+
+对于过四个顶点的太阳入射光线的单位向量 $\vec{e}_{in}$ 已知，且过点 $V_{Bn}$ ，其直线方程为：
+\begin{equation}
+\frac{x-x_{Bn}^{\prime}}{\cos \alpha_s \sin \gamma_s}=\frac{y-y_{Bn}^{\prime}}{\cos \alpha_s \cos \gamma_s}=\frac{z-z_{Bn}^{\prime}}{\sin \alpha_s}
+\end{equation}
+
+对于定日镜 $A$ 所在的平面 $S_A$ ，假设其单位法向量为 $\vec{e}_A=\left(a_A, b_A, c_A\right)$ ，且过定日镜中心 $C_A\left(x_A, y_A, z_A\right)$ ，则其平面方程为：
+\begin{equation}
+a_A\left(x-x_A\right)+b_A\left(y-y_A\right)+c_A\left(z-z_A\right)=0
+\end{equation}
+
+\plaintitle{遮挡区域}
+
+通过联立直线方程和平面方程，可以求解 $V_{Bn}$ 沿着光线方向在平面 $S_A$ 上的投影点 $T_{Bn}\left(x_{Bn}^t, y_{Bn}^t, z_{Bn}^t\right)$ ，即：
+\begin{equation}
+    \left\{
+    \begin{aligned}
+    & \frac{x - x_{Bn}^{\prime}}{\cos \alpha \sin \gamma} = \frac{y - y_{Bn}^{\prime}}{\cos \alpha \cos \gamma} = \frac{z - z_{Bn}^{\prime}}{\sin \gamma} \\
+    & a_A (x - x_A) + b_A (y - y_A) + c_A (z - z_A) = 0
+    \end{aligned}
+    \right.
+\end{equation}
+
+然后，我们将求解得到的 $T_{Bn}$ 进行坐标系转换，从地面坐标系转换成定日镜 $A$ 所在平面镜的坐标系，即：
+\begin{equation}
+T_{Bn}^{\prime}=\left(\begin{array}{c}
+x_{Bn}^t{ }^{\prime} \\
+y_{Bn}^t{ }^{\prime} \\
+z_{Bn}^t{ }^{\prime}
+\end{array}\right)=\left(\begin{array}{ccc}
+\cos \gamma_A & -\sin \gamma_A & 0 \\
+\sin \alpha_A \sin \gamma_A & \sin \alpha_A \cos \gamma_A & \cos \alpha_A \\
+-\cos \alpha_A \sin \gamma_A & -\cos \alpha_A \cos \gamma_A & \sin \alpha_A
+\end{array}\right)\left(T_{Bn}-C_A\right)
+\end{equation}
+
+$T_{Bn}^{\prime}$ 即为定日镜 B 在镜面 A 的坐标系下对其产生的入射遮挡区域的顶点坐标，如图 11 所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/定日镜 B 对定日镜 A 的入射遮挡区域.pdf}
+    \caption{定日镜 B 对定日镜 A 的入射遮挡区域}
+\end{figure}
+
+其中，$P_{A n}$ 为定日镜 $A$ 的四个顶点在镜面 A 坐标系下的坐标，$A T_1$ 和 $A T_2$ 分别为 $T_{B 1}^{\prime} T_{B 2}^{\prime}$ 与 $P_{A 1} P_{A 4}$ 和 $T_{B 2}^{\prime} T_{B 3}^{\prime}$ 与 $P_{A 3} P_{A 4}$ 的交点。则定日镜 B 在定日镜 A 上的入射遮挡区域 $S_{\mathrm{m} 1}$ 即为图中阴影部分，其顶点坐标为：
+\begin{equation}
+\left\{\begin{array}{l}
+A T_1\left(-\frac{l}{2}, y_{Bn}^t{ }^{\prime}, 0\right) \\
+T_{B 2}^{\prime}\left(x_{Bn}^t{ }^{\prime}, y_{Bn}^t{ }^{\prime}, 0\right) \\
+A T_2\left(x_{Bn}^t{ }^{\prime},-\frac{w}{2}, 0\right) \\
+P_{A 4}\left(-\frac{l}{2},-\frac{w}{2}, 0\right)
+\end{array}\right.
+\end{equation}
+
+\squatitle{反射遮挡区域 $S_{m 2}$}
+
+与入射遮挡区域的求解类似类似，我们再对定日镜 B 沿反射光线的方向进行投影。由于已知入射光线的单位向量 $\vec{e}_{i n}$ 以及定日镜 B 的单位法向量 $\vec{e}_b$ ，我们可以通过数学推导得到反射光线的单位向量 $\vec{e}_{\text {out }}$ ，其公式如下：
+\begin{equation}
+\vec{e}_{\text {out }}=2\left(\vec{e}_b \cdot \vec{e}_{\text {in }}\right) \times \vec{e}_{\text {in }}-\vec{e}_b=\left(a_{\text {out }}, b_{\text {out }}, c_{\text {out }}\right)
+\end{equation}
+
+那么反射光线的方程为：
+\begin{equation}
+\frac{x-x_{B n}{ }^{\prime}}{a_{\text {ost }}}=\frac{y-y_{B n}{ }^{\prime}}{b_{\text {ost }}}=\frac{z-z_{B n}{ }^{\prime}}{c_{\text {out }}}
+\end{equation}
+
+接下来便采取与入射时同样的步骤，即可求得 $V_{B n}$ 在反射光线方向上的投影点 $K_{B n}\left(x_{B n}^k, y_{B n}^k, z_{B n}^k\right)$ 以及在镜面 A 坐标系下的坐标 $K_{B n}^{\prime}\left(x_{B n}^k{ }^{\prime}, y_{B n}^k{ }^{\prime}, z_{B n}^k{ }^{\prime}\right)$ ，如图 12 所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/定日镜 B 对定日镜 A 的反射遮挡区域.pdf}
+    \caption{定日镜 B 对定日镜 A 的反射遮挡区域}
+\end{figure}
+
+定日镜 B 在定日镜 A 上的出射遮挡区域 $S_{m 2}$ 即为图中阴影部分，其四个顶点坐标为：
+\begin{equation}
+\left\{\begin{array}{l}
+A K_1\left(-\frac{l}{2}, y_n^{k \prime}, 0\right) \\
+K_{B 2}^{\prime}\left(x_n^{k \prime}, y_n^{k \prime}, 0\right) \\
+A K_2\left(x_n^{k \prime},-\frac{w}{2}, 0\right) \\
+P_{A 4}\left(-\frac{l}{2},-\frac{w}{2}, 0\right)
+\end{array}\right.
+\end{equation}
+
+\squatitle{离散化处理定日镜 A}
+
+由于入射光线的遮挡区域和反射光线的遮挡区域可能存在重叠，导致遮挡区域的总面积难以求解，因此我们考虑对被遮挡的定日镜 A 进行离散化处理，统计其中位于遮挡区域内的点。
+
+我们将定日镜 A 的镜面高度和镜面宽度按步长 $\Delta x$ 和 $\Delta y$ 划分成为 $I$ 行 $J$ 列的网格，示意图如图 13 所示，总计 $I \times J$ 个离散点，对于其中任意一个离散点 $P_{i j}$ ，其在定日镜 A 的镜面坐标系下的坐标为：
+\begin{equation}
+\left(\begin{array}{l}
+x_{i j} \\
+y_{i j} \\
+z_{i j}
+\end{array}\right)=\left(\begin{array}{c}
+-\frac{l}{2}+i \Delta x \\
+-\frac{w}{2}+i \Delta y \\
+0
+\end{array}\right)
+\end{equation}
+
+通过遍历 $i$ 和 $j$ ，其中位于入射遮挡区域 $S_{m 1}$ 和反射遮挡区域 $S_{m 2}$ 的点的集合分别为 $Z_{m 1}$ 和 $Z_{m 2}$ ，取二者并集 $Z_m=Z_{m 1} \cup Z_{m 2}$ ，即得到了定日镜 B 对定日镜 A 总遮挡面积包含的离散点的个数 $N_B$ ，其与离散点总个数 $I \times J$ 的比值 $n_{s b 2}$ 即为定日镜的遮挡损失比，
+
+即：
+\begin{equation}
+n_{s s 2}=\frac{N_B}{I \times J}
+\end{equation}
+
+综上所述，阴影遮挡效率即为：
+\begin{equation}
+\eta_{a b}=1-n_{a b 1}-n_{a b 2}=1-\frac{\left(H_t+H_r\right) d}{\tan \alpha_s \cdot S_{\text {铁场 }}}-\frac{N_B}{I \times J}
+\end{equation}
+
+通过遍历所有定日镜 A 以及可能对其造成阴影遮挡的定日镜 B ，分别计算器阴影遮挡效率，然后求和取平均即可求出镜场整体的阴影遮挡损失。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/离散化及遮挡区域计算的示意图.pdf}
+    \caption{离散化及遮挡区域计算的示意图}
+\end{figure}
+
+\circtitle{集热器截断效率 $\eta_{\text {trune }}$}
+
+由于太阳入射光并非完美的平行光，而是具有一定锥形角的一束雉形光线，通过查阅文献可知［3］，该锥形角约为 9.3 mrad ，因此，其反射光线也为一锥形光线，随着距离的增加，锥形光线的横截面不断变大，最后到达集热器时有可能成为一个巨大的雉形光斑，超过了集热器的吸收范围，造成了能量的溢出，进而影响了截断效率，如图 14 所示，
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/锥形光线示意图.pdf}
+    \caption{锥形光线示意图}
+\end{figure}
+
+由题可知，截断效率的计算公式为：
+\begin{equation}
+\eta_{\text {trunc }}=\frac{Q_{\text {rec }}}{Q_{\text {all }}-Q_{s b}}
+\end{equation}
+
+其中，$Q_{\text {rec }}$ 为集热器接收能量，$Q_{\text {all }}$ 为镜面全反射能量，$Q_{\mathrm{ab}}$ 为阴影遮挡损失能量。
+为了简化计算，我们假设所有反射光线携带的能量相同且等于 $q_0$ ，集热器接收的光线个数为 $n_{r e c}$ ，镜面反射的光线个数为 $n_{a l l}$ ，阴影遮挡的光线个数为 $n_{s b}$ ，则 $Q_{r e c}=n_{r e c} q_0$ ， $Q_{a l}=n_{a l l} q_0, Q_{a b}=n_{a b} q_0$ ，代入集热器截断效率的计算公式可得：
+\begin{equation}
+\eta_{\text {trunc }}=\frac{n_{\text {rec }}}{n_{\text {all }}-n_{s b}}
+\end{equation}
+
+由上式可知，若要计算集热器的截断效率，我们就需要去统计集热器接收的光线个数 $n_{\text {ree }}$ 、镜面反射的光线个数 $n_{\text {all }}$ 以及阴影遮挡的光线个数 $n_{s b}$ 。由于入射锥形光线在定日镜上的落点不确定，以及光线在锥形范围内的位置不确定，所以我们采取光线追迹法对光线进行追踪。我们选取了大量光线照射任意一块定日镜 C，之后统计被阴影遮挡的光线个数和集热器接收到的光线个数。
+
+\dingtitle{锥形光束中入射光线的单位向量 $\vec{e}_{\text {in }- \text { shift }}$}
+
+对于任意一组入射到定日镜 C 上的锥形光束，其中心的入射光线与水平地面的夹角即为太阳高度角，为了对锥形光束中的随机入射光线的进行分析，我们建立以锥形入射光线在平面镜的落点为坐标原点、以中心人射光线的反方向为 $z$ 轴正向、以过原点垂直于俯仰轴偏东为 $x$ 轴正向，以过原点垂直于 $x O z$ 向上为 $y$ 轴正向，建立入射光线坐标系，如图 15 所示。
+
+在入射光线坐标系下，对于锥形光束内任意一条入射光线，其方向可以由径向角 $\gamma_t$ 和切向角 $\alpha_t$ 表示，切向角的范围为 $[0,4.65 \mathrm{mrad}]$ 。锥形光束内任意一条入射光线的单位向量 $\vec{e}_{i n-s h i f t}$ 为 $\left(-\sin \alpha_t \sin \gamma_t,-\sin \alpha_t \cos \gamma_t,-\cos \alpha_t\right)^T$ ，通过坐标系转换，我们可以将入射向量在入射坐标系下的坐标转换为地面坐标系下的坐标 $\vec{e}^{\prime}{ }_{i n-s i f i / \ell}$ ，即：
+\begin{equation}
+\vec{e}_{i n-s h i f t}^{\prime}=\left(\begin{array}{c}
+a_{i n s}^{\prime} \\
+b_{i n s}^{\prime} \\
+c_{i n s}^{\prime}
+\end{array}\right)=\left(\begin{array}{ccc}
+\cos \gamma_s & \sin \gamma_s \sin \alpha_s & -\sin \gamma_s \cos \alpha_s \\
+-\sin \alpha_s & \cos \gamma_s \sin \alpha_s & -\cos \gamma_s \cos \alpha_s \\
+0 & \cos \alpha_s & \sin \alpha_s
+\end{array}\right) \vec{e}_{i n-s h i f t}
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth,keepaspectratio]{figures/入射光线坐标系示意图.pdf}
+    \caption{入射光线坐标系示意图}
+\end{figure}
+
+\dingtitle{锥形光束中反射光线的直线方程}
+
+对于定日镜 C ，其中心点坐标为 $C_C\left(x_C, y_C, z_C\right)$ ，单位法向量为 $\vec{e}_c=\left(a_c, b_c, c_c\right)$ ，我们假设雉形光束中的随机入射光线的落点 $P_i$ 在镜面 C 坐标系下的坐标为 $\left(x_{p i}, y_{p i}, z_{p i}\right)$ ，通过坐标变换我们可以得到其在地面坐标系下的坐标 $P_i{ }^{\prime}\left(x^{\prime}{ }_{p i}, y^{\prime}{ }_{p i}, z^{\prime}{ }_{p i}\right)$ 。即：
+\begin{equation}
+P_i^{\prime}=\left(\begin{array}{c}
+x_{p i}^{\prime} \\
+y_{p i}^{\prime} \\
+z_{p i}^{\prime}
+\end{array}\right)=\left(\begin{array}{ccc}
+\cos \gamma_c & \sin \gamma_c \sin \alpha_c & -\sin \gamma_c \cos \alpha_c \\
+-\sin \alpha_c & \cos \gamma_c \sin \alpha_c & -\cos \gamma_c \cos \alpha_c \\
+0 & \cos \alpha_c & \sin \alpha_c
+\end{array}\right) P_i+C_C
+\end{equation}
+
+与前文类似，我们可以将入射光线的单位向量以及平面镜的法向向量通过式（15）求出反射光线的单位向量 $\vec{e}_{\text {out }- \text { shift }}=\left(a_{\text {outs }}, b_{\text {outs }}, c_{\text {outs }}\right)$ ，由因为反射光线经过落点 $P_i{ }^{\prime}$ ，则锥形光束中反射光线的方程为：
+\begin{equation}
+\frac{x-x_{p i}^{\prime}}{a_{\text {outs }}}=\frac{y-y_{p i}^{\prime}}{b_{\text {outs }}}=\frac{z-z_{p i}^{\prime}}{c_{\text {outs }}}
+\end{equation}
+
+\dingtitle{集热器接收范围 $D_R$ 所在的平面方程}
+
+集热器是一个位于塔顶的圆柱体，由于圆柱的底面被塔遮挡，所以不考虑该圆柱的顶面和底面受到的光线，集热器接收雉形反射光线的范围 $D_R$ 仅为集热器圆柱外表面的曲面，即：
+\begin{equation}
+\left\{\begin{array}{l}
+x^2+y^2=\left(\frac{d}{2}\right)^2 \\
+H_T-\frac{1}{2} l_T \leqslant z \leqslant H_T+\frac{1}{2} l_T
+\end{array}\right.
+\end{equation}
+
+其中，$H_T$ 为集热器中心点的高度，$l_T$ 为集热器的高，$d$ 为集热器的直径。
+
+\dingtitle{判断集热器是否接收反射光线}
+
+我们联立反射光线的方程和集热器接受范围的方程，并对该联立方程组是否有解进行判别，通过数学推导，我们得到了判别式如下：
+\begin{equation}
+    \left\{
+    \begin{aligned}
+    & \Delta = 4\left(a_{\text{outs}} x_{pi}^{\prime} + b_{\text{outs}} y_{pi}^{\prime}\right)^2 - 4\left(a_{\text{outs}} + b_{\text{outs}}\right)\left(x_{pi}^{\prime}{}^2 + y_{pi}^{\prime}{}^2 - R^2\right) \\
+    & \frac{H_T - \frac{1}{2} l_T - z_{pi}^{\prime}}{c_{\text{outs}}} \leqslant \frac{-\left(a_{\text{outs}} x_{pi}^{\prime} + b_{\text{outs}} y_{pi}^{\prime}\right) \pm \sqrt{\Delta}}{2\left(a_{\text{outs}} + b_{\text{outs}}\right)} \leqslant \frac{H_T + \frac{1}{2} l_T - z_{pi}^{\prime}}{c_{\text{outs}}}
+    \end{aligned}
+    \right.
+\end{equation}
+
+若满足以上条件，则说明方程组有解，集热器吸收了反射光线，若不满足，则说明方程组无解，集热器没有吸收到反射光线。
+
+\dingtitle{计算截断效率 $\eta_{\text {trane }}$}
+
+我们随机选取 $n_{\text {all }}$ 条光锥光束内的入射光线，统计其中被集热器接收到的光线的个数为 $n_{r e c}$ 以及位于阴影遮挡区域的个数为 $n_{s b}$ ，则截断效率 $\eta_{t r u n c}$ 为：
+\begin{equation}
+\eta_{t r u n c}=\frac{n_{r e c}}{n_{a l l}-n_{s b}}
+\end{equation}
+
+\circtitle{年平均光学效率 $\bar{\eta}$}
+
+通过上述对阴影遮挡效率 $\eta_{s b}$ 、余弦效率 $\eta_{c o s}$ 、大气透射率 $\eta_{a t}$ 、集热器截断效率 $\eta_{t r u n c}$ 以及镜面反射率 $\eta_{r e f}$ 等的计算，我们可以求得每一块定日镜的光学效率 $\eta$ ，则该定日镜场的年平均光学效率 $\bar{\eta}$ 的计算公式为：
+\begin{equation}
+\bar{\eta}=\frac{\sum_{i-1}^{12} \sum_{j-1}^5 \sum_{k-1}^N \eta_{i j k}}{60 N}
+\end{equation}
+
+其中，$i$ 表示月份，$j$ 表示一天中五个特定的时刻，$N$ 表示定日镜的总个数。
+
+\numtitle{定日镜场的年平均输出热功率 $\bar{E}_{f i e l d}$ 及单位面积镜面年平均输出热功率 $\bar{E}_u$}
+
+定日镜场的发电原理是通过集热器吸收经定日镜反射的光线从而将光能转化成热能，并进一步转换成电能，整个定日镜场在某一时刻下的输出热功率 $E_{\text {field }}$ 的计算公式如下：
+\begin{equation}
+E_{f i e l d}=D N I \cdot \sum_{k=1}^N A_k \eta_k
+\end{equation}
+
+其中，$E_{\text {field }}$ 表示在某一时刻下整个定日镜场的输出热功率，$D N I$ 表示法向直接辐射辐照度，$A_k$ 表示第 $k$ 面定日镜的采光面积，即定日镜的镜面高度乘上镜面宽度，$\eta_k$表示第 $k$ 面定日镜在该时刻下的光学效率，$N$ 表示定日镜的总数目。
+
+\circtitle{法向直接辐射辐照度 $D N I$}
+
+法向直接辐射辐照度指的是在地球上垂直于太阳光线的平面在单位面积以及单位时间内接收到的太阳辐射能量，其近似计算公式如下所示：
+\begin{equation}
+\left\{\begin{array}{l}
+D N I=G_0\left[a+b \exp \left(-\frac{c}{\sin \alpha_s}\right)\right] \\
+a=0.4237-0.00821(6-H)^2 \\
+b=0.5055+0.00595(6.5-H)^2 \\
+c=0.2711+0.01858(2.5-H)^2
+\end{array}\right.
+\end{equation}
+
+其中，$D N I$ 表示法向直接辐射辐照度，$G_0$ 表示太阳常数，其取值为一定值： $1.366 \mathrm{~kW} \\ / \mathrm{m}^2, H$ 为当地的海拔高度，单位为 $k m$ 。
+
+\circtitle{采光面积 $A_k$}
+
+对于每一块定日镜而言，其采光面积即为镜面高度 $l_k$ 乘上镜面宽度 $w_k$：
+\begin{equation}
+A_k=l_k \cdot w_k
+\end{equation}
+
+通常而言，定日镜的镜面高度不大于镜面宽度，但在本问中，每一面定日镜的镜面高度都与镜面宽度相等，其值都为 6 m ，且所有定日镜的尺寸均相同。
+
+\circtitle{年平均输出热功率 $\bar{E}_{\text {field }}$}
+
+通过式（22），我们可以求得某一时刻下定日镜场的输出热功率，通过对题目所要求的每月 21 日 5 个特定时刻所有定日镜的输出热功率的求解，再求和取平均，我们即可得到该定日镜场的年平均输出热功率 $\bar{E}_{f i e l d}$ ，其计算公式如下所示：
+\begin{equation}
+\bar{E}_{f i e l d}=\frac{\sum_{i=1}^{12} \sum_{j=1}^5 \sum_{k=1}^N D N I_{i j} \cdot A_k \cdot \eta_{i j k}}{60}
+\end{equation}
+
+其中，$D N I_{i j}$ 表示第 $i$ 月 21 日的第 $j$ 个时刻的法向直接辐射照度，$\eta_{i j k}$ 表示第 $i$ 月 21 日的第 $j$ 个时刻下第 $k$ 面定日镜的光学效率，$A_k$ 表示第 $k$ 面定日镜的面积，$N$ 为定日镜的总数。
+
+\circtitle{单位面积镜面年平均输出热功率 $\bar{E}_u$}
+
+在年平均输出热功率的基础上，只需要除以所有定日镜的面积总和即可得到单位面积镜面年平均输出热功率，又因为本问中所有定日镜的尺寸相同，因此表达式可以写成如下形式：
+\begin{equation}
+\bar{E}_u=\frac{\bar{E}_{\text {field }}}{\sum_{k=1}^N A_k}=\frac{\sum_{i=1}^{12} \sum_{j=1}^5 \sum_{k=1}^N D N I_{i j} \cdot A_k \cdot \eta_{i j k}}{60 \cdot N \cdot A_k}=\frac{\sum_{i=1}^{12} \sum_{j=1}^5 \sum_{k=1}^N D N I_{i j} \cdot \eta_{i j k}}{60 N}
+\end{equation}
+
+\subsubsection{模型的求解}
+
+通过把题目提供的数据代入到问题一建立的模型里，我们可以直接求得太阳高度角、太阳方位角、定日镜俯仰角以及定日镜方位角等，唯一我们无法直接求得的是集热器的截断效率，因为截断效率需要我们随机给出锥形光线来进行计算，因此我们采用蒙特卡洛算法来计算集热器的截断效率。
+
+\numtitle{蒙特卡洛算法求集热器截断效率}
+
+蒙特卡洛算法通过模拟锥形光线的行为来计算集热器的截断效率，具体步骤如下：
+
+\begin{algorithmsteps}{蒙特卡洛算法步骤}
+    \addstep{生成随机入射光线向量}{对于雉形入射光线，由于其切向角不超过 $4.3 \times 10^{-3}$，故我们在其范围内随机生成一条入射光线向量。}
+    \addstep{生成随机反射点，确定反射光线方程}{我们在当前的定日镜上随机取一点作为反射点，通过问题一模型我们可以算出该定日镜平面的法向量，结合步骤 1 生成的入射光线向量，我们可以求解出在该点的反射光线方程。}
+    \addstep{判断是否相交}{我们将集热器的曲面方程与反射光线方程联立，通过有无实数解可以判断该反射光线是否落在集热器上。}
+    \addstep{计算频率，近似概率}{重复上述步骤 1 至 3 操作 10000 次，计算出相交次数 $n$，$n / 10000$ 即为该定日镜的截断效率。}
+\end{algorithmsteps}
+
+\vspace{2em}
+
+\begin{algchunk}{蒙特卡洛截断效率估计}
+    \textbf{输入：} 定日镜信息（位置、姿态、尺寸等）、集热器曲面方程、最大锥角 $\theta_{\max}=4.3\times10^{-3}\,\mathrm{rad}$
+  
+    \textbf{输出：} 截断效率 $\eta_{\mathrm{trunc}}$
+  
+    \medskip
+    \textbf{步骤一：参数初始化}\par
+    设定总试验次数 $N\gets 10000$；相交计数 $M\gets 0$；初始化随机数生成器。
+  
+    \medskip
+    \textbf{步骤二：随机入射光线的生成（一次试验）}\par
+    \begin{enumerate}
+      \item 采样切向偏角 $\theta \sim \mathcal{U}(0,\theta_{\max})$，方位角 $\phi \sim \mathcal{U}(0,2\pi)$。
+      \item 构造单位入射方向向量（以定日镜坐标系的光轴为 $+z$）：
+        \[
+          \boldsymbol{d}_{\mathrm{in}}=
+          \begin{bmatrix}
+            \sin\theta\cos\phi\\[2pt]
+            \sin\theta\sin\phi\\[2pt]
+            \cos\theta
+          \end{bmatrix}.
+        \]
+    \end{enumerate}
+  
+    \medskip
+    \textbf{步骤三：计算反射光线}\par
+    \begin{enumerate}
+      \item 在定日镜有效反射面上随机选取一点 $\boldsymbol{p}_r$（均匀采样镜面区域）。
+      \item 计算该点镜面法向量 $\boldsymbol{n}=\mathrm{Normal}(\text{定日镜信息},\boldsymbol{p}_r)$，并单位化。
+      \item 由镜面反射定律：
+        \[
+          \boldsymbol{d}_{\mathrm{ref}}
+          =\boldsymbol{d}_{\mathrm{in}}
+          -2\bigl(\boldsymbol{d}_{\mathrm{in}}\cdot\boldsymbol{n}\bigr)\,\boldsymbol{n}.
+        \]
+      \item 反射光线参数方程：
+        \[
+          \boldsymbol{\ell}(t)=\boldsymbol{p}_r+t\,\boldsymbol{d}_{\mathrm{ref}},\quad t\ge 0.
+        \]
+    \end{enumerate}
+  
+    \medskip
+    \textbf{步骤四：与集热器曲面相交性判断}\par
+    \begin{enumerate}
+      \item 将 $\boldsymbol{\ell}(t)$ 代入集热器曲面方程 $F(x,y,z)=0$，求解实数 $t\ge 0$ 的根。
+      \item 若存在至少一组实根且对应点满足集热器有效接收域的几何约束，则令 $M\gets M+1$。
+    \end{enumerate}
+  
+    \medskip
+    \textbf{步骤五：蒙特卡洛循环}\par
+    \begin{enumerate}
+      \item 对 $i=1,2,\dots,N$ 重复执行“步骤二—步骤四”。
+    \end{enumerate}
+  
+    \medskip
+    \textbf{步骤六：截断效率计算与输出}\par
+    \[
+      \eta_{\mathrm{trunc}}=\frac{M}{N}.
+    \]
+    输出 $\eta_{\mathrm{trunc}}$。
+  \end{algchunk}
+
+\numtitle{求解结果及分析}
+通过 MATLAB 求解，我们计算出了每月 21 日平均光学效率及输出功率以及年平均光学效率及输出功率，如下表 1、表 2 所示。
+
+{\normalsize
+    \begin{longtable}
+        {p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{100pt}<{\centering}}
+        \caption{问题一每月21日平均光学效率及输出功率}\\
+        \hline
+        \rowcolor{gray!20}  
+        日期 & 平均光学效率 & 平均余弦效率 & 平均阴影遮挡效率 & 平均截断效率 & 单位面积镜面平均输出热功率 \\
+        \hline
+        \endfirsthead
+        \rowcolor{gray!20}  
+        日期 & 平均光学效率 & 平均余弦效率 & 平均阴影遮挡效率 & 平均截断效率 & 单位面积镜面平均输出热功率 \\
+        \hline
+        \endhead
+        \hline
+        \multicolumn{6}{r}{\textit{续下页}} \\
+        \endfoot
+        \hline
+        \endlastfoot
+        1月21日 & 0.5898 & 0.7227 & 0.9877 & 0.9307 & 0.5124 \, $\mathrm{kW/m^2}$ \\
+        2月21日 & 0.6110 & 0.7436 & 0.9949 & 0.9303 & 0.5755 \, $\mathrm{kW/m^2}$ \\
+        3月21日 & 0.6309 & 0.7647 & 0.9984 & 0.9308 & 0.6272 \, $\mathrm{kW/m^2}$ \\
+        4月21日 & 0.6503 & 0.7832 & 1.0000 & 0.9352 & 0.6689 \, $\mathrm{kW/m^2}$ \\
+        5月21日 & 0.6631 & 0.7934 & 1.0000 & 0.9415 & 0.6926 \, $\mathrm{kW/m^2}$ \\
+        6月21日 & 0.6679 & 0.7965 & 1.0000 & 0.9445 & 0.7006 \, $\mathrm{kW/m^2}$ \\
+        7月21日 & 0.6630 & 0.7933 & 1.0000 & 0.9414 & 0.6923 \, $\mathrm{kW/m^2}$ \\
+        8月21日 & 0.6495 & 0.7825 & 1.0000 & 0.9349 & 0.6673 \, $\mathrm{kW/m^2}$ \\
+        9月21日 & 0.6301 & 0.7636 & 0.9983 & 0.9309 & 0.6249 \, $\mathrm{kW/m^2}$ \\
+        10月21日 & 0.6085 & 0.7409 & 0.9942 & 0.9304 & 0.5683 \, $\mathrm{kW/m^2}$ \\
+        11月21日 & 0.5878 & 0.7209 & 0.9869 & 0.9305 & 0.5063 \, $\mathrm{kW/m^2}$ \\
+        12月21日 & 0.5793 & 0.7136 & 0.9831 & 0.9300 & 0.4795 \, $\mathrm{kW/m^2}$ \\
+        \hline
+    \end{longtable}
+}
+
+{\small
+    \begin{longtable}
+        {p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{80pt}<{\centering}}
+        \caption{年平均光学效率及输出功率}\\
+        \hline
+        \rowcolor{gray!20}  
+        年份 & 年平均光学效率 & 年平均余弦效率 & 年平均阴影遮挡效率 & 年平均截断效率 & 单位面积镜面年平均输出热功率 \\
+        \hline
+        \endfirsthead
+        \rowcolor{gray!20}  
+        年份 & 年平均光学效率 & 年平均余弦效率 & 年平均阴影遮挡效率 & 年平均截断效率 & 单位面积镜面年平均输出热功率 \\
+        \hline
+        \endhead
+        \hline
+        \multicolumn{6}{r}{\textit{续下页}} \\
+        \endfoot
+        \hline
+        \endlastfoot
+        全年 & 0.6275 & 0.7599 & 0.9952 & 0.9342 & 0.6096 \, $\mathrm{kW/m^2}$ \\
+        \hline
+    \end{longtable}
+}
+
+\plaintitle{结果分析}
+
+\circtitle{对月平均光学效率的分析}
+我们将一年中每月 21 日平均光学效率以折线图的形式表示，如下图所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/各个月份的平均光学效率.pdf}
+    \caption{各个月份的平均光学效率}
+\end{figure}
+
+通过分析图像 16 ，我们发现有以下结论：
+
+\dingtitle[]{大气透射率和镜面反射率随月份没有变化，}这是由于大气透射率仅与各定日镜中心到集热器中心的距离有关，当定日镜位置确定后，平均大气透射率就确定为一个常数。而镜面反射率按照前文的分析，也确定为一个常数。
+
+\dingtitle[]{平均阴影遮挡效率极高，接近于 1。}这是由于定日镜之间距离间隔较大，阴影遮挡损失极小，阴影遮挡效率仅受到吸热塔对定日镜的阴影遮挡造成的影响。
+
+\dingtitle[]{平均截断效率相对较高，}在 6 月时最高达到 0.94 左右，这是由于定日镜的大小于集热器的坚截面矩形的大小近似，溢出的面积较小，截断损失较小。此外，我们发现平均截断效率关于 6 月对称分布，这是由于光斑大小与入射光线的方向有关，即与太阳高度角有关，而太阳高度角关于 6 月对称分布。
+
+\dingtitle[]{平均余弦效率相对较低，}在 6 月时最高，但仅为 0.8 左右，这是由于平均余弦效率取决于太阳入射角的余弦值，考虑到定日镜与吸热塔的距离等因素，太阳入射角往往较大，余弦值往往较小，因此平均余弦效率相对较小。与平均截断效率类似，平均余弦效率关于 6 月对称分布，这也是太阳高度角关 6 月对称分布导致的。
+
+\dingtitle[]{平均光学效率的变化情况与平均余弦效率的分布类似，}这是由于平均余弦效率之外的其他效率都较高，接近于 1 ，因此我们认为仅有平均余弦效率对平均光学效率造成了显著影响。
+
+\circtitle{对不同定日镜年平均光学效率的分析}
+
+此外，我们还将所有定日镜从最内层最东侧的定日镜开始沿逆时针确定序号，计算了每块定日镜的年平均光学效率，如下图 17 所示。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/每块定日镜的年平均光学效率.pdf}
+    \caption{每块定日镜的年平均光学效率}
+\end{figure}
+
+图中的每个波峰表示定日镜分布的其中一层，我们发现由内层到外层，定日镜的年平均光学效率逐渐下降，此外，我们还发现每一层的平均光学的效率分布大致相同。因此，我们取其中的最内层的定日镜进行局部范围分析，如下图 18 所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/最内层定日镜的年平均光学效率.pdf}
+    \caption{最内层定日镜的年平均光学效率}
+\end{figure}
+
+通过分析上图 18 ，我们发现对于最内层的定日镜而言，其平均光学效率的分布近似于正弦分布，且位于北方的定日镜光学效率整体较高，在序号 15 处即在正北方向处达到最大。而在东西方向上，平均光学效率呈对称分布，对整体光学效率的影响相互抵消。我们由此推测，如果需要对定日镜的分布进行优化，应将定日镜尽可能摆放在吸热塔的北方。
+
+为了进一步验证该结论，我们选取了春分日 3 月 21 日上午 10 点时，所有定日镜的年平均光学效率在地面二维坐标系上的分布情况，如下图。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/问题一中春分日3 月21 日上午10 点时所有定日镜的年平均光学效率.pdf}
+    \caption{问题一中春分日3 月21 日上午10 点时所有定日镜的年平均光学效率}
+\end{figure}
+
+可以发现太阳入射光线在地面上的落点处附近的年平均光学效率相对较高，由该地的纬度为北纬 $39.4^{\circ}$ ，在北回归线以北，太阳始终位于吸热塔南方，所以太阳入射光线落点始终位于吸热塔北方，因此偏北的定日镜年平均光学效率相对较高，与我们的推测一致。如果需要对定日镜的分布进行优化，应将定日镜尽可能摆放在吸热塔北方。
+
+\subsubsection{模型检验}
+
+通过查阅文献可知，单位镜面面积年平均输出功率和定日镜场年平均输出功率与镜面的尺寸存在相关性，由于本问中定日镜的高度和宽度相等，因此我们只需要对镜面宽度进行一定范围内的调整，计算调整后的单位镜面面积年平均输出功率和定日镜场年平均输出功率，如下图 20 所示：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,keepaspectratio]{figures/年平均输出功率与定日镜宽度的关系.pdf}
+    \caption{年平均输出功率与定日镜宽度的关系}
+\end{figure}
+
+通过对上图分析，我们发现随着镜面宽度增大，单位镜面面积年平均输出功率减小，年平均输出功率增大，这与实际情况相符合，这证明了模型的准确性。
+
+此外，我们发现当定日镜宽度增加了 3 米时，单位镜面面积年平均输出功率减少了 0.12 千瓦每平方米，年平均输出功率增加了 30 兆瓦，均存在较大的变化幅度，说明单位镜面面积年平均输出功率和年平均输出功率对镜面宽度敏感，证明了我们模型的灵敏性。
+"""
+<-----我的参考范文----->
+
+参考我的目录结构，参考我的解题代码：
+<-----我的目录结构、我的解题代码----->
+"""
+
+"""
+<-----我的目录结构、我的解题代码----->
+
+兼顾我目前的论文内容：
+<-----我目前的论文内容----->
+"""
+
+"""
+<-----我目前的论文内容----->

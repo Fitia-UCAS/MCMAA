@@ -1,0 +1,114 @@
+提示词：
+<-----我的提示词----->
+"""
+用中文回答。
+
+我们只进行论文部分问题四的模型建立与求解部分的重写或编写，而不关注其他部分。
+
+请你用我提供的语法、仿照我的参考范文的样式仿写。
+
+禁止使用"\noindent\textbf{1. 坐标系与螺线方程}"这种编号的方法。这是不被允许的。
+
+用下面这些命令\numtitle[]{标题}、\circtitle[]{标题}、\dingtitle[]{标题}、\squatitle[]{标题}：
+
+    """
+    % 1. 标题命令
+    % 以下命令用于生成带特定前缀和格式的标题，适用于论文中不同层级的标题。命令之间存在层级关系，通常按以下顺序使用：
+    %   - \numtitle[]{标题}：一级标题，生成带括号数字编号的标题，如 (1) 标题，用于最高层级（每个\subsubsection{标题}重置计数）
+    %     - 示例：\numtitle{太阳的高度角和方位角} 生成 (1) 太阳的高度角和方位角
+    %     - 示例：\numtitle[]{太阳的高度角和方位角} 生成 (1) 太阳的高度角和方位角（不换行）
+    %
+    %   - \circtitle[]{标题}：二级标题，生成带圈数字编号的标题，如 ① 标题，用于次级主题（每个\numtitle后重置计数）
+    %     - 示例：\circtitle{太阳高度角} 生成 ① 太阳高度角
+    %     - 示例：\circtitle[]{太阳高度角} 生成 ① 太阳高度角（不换行）
+    %
+    %   - \dingtitle[]{标题}：三级标题，生成带丁字形符号和数字编号的标题，如 ● 1. 标题，用于更细分的主题（每个\circtitle后重置计数）
+    %     - 示例：\dingtitle{太阳赤纬} 生成 ● 1. 太阳赤纬
+    %     - 示例：\dingtitle[]{太阳赤纬} 生成 ● 1. 太阳赤纬（不换行）
+    %
+    %   - \squatitle[]{标题}：四级标题，生成带方框和罗马数字编号的标题，如 ■ i. 标题，用于最细分的主题（每个\dingtitle后重置计数）
+    %     - 示例：\squatitle{入射遮挡区域} 生成 ■ i. 入射遮挡区域
+    %     - 示例：\squatitle[]{入射遮挡区域} 生成 ■ i. 入射遮挡区域（不换行）
+    """
+
+如果有算法步骤的语法就用\begin{algorithmsteps}{xxx求解步骤}，示例如下：
+    """
+    \begin{algorithmsteps}{舞龙队位置与速度求解步骤}
+        \addstep{初始化参数}{设定螺线参数 $k = \frac{0.55}{2\pi}$，龙头速度 $v_h = 1 \, \text{m/s}$，初始极角 $\theta_s = 32\pi$，龙头长度 $l_h = 3.41 \, \text{m}$，龙身和龙尾长度 $l_b = 2.20 \, \text{m}$。}
+        \addstep{计算龙头极角}{对于每一秒 $t = 0, 1, \dots, 300$，通过数值方法求解公式 (8)，得到龙头前把手的极角 $\theta_h(t)$。}
+        \addstep{递推节点极角}{根据公式 (11) 和 (12)，通过数值方法（如 MATLAB 的 fsolve 函数）依次求解各节点的极角 $\theta_i$（$i = 1, 2, \dots, 223$）。}
+        \addstep{计算节点速度}{根据公式 (14)，从龙头速度 $v_h = 1 \, \text{m/s}$ 开始，递推计算各节点的速度 $v_i$。}
+        \addstep{计算节点位置}{利用公式 (15)，将各节点的极角 $\theta_i$ 转换为直角坐标 $(x_i, y_i)$。}
+        \addstep{存储结果}{将各节点的位置 $(x_i, y_i)$ 和速度 $v_i$ 存储到结果文件中，保留 6 位小数。}
+    \end{algorithmsteps}
+    """
+
+如果有算法就用\begin{algchunk}{算法标题}...\end{algchunk}，示例如下：
+
+    """
+    \begin{algchunk}{Monte Carlo Estimation of Truncation Efficiency}
+        \textbf{Input:} Heliostat information (position, orientation, size, etc.); receiver surface equation $F(x,y,z)=0$; maximum cone angle $\theta_{\max}=4.3\times10^{-3}\,\mathrm{rad}$
+        
+        \textbf{Output:} Truncation efficiency $\eta_{\mathrm{trunc}}$
+        
+        Initialize $N \gets 10000$, $M \gets 0$, and random number generator.
+        
+        \For{$i=1$ to $N$}{
+            Sample $\theta \sim \mathcal{U}(0,\theta_{\max})$, $\phi \sim \mathcal{U}(0,2\pi)$\;
+            $\boldsymbol{d}_{\mathrm{in}} \gets (\sin\theta\cos\phi,\;\sin\theta\sin\phi,\;\cos\theta)$\;
+        
+            Sample a point $\boldsymbol{p}_r$ uniformly on heliostat surface\;
+            Compute unit normal $\boldsymbol{n}$ at $\boldsymbol{p}_r$\;
+            $\boldsymbol{d}_{\mathrm{ref}} \gets \boldsymbol{d}_{\mathrm{in}} - 2(\boldsymbol{d}_{\mathrm{in}}\cdot \boldsymbol{n})\boldsymbol{n}$\;
+            Define ray $\boldsymbol{\ell}(t)=\boldsymbol{p}_r+t\boldsymbol{d}_{\mathrm{ref}},\;t\ge0$\;
+        
+            Substitute $\boldsymbol{\ell}(t)$ into $F(x,y,z)=0$, solve for $t\ge0$\;
+            \If{a real root exists and intersection point lies in receiver domain}{
+                $M \gets M+1$\;
+            }
+        }
+        
+        Compute $\eta_{\mathrm{trunc}} \gets M/N$\;
+        \Return $\eta_{\mathrm{trunc}}$\;
+    \end{algchunk}
+    """
+
+参考参考范文的逻辑连词，分析方法，但是不要参考里面的内容（参考范文的内容与我们要解决的问题无关）返回重写或编写后的模型建立与求解部分内容（不要综上所述，也不要例如什么什么文件，这些都不是关键的；“如最大起跳力906.5,N，方向90°”这种类似的话术出现在结果中的也不要）你应该返回latex代码；不要中英文混用；用中文输出，不要markdown和latex混用####这些不要；同时你应该兼顾我现有的论文的部分；每个公式都要用\begin{equation}编号，所有符号都用$$包裹而不是用\(和\)；latex中没有“**”加粗的用法；列表的话用\begin{enumerate}；但是针对模型建立的时候我们需要手动编号用\noindent\textbf{1.xxx}；求解步骤那里不用\begin{enumerate}而是手动编号\noindent\textbf{Step.1};\noindent\textbf{Step.2};\noindent\textbf{Step.3}...这种； 不要“未来怎么怎么样”这种我们只针对当前的模型就好。
+
+返回问题四的模型建立与求解部分的编写。
+<-----我的提示词----->
+
+题目内容：
+<-----我的题目内容----->
+"""
+
+"""
+<-----我的题目内容----->
+
+我的内容架构：
+<-----我的内容架构----->
+"""
+
+"""
+<-----我的内容架构----->
+
+参考范文：
+<-----我的参考范文----->
+"""
+
+"""
+<-----我的参考范文----->
+
+参考我的目录结构，参考我的解题代码：
+<-----我的目录结构、我的解题代码----->
+"""
+
+"""
+<-----我的目录结构、我的解题代码----->
+
+兼顾我目前的论文内容：
+<-----我目前的论文内容----->
+"""
+
+"""
+<-----我目前的论文内容----->
