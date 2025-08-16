@@ -2,39 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-AgentBridge — 将 MathModelAgentClient 接入到 WorkbenchController 的最小适配层
-================================================================================
-使用方式
---------
-1) 将本文件保存为：controller/agent_bridge.py
-2) 修改 controller/workbench_controller.py：
-   - 增加导入：
-       from controller.agent_bridge import AgentBridge
-   - 让 WorkbenchController 继承该混入：
-       class WorkbenchController(AgentBridge):
-           def __init__(self):
-               AgentBridge.__init__(self)
-               ... 原有初始化 ...
-3) 在 View 层注册回调（示例）——比如在 Screen_Workbench.__init__ 里：
-       ctrl.set_agent_handlers(
-           on_status=lambda s: self._show_status(s),
-           on_message=lambda m: self._append_console(m),
-           on_error=lambda e: self._show_error(e),
-       )
-4) 连接与发送：
-       ctrl.agent_connect(url, token="xxx")
-       ctrl.agent_send_json({"type":"ping"})
-       resp = ctrl.agent_request({"type":"infer","payload":{"text":"hello"}}, timeout=15)
+AgentBridge — 适配 MathModelAgent 的两段式客户端（HTTP 提交 + WS 订阅）
+------------------------------------------------------------------
+- agent_connect(base_url, ws_base, ...): 仅初始化客户端，不立刻连 WS
+- agent_submit_and_connect(...): HTTP 提交建模 -> 获得 task_id -> 连接该任务的 WS
+- agent_connect_task(task_id): 已有 task_id 时，直接连该任务的 WS
+- agent_close(): 断开
+- agent_send_json(): 若后端/客户端支持任务流上的下行消息，则可发送；多数部署会不支持
+- agent_request(): 标记为不支持（raise NotImplementedError）
 
-备注
-----
-- 采用后台线程 + 回调通知；回调均在接收线程里触发，如需切 UI 线程请在 View 层自行调度（tkinter 用 after）。
-- 维护最近 N 条消息缓存（默认 200）以便 View 拉取。
-- 仅依赖 service.agents.mathmodelagent_client.MathModelAgentClient。
+保留：
+- set_agent_handlers(on_status/on_message/on_error)
+- 最近消息缓存、状态/错误查询
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Deque, Dict, Optional
+from typing import Any, Callable, Deque, Dict, Optional, Iterable, Tuple
 from collections import deque
 import logging
 import ssl
@@ -57,6 +40,13 @@ class AgentBridge:
         self._agent_last_error: Optional[str] = None
         self._agent_msgs: Deque[Any] = deque(maxlen=200)
 
+        # 任务态
+        self._current_task_id: Optional[str] = None
+        self._base_url: Optional[str] = None
+        self._ws_base: Optional[str] = None
+        self._token: Optional[str] = None
+        self._proxy: Optional[str] = None
+
         # 回调（由 View 注入）
         self._cb_on_status: Optional[Callable[[str], None]] = None
         self._cb_on_message: Optional[Callable[[Any], None]] = None
@@ -73,28 +63,39 @@ class AgentBridge:
         self._cb_on_message = on_message
         self._cb_on_error = on_error
 
-    # ------------------------ 连接管理 ------------------------
+    # ------------------------ 连接管理（初始化阶段） ------------------------
     def agent_connect(
         self,
-        url: str,
+        base_url: str,
+        ws_base: Optional[str] = None,
         token: Optional[str] = None,
         proxy: Optional[str] = None,
         ping_interval: float = 20.0,
         insecure_skip_tls_verify: bool = False,
     ) -> None:
-        """建立到 Agent 的 WebSocket 连接。后台线程运行。"""
+        """
+        初始化客户端（不立刻建立 WS 连接）。
+        - base_url: HTTP 基地址，如 http://127.0.0.1:8000
+        - ws_base:  WS 基地址，如 ws://127.0.0.1:8000；不传则由 base_url 推断
+        """
         self.agent_close()
+
+        self._base_url = base_url.strip().rstrip("/")
+        self._ws_base = (ws_base or "").strip().rstrip("/") or None
+        self._token = (token or "").strip() or None
+        self._proxy = (proxy or "").strip() or None
 
         sslopt = {"cert_reqs": ssl.CERT_NONE} if insecure_skip_tls_verify else None
         self._agent = MathModelAgentClient(
-            url=url,
-            token=token,
-            proxy=proxy,
+            base_url=self._base_url,
+            ws_base=self._ws_base,
+            token=self._token,
+            proxy=self._proxy,
             ping_interval=ping_interval,
             sslopt=sslopt,
         )
 
-        # 绑定底层回调
+        # 绑定底层回调（这些回调在 WS 线程里触发；若要切 UI 线程请在 View 层 after）
         @self._agent.on_open
         def _opened():
             self._agent_connected = True
@@ -128,10 +129,54 @@ class AgentBridge:
         def _reconn(attempt: int, delay: float):
             self._set_status(f"reconnecting #{attempt} in {delay:.1f}s")
 
-        # 后台线程启动
-        self._set_status("connecting...")
-        self._agent.connect(block=False)
+        # 仅初始化，不连 WS
+        self._current_task_id = None
+        self._set_status("ready")
 
+    # ------------------------ 提交并连接（推荐流程） ------------------------
+    def agent_submit_and_connect(
+        self,
+        problem_text: str,
+        files: Optional[Iterable[Tuple[str, Tuple[str, Any, str]]]] = None,
+        template: str = "mcm",
+        output_format: str = "latex",
+        language: str = "zh",
+        extra_form: Optional[Dict[str, Any]] = None,
+        timeout: float = 60.0,
+    ) -> str:
+        """
+        1) HTTP 提交建模 -> 获得 task_id
+        2) 连接该 task 的 WS 流（后台线程）
+        :return: task_id
+        """
+        if not self._agent:
+            raise RuntimeError("agent is not initialized, call agent_connect(base_url, ...) first")
+
+        self._set_status("submitting...")
+        task_id = self._agent.submit_modeling(
+            problem_text=problem_text,
+            files=files,
+            template=template,
+            output_format=output_format,
+            language=language,
+            extra_form=extra_form,
+            timeout=timeout,
+        )
+        self._current_task_id = task_id
+
+        self._set_status(f"connecting task {task_id}...")
+        self._agent.connect_task_ws(task_id, block=False)
+        return task_id
+
+    # ------------------------ 已有 task_id 时直接连接 ------------------------
+    def agent_connect_task(self, task_id: str) -> None:
+        if not self._agent:
+            raise RuntimeError("agent is not initialized, call agent_connect(base_url, ...) first")
+        self._current_task_id = task_id.strip()
+        self._set_status(f"connecting task {self._current_task_id}...")
+        self._agent.connect_task_ws(self._current_task_id, block=False)
+
+    # ------------------------ 断开 ------------------------
     def agent_close(self) -> None:
         if self._agent:
             try:
@@ -141,26 +186,41 @@ class AgentBridge:
             finally:
                 self._agent = None
         self._agent_connected = False
+        self._current_task_id = None
         self._set_status("disconnected")
 
     def agent_is_connected(self) -> bool:
         return bool(self._agent and self._agent.is_connected())
 
-    # ------------------------ 发送 API ------------------------
+    # ------------------------ 发送 API（多数后端不支持） ------------------------
     def agent_send_text(self, text: str) -> None:
+        """
+        若底层客户端实现了 send_text，则透传；否则抛出“不支持”。
+        注意：MathModelAgent 的任务 WS 通道通常为只读流。
+        """
         if not self._agent:
             raise RuntimeError("agent not connected")
-        self._agent.send_text(text)
+        if not hasattr(self._agent, "send_text"):
+            raise NotImplementedError("current backend does not accept client->server messages on task stream")
+        self._agent.send_text(text)  # type: ignore[attr-defined]
 
     def agent_send_json(self, payload: Dict[str, Any]) -> None:
+        """
+        同上：若后端开放了任务通道指令，且客户端实现了 send_json，这里才可用。
+        """
         if not self._agent:
             raise RuntimeError("agent not connected")
-        self._agent.send_json(payload)
+        if not hasattr(self._agent, "send_json"):
+            raise NotImplementedError("current backend does not accept JSON messages on task stream")
+        # 有些后端会要求附带 task_id；如需可在此注入
+        self._agent.send_json(payload)  # type: ignore[attr-defined]
 
     def agent_request(self, payload: Dict[str, Any], timeout: float = 15.0) -> Any:
-        if not self._agent:
-            raise RuntimeError("agent not connected")
-        return self._agent.request(payload, timeout=timeout)
+        """
+        经典“请求-响应”模式对任务流通常不适用，这里明确不支持。
+        如果未来后端提供 request_id 语义，可在底层客户端实现后再开放。
+        """
+        raise NotImplementedError("request/response is not supported on the task WebSocket stream")
 
     # ------------------------ 消息缓存（可选给 View 拉取） ------------------------
     def agent_recent_messages(self, limit: int = 50) -> list[Any]:

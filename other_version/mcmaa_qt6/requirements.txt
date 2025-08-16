@@ -1,0 +1,10 @@
+# Standard Library (included with Python, no need to install)
+# os
+# sys
+# tkinter
+# re
+# shutil
+
+# Third-party dependencies
+PySide6
+appdirs

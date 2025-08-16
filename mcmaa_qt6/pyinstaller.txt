@@ -1,4 +1,0 @@
-E:
-cd E:\repo1\MCM\mcmaa
-conda activate env-3.12
-pyinstaller --onefile --windowed --icon=mcmaa.ico --add-data "mcmaa.ico;." main.py
