@@ -36,3 +36,5 @@ __pycache__/
 build/main/warn-main.txt
 build/main/xref-main.html
 *.exe
+
+solve_code/*
