@@ -38,3 +38,5 @@ build/main/xref-main.html
 *.exe
 
 solve_code/*
+
+cumcm/*
