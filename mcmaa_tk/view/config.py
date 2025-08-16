@@ -15,6 +15,6 @@ DATA_CONFIG = {
 
 SCREEN_CONFIG = {"borderwidth": 5, "relief": "raised"}
 MAIN_FRAME_CONFIG = {"borderwidth": 5, "relief": "sunken"}
-RAISED_SUBFRAME_CONFIG = {"borderwidth": 1, "relief": "raised"}
+RAISED_SUBFRAME_CONFIG = {"borderwidth": 2, "relief": "raised"}
 FLAT_SUBFRAME_CONFIG = {"borderwidth": 2}
 ENTRY_LABEL_CONFIG = {"padding": 2}

@@ -15,6 +15,7 @@ Screen_Workbench — 一体化工作台（View）
 """
 from __future__ import annotations
 
+import re
 import time
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
@@ -90,6 +91,7 @@ class Screen_Workbench(ttk.Frame):
     # ---------------------------------------------------------------------
     # 布局与 UI 构建
     # ---------------------------------------------------------------------
+
     def _build_layout(self):
         self.main_paned = ttk.PanedWindow(self, orient="horizontal")
         self.main_paned.place(relx=0, rely=0, relwidth=1, relheight=1)
@@ -101,6 +103,12 @@ class Screen_Workbench(ttk.Frame):
         # 右侧：Notebook 容器
         self.right_frame = ttk.Frame(self.main_paned, **MAIN_FRAME_CONFIG)
         self.main_paned.add(self.right_frame, weight=70)
+
+        # 初始化时给个合理的分割（sash 索引从 0 开始，避免无效索引）
+        try:
+            self.main_paned.sashpos(1, 260)
+        except Exception:
+            pass
 
     def _build_left_nav(self):
         self.left_tabs = ttk.Notebook(self.left_frame)
@@ -165,6 +173,7 @@ class Screen_Workbench(ttk.Frame):
         self.preview.place(relx=0, rely=0, relwidth=1, relheight=1)
 
     # ------------------------------- 替换页 -------------------------------
+
     def _build_tab_replace(self):
         self.tab_replace = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_replace, text="替换")
@@ -177,14 +186,21 @@ class Screen_Workbench(ttk.Frame):
         self.pair_combo.pack(side="left", padx=(6, 8), fill="x", expand=True)
         self.pair_combo.bind("<<ComboboxSelected>>", lambda e: self.on_pair_select())
 
-        ttk.Button(topbar, text="应用替换（Ctrl+S）", bootstyle="primary", command=self.apply_replace).pack(
+        # 保留“仅应用所选” + “应用所有块”
+        ttk.Button(topbar, text="应用所有块（Ctrl+S）", bootstyle="primary", command=self.apply_replace_all).pack(
             side="right"
         )
+        ttk.Button(topbar, text="仅应用所选", command=self.apply_replace).pack(side="right", padx=(0, 8))
 
-        self.replace_input = ScrolledText(self.tab_replace, wrap="word")
-        self.replace_input.pack(side="top", fill="both", expand=True)
-        self.replace_input.bind("<Control-a>", self._select_all)
-        self.replace_input.bind("<Command-a>", self._select_all)
+        # 右侧分屏区域
+        self.replace_paned = ttk.PanedWindow(self.tab_replace, orient="horizontal")
+        self.replace_paned.pack(side="top", fill="both", expand=True)
+
+        # 保存“分屏块”的引用：(label, text_widget)
+        self.replace_blocks = []
+
+        # 初始给一个空块
+        self._rebuild_replace_blocks([])
 
     # -------------------------------- 辅助页 --------------------------------
     def _build_tab_aid(self):
@@ -471,41 +487,160 @@ class Screen_Workbench(ttk.Frame):
     # ---------------------------------------------------------------------
     # 替换功能（标记对）
     # ---------------------------------------------------------------------
+
     def _refresh_marker_pairs(self):
-        """扫描标记对并刷新下拉。"""
+        """
+        扫描标记对并刷新下拉 + 右侧分屏（严格以“当前编辑器文本”为准，不叠加历史）。
+        """
         current = self._get_editor_text()
+
+        # 同步 Controller 的当前文本（不落盘）
         self.ctrl.update_current_text_only(current)
         display = self.ctrl.update_marker_pairs_from_text(current)
+
+        # View 侧解析（用于右侧分栏）
+        pairs = self._parse_marker_pairs(current)  # [{'label':..., 'content':...}, ...]
+
+        # 下拉框刷新
+        labels = [p["label"] for p in pairs] or display
         if hasattr(self, "pair_combo"):
-            self.pair_combo["values"] = display
-            if display:
-                self.selected_pair_display.set(display[0])
-                self.on_pair_select()
+            self.pair_combo["values"] = labels
+            if labels:
+                self.selected_pair_display.set(labels[0])
             else:
                 self.selected_pair_display.set("")
-                self.replace_input.delete(1.0, "end")
+
+        # 分栏按“当前标签个数”重建（不递增）
+        self._rebuild_replace_blocks(pairs)
+
+        # 若选择了项，联动定位
+        if labels:
+            self.on_pair_select()
+
+    def _parse_marker_pairs(self, text: str):
+        """
+        解析形如
+            <-----标签----->
+            ...内容...
+            <-----标签----->
+        的成对标记，返回 [{'label': str, 'content': str}, ...]
+        """
+        pat = re.compile(r"^\s*<-----([^-\n]+)----->\s*$", re.M)
+        pairs = []
+        opened = {}
+
+        for m in pat.finditer(text):
+            label = m.group(1).strip()
+            if label in opened:  # 关闭并成对
+                start = opened.pop(label).end()
+                end = m.start()
+                content = text[start:end]
+                pairs.append({"label": label, "content": content})
+            else:
+                opened[label] = m
+        return pairs
+
+    def _rebuild_replace_blocks(self, pairs):
+        """
+        根据解析到的标记对数量，重建右侧分屏块。
+        每块：标题（label）+ 可编辑 ScrolledText（预填原内容）。
+        先彻底清理旧 Pane，避免历史递增。
+        """
+        # 彻底清空旧 pane
+        for w in list(self.replace_paned.winfo_children()):
+            try:
+                self.replace_paned.forget(w)
+            except Exception:
+                pass
+            try:
+                w.destroy()
+            except Exception:
+                pass
+        self.replace_blocks = []
+
+        if not pairs:
+            # 没有标记就给一个空块，防止页面空白
+            frame = ttk.Frame(self.replace_paned, padding=(6, 4))
+            self.replace_paned.add(frame, weight=1)
+            ttk.Label(frame, text="（未发现标记对）", bootstyle="secondary").pack(anchor="w")
+            txt = ScrolledText(frame, wrap="word")
+            txt.pack(fill="both", expand=True)
+            self.replace_blocks.append(("未发现标记对", txt))
+            return
+
+        # 有 N 个标记对 -> N 个分屏块
+        for p in pairs:
+            frame = ttk.Frame(self.replace_paned, padding=(6, 4))
+            self.replace_paned.add(frame, weight=1)
+            ttk.Label(frame, text=p["label"]).pack(anchor="w")
+            txt = ScrolledText(frame, wrap="word")
+            txt.pack(fill="both", expand=True)
+            txt.insert("1.0", p["content"].strip())
+            self.replace_blocks.append((p["label"], txt))
 
     def on_pair_select(self, *_):
+        """
+        下拉选择某个标记时，把焦点定位到对应的分屏编辑框；
+        若该标记对应块存在，则选中其全部内容，方便直接粘贴覆盖。
+        """
         sel = (self.selected_pair_display.get() or "").strip()
-        self.replace_input.delete(1.0, "end")
         if not sel:
             return
-        content = self.ctrl.get_pair_content_by_display(sel)
-        self.replace_input.insert("end", content)
+
+        # 找到对应的分屏块（txt 是 ScrolledText）
+        txt = self._find_block_by_label(sel)
+        if not txt:
+            return
+
+        try:
+            txt.focus_set()
+            txt.tag_add("sel", "1.0", "end")  # 选中整块，便于直接粘贴
+            txt.see("1.0")
+        except Exception:
+            pass
+
+    def _find_block_by_label(self, label: str):
+        """
+        在 self.replace_blocks 中按标签名查找对应的文本控件。
+        self.replace_blocks 的元素结构为 (label, text_widget)。
+        """
+        for lab, txt in getattr(self, "replace_blocks", []):
+            if lab == label:
+                return txt
+        return None
 
     def apply_replace(self):
-        """读取 UI 值并将结果写回编辑器；实际替换由 Controller 完成。"""
+        """
+        仅应用“下拉选中的那个标记”的替换：读取对应分屏块中的内容，写回整篇到编辑器。
+        """
         sel = (self.selected_pair_display.get() or "").strip()
         if not sel:
             return
         try:
-            new_content = self.replace_input.get(1.0, "end-1c")
+            txt = self._find_block_by_label(sel)
+            if not txt:
+                return
+            new_content = txt.get("1.0", "end-1c")
             base_text = self._get_editor_text()
             new_text = self.ctrl.apply_replace_for_display(base_text, sel, new_content)
             self._editor_set_text(new_text)
             self._refresh_marker_pairs()
         except Exception as e:
             messagebox.showerror("错误", f"替换失败: {str(e)}")
+
+    def apply_replace_all(self):
+        """
+        读取右侧每一块的文本，按‘标签’依次替换回整篇。
+        逐块调用 Controller.apply_replace_for_display，避免自己拼正则。
+        """
+        base_text = self._get_editor_text()
+        new_text = base_text
+        for label, txt in self.replace_blocks:
+            content = txt.get("1.0", "end-1c")
+            new_text = self.ctrl.apply_replace_for_display(new_text, label, content)
+
+        self._editor_set_text(new_text)
+        self._refresh_marker_pairs()
 
     # ---------------------------------------------------------------------
     # 辅助页：文件列表/读取/插入
@@ -537,22 +672,25 @@ class Screen_Workbench(ttk.Frame):
         self.aid_view.insert("end", txt)
 
     def apply_aid_to_editor(self):
-        """将辅助区当前内容插入编辑器：选区替换，否则插入光标处。"""
+        """
+        将辅助区当前内容“覆盖写入”编辑器（不再插入/叠加）；
+        然后按新文本重新**扫描标签并重建分栏**，保证不递增。
+        """
         content = self.aid_view.get(1.0, "end-1c")
+
+        # 1) 覆盖写入编辑器 & 焦点
         self.notebook.select(self.tab_edit)
+        self._editor_set_text(content)
         self.editor.focus_set()
-        try:
-            try:
-                sel_start = self.editor.index("sel.first")
-                sel_end = self.editor.index("sel.last")
-                self.editor.delete(sel_start, sel_end)
-                self.editor.insert(sel_start, content)
-                self.editor.mark_set(INSERT, f"{sel_start}+{len(content)}c")
-            except Exception:
-                self.editor.insert(INSERT, content)
-                self.editor.mark_set(INSERT, f"insert+{len(content)}c")
-        except Exception as e:
-            messagebox.showerror("错误", f"插入失败：{e}")
+        self.editor.mark_set(INSERT, "1.0")
+
+        # 2) 同步到 Controller（不落盘），重建解析/树/分栏
+        self.ctrl.update_current_text_only(content)
+        self._refresh_marker_pairs()
+        self._rebuild_all_trees()
+
+        # 3) 直接切到“替换”页，便于马上编辑各块
+        self.notebook.select(self.tab_replace)
 
     # ---------------------------------------------------------------------
     # Agent 集成：回调/动作

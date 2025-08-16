@@ -17,6 +17,15 @@ from view.screens.screen_workbench import Screen_Workbench
 from utils.clear_pycache import clear_pycache
 from utils.paths import resource_path
 
+# （可选）Windows 高 DPI 感知，减少缩放造成的“看起来偏一点”
+try:
+    if sys.platform.startswith("win"):
+        import ctypes  # noqa: F401
+
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)  # PER_MONITOR_AWARE
+except Exception:
+    pass
+
 # ========== 日志 ==========
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -36,6 +45,28 @@ def _excepthook(exc_type, exc, tb):
 
 
 sys.excepthook = _excepthook
+
+
+# 统一的“实际尺寸后再居中”函数
+def center_window(win):
+    """
+    把顶层窗口居中到屏幕（考虑 DPI/装饰边距）。
+    必须在 win.update_idletasks() 之后调用更准确。
+    """
+    try:
+        win.update_idletasks()
+        sw, sh = win.winfo_screenwidth(), win.winfo_screenheight()
+        # 已布局后的真实尺寸；若为 1，再退回到需求尺寸
+        w = win.winfo_width() or win.winfo_reqwidth()
+        h = win.winfo_height() or win.winfo_reqheight()
+        # 防止超过屏幕
+        w = min(w, sw)
+        h = min(h, sh)
+        x = max((sw - w) // 2, 0)
+        y = max((sh - h) // 2, 0)
+        win.geometry(f"{w}x{h}+{x}+{y}")
+    except Exception:
+        pass
 
 
 # ========== 启动画面（ASCII Splash）==========
@@ -70,11 +101,9 @@ class Splash(Toplevel):
         label = ttk.Label(frame, text=ASCII_MCMAA, font=("Consolas", 12), justify="left")
         label.pack()
 
-        # 居中
+        # 居中（基于实际大小）
         self.update_idletasks()
-        w, h = self.winfo_width(), self.winfo_height()
-        sw, sh = self.winfo_screenwidth(), self.winfo_screenheight()
-        self.geometry(f"+{(sw - w) // 2}+{(sh - h) // 2}")
+        center_window(self)
 
         # 延时关闭
         self.after(delay_ms, self.destroy)
@@ -203,25 +232,29 @@ class App:
         except Exception as e:
             logging.info(f"图标加载失败: {e}")
 
-        # 尺寸
+        # ========== 尺寸 ==========
         min_height = 960
         min_width = int(min_height * 4 / 3)
         root.minsize(min_width, min_height)
-        root.geometry(f"{min_width}x{min_height}")
+
         screen_height = root.winfo_screenheight()
         screen_width = root.winfo_screenwidth()
-        default_height = int(screen_height * 0.75)
-        default_width = int(screen_height * 0.75 * 4 / 3)
-        if screen_height < min_height or screen_width < min_width:
-            root.minsize(screen_width, screen_height)
-            default_height = screen_height
-            default_width = screen_width
-            root.geometry(f"{default_width}x{default_height}")
-        elif screen_height * 0.75 > min_height and screen_height * 0.75 * 4 / 3 > min_width:
-            root.geometry(f"{default_width}x{default_height}")
-        root.geometry("+0+0")
 
-        # 显示启动 ASCII Splash
+        # 建议默认窗口为屏幕高的 75%，并按 4:3 比例
+        default_height = int(screen_height * 0.75)
+        default_width = int(default_height * 4 / 3)
+
+        # 如果屏幕太小，就退回到屏幕实际大小
+        if screen_height < min_height or screen_width < min_width:
+            default_height = min(screen_height, min_height)
+            default_width = min(screen_width, min_width)
+
+        # —— 一次性设置大小 + 初步居中（基于估算尺寸）
+        x = max((screen_width - default_width) // 2, 0)
+        y = max((screen_height - default_height) // 2, 0)
+        root.geometry(f"{default_width}x{default_height}+{x}+{y}")
+
+        # ========== 显示启动 ASCII Splash ==========
         splash = Splash(root, delay_ms=1200)
 
         # Splash 消失后显示主界面
@@ -233,6 +266,8 @@ class App:
                     pass
             root.deiconify()
             Screen()  # 创建主界面
+            # 关键：内容绘制完成后再按“实际尺寸”精确居中一次
+            center_window(root)
 
         root.after(1250, _show_main)  # 稍微比 Splash 多 50ms，避免闪烁
         root.mainloop()
