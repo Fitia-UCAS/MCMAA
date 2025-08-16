@@ -1,11 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 a = Analysis(
     ['main.py'],
-    pathex=[],
+    pathex=['.'],
     binaries=[],
-    datas=[('mcmaa.ico', '.')],
+    # 把整个目录打包进去：递归复制到运行时同名目录
+    datas=[
+        ('mcmaa.ico', '.'),
+        ('utils/ai-aid-mcmaa', 'utils/ai-aid-mcmaa'),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

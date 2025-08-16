@@ -8,3 +8,5 @@
 # Third-party dependencies
 ttkbootstrap
 appdirs
+requests
+websocket

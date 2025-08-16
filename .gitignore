@@ -27,16 +27,23 @@
 
 contents.txt
 
-# Python 相关
 __pycache__/
 *.pyc
 *.zip
 *.pkg
 *.pyz
+
+build/*
+
 build/main/warn-main.txt
 build/main/xref-main.html
+
+dist/*
+
 *.exe
 
 cumcm/*
 
 ques_solving_code/*
+*.html
+mcmaa_tk/build/main/warn-main.txt

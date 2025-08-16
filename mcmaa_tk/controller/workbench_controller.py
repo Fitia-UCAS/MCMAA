@@ -17,6 +17,7 @@ AgentBridge — 适配 MathModelAgent 的两段式客户端（HTTP 提交 + WS �
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Callable, Deque, Dict, Optional, Iterable, Tuple, List
 from collections import deque
 import logging
@@ -24,6 +25,7 @@ import ssl
 import time
 
 from service.agents.mathmodelagent_client import MathModelAgentClient
+from utils.aid_loader import list_aid_files
 
 logger = logging.getLogger(__name__)
 
@@ -697,6 +699,7 @@ class WorkbenchController(AgentBridge):
 
     def list_aid_txt(self) -> List[str]:
         d = self.aid_dir()
+        logging.info("AID_DIR=%s exists=%s", d, os.path.isdir(d))
         out: List[str] = []
         try:
             if os.path.isdir(d):
@@ -735,3 +738,18 @@ class WorkbenchController(AgentBridge):
         主要用于替换页/辅助页等需要 Controller 暂存当前文本参与计算的场景。
         """
         self.current_text = editor_text
+
+    def get_aid_choices(self):
+        """下拉：返回显示名列表"""
+        return [name for name, _ in list_aid_files()]
+
+    def read_aid_file(self, display_name: str) -> str:
+        """根据显示名读取文本内容"""
+        for name, full in list_aid_files():
+            if name == display_name:
+                try:
+                    return Path(full).read_text(encoding="utf-8", errors="ignore")
+                except Exception:
+                    # 尝试 GBK（国内文件常见）
+                    return Path(full).read_text(encoding="gbk", errors="ignore")
+        return ""
