@@ -2,6 +2,190 @@
 # -*- coding: utf-8 -*-
 
 """
+AgentBridge — 将 MathModelAgentClient 接入到 WorkbenchController 的最小适配层
+================================================================================
+使用方式
+--------
+1) 将本文件保存为：controller/agent_bridge.py
+2) 修改 controller/workbench_controller.py：
+   - 增加导入：
+       from controller.agent_bridge import AgentBridge
+   - 让 WorkbenchController 继承该混入：
+       class WorkbenchController(AgentBridge):
+           def __init__(self):
+               AgentBridge.__init__(self)
+               ... 原有初始化 ...
+3) 在 View 层注册回调（示例）——比如在 Screen_Workbench.__init__ 里：
+       ctrl.set_agent_handlers(
+           on_status=lambda s: self._show_status(s),
+           on_message=lambda m: self._append_console(m),
+           on_error=lambda e: self._show_error(e),
+       )
+4) 连接与发送：
+       ctrl.agent_connect(url, token="xxx")
+       ctrl.agent_send_json({"type":"ping"})
+       resp = ctrl.agent_request({"type":"infer","payload":{"text":"hello"}}, timeout=15)
+
+备注
+----
+- 采用后台线程 + 回调通知；回调均在接收线程里触发，如需切 UI 线程请在 View 层自行调度（tkinter 用 after）。
+- 维护最近 N 条消息缓存（默认 200）以便 View 拉取。
+- 仅依赖 service.agents.mathmodelagent_client.MathModelAgentClient。
+"""
+from __future__ import annotations
+
+from typing import Any, Callable, Deque, Dict, Optional
+from collections import deque
+import logging
+import ssl
+import time
+
+from service.agents.mathmodelagent_client import MathModelAgentClient
+
+logger = logging.getLogger(__name__)
+
+
+class AgentBridge:
+    """为控制器提供与 Agent 的连接/通信能力（Mixin）。"""
+
+    # ------------------------ 生命周期 / 状态 ------------------------
+    def __init__(self) -> None:
+        # 运行态
+        self._agent: Optional[MathModelAgentClient] = None
+        self._agent_connected: bool = False
+        self._agent_last_status: str = "disconnected"
+        self._agent_last_error: Optional[str] = None
+        self._agent_msgs: Deque[Any] = deque(maxlen=200)
+
+        # 回调（由 View 注入）
+        self._cb_on_status: Optional[Callable[[str], None]] = None
+        self._cb_on_message: Optional[Callable[[Any], None]] = None
+        self._cb_on_error: Optional[Callable[[str], None]] = None
+
+    # ------------------------ 回调注册 ------------------------
+    def set_agent_handlers(
+        self,
+        on_status: Optional[Callable[[str], None]] = None,
+        on_message: Optional[Callable[[Any], None]] = None,
+        on_error: Optional[Callable[[str], None]] = None,
+    ) -> None:
+        self._cb_on_status = on_status
+        self._cb_on_message = on_message
+        self._cb_on_error = on_error
+
+    # ------------------------ 连接管理 ------------------------
+    def agent_connect(
+        self,
+        url: str,
+        token: Optional[str] = None,
+        proxy: Optional[str] = None,
+        ping_interval: float = 20.0,
+        insecure_skip_tls_verify: bool = False,
+    ) -> None:
+        """建立到 Agent 的 WebSocket 连接。后台线程运行。"""
+        self.agent_close()
+
+        sslopt = {"cert_reqs": ssl.CERT_NONE} if insecure_skip_tls_verify else None
+        self._agent = MathModelAgentClient(
+            url=url,
+            token=token,
+            proxy=proxy,
+            ping_interval=ping_interval,
+            sslopt=sslopt,
+        )
+
+        # 绑定底层回调
+        @self._agent.on_open
+        def _opened():
+            self._agent_connected = True
+            self._set_status("connected")
+
+        @self._agent.on_message
+        def _message(m):
+            self._agent_msgs.append({"ts": time.time(), "data": m})
+            if self._cb_on_message:
+                try:
+                    self._cb_on_message(m)
+                except Exception as e:  # noqa
+                    logger.debug("on_message UI cb error: %s", e)
+
+        @self._agent.on_error
+        def _error(e: Exception):
+            self._agent_last_error = str(e)
+            self._set_status("error")
+            if self._cb_on_error:
+                try:
+                    self._cb_on_error(self._agent_last_error)
+                except Exception:  # noqa
+                    pass
+
+        @self._agent.on_close
+        def _closed(code: int, msg: str):
+            self._agent_connected = False
+            self._set_status(f"closed({code})")
+
+        @self._agent.on_reconnect
+        def _reconn(attempt: int, delay: float):
+            self._set_status(f"reconnecting #{attempt} in {delay:.1f}s")
+
+        # 后台线程启动
+        self._set_status("connecting...")
+        self._agent.connect(block=False)
+
+    def agent_close(self) -> None:
+        if self._agent:
+            try:
+                self._agent.close()
+            except Exception:  # noqa
+                pass
+            finally:
+                self._agent = None
+        self._agent_connected = False
+        self._set_status("disconnected")
+
+    def agent_is_connected(self) -> bool:
+        return bool(self._agent and self._agent.is_connected())
+
+    # ------------------------ 发送 API ------------------------
+    def agent_send_text(self, text: str) -> None:
+        if not self._agent:
+            raise RuntimeError("agent not connected")
+        self._agent.send_text(text)
+
+    def agent_send_json(self, payload: Dict[str, Any]) -> None:
+        if not self._agent:
+            raise RuntimeError("agent not connected")
+        self._agent.send_json(payload)
+
+    def agent_request(self, payload: Dict[str, Any], timeout: float = 15.0) -> Any:
+        if not self._agent:
+            raise RuntimeError("agent not connected")
+        return self._agent.request(payload, timeout=timeout)
+
+    # ------------------------ 消息缓存（可选给 View 拉取） ------------------------
+    def agent_recent_messages(self, limit: int = 50) -> list[Any]:
+        """返回最近收到的消息（新 → 旧）。"""
+        out = list(self._agent_msgs)
+        out.reverse()
+        return out[:limit]
+
+    def agent_last_error(self) -> Optional[str]:
+        return self._agent_last_error
+
+    def agent_status(self) -> str:
+        return self._agent_last_status
+
+    # ------------------------ 内部：状态 & 回调封装 ------------------------
+    def _set_status(self, status: str) -> None:
+        self._agent_last_status = status
+        if self._cb_on_status:
+            try:
+                self._cb_on_status(status)
+            except Exception:  # noqa
+                pass
+
+
+"""
 WorkbenchController
 ===================
 
@@ -34,7 +218,6 @@ WorkbenchController
   但不直接操作 UI；所有需要的输入（例如“当前编辑器文本”）在调用时作为参数传入。
 """
 
-from __future__ import annotations
 
 import os
 import re
@@ -53,11 +236,13 @@ RECENT_FILE_MAX = 5
 RECENT_FILE_STORE = "recent_files.txt"
 
 
-class WorkbenchController:
+class WorkbenchController(AgentBridge):
     """一体化工作台的业务控制器"""
 
     # ---------- 生命周期 / 状态 ----------
     def __init__(self) -> None:
+        # 初始化代理桥
+        AgentBridge.__init__(self)
         # 文件/文本相关
         self.current_file: Optional[str] = None
         self.current_text: str = ""

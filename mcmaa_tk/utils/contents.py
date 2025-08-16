@@ -195,7 +195,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # 设置输出路径和文件名
-    output_directory = "./utils/"
+    output_directory = "./mcmaa_tk/utils/"
     output_file_name = "contents.txt"
 
     # 将目录内容写入文件
