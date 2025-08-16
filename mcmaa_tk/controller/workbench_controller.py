@@ -17,7 +17,7 @@ AgentBridge — 适配 MathModelAgent 的两段式客户端（HTTP 提交 + WS �
 """
 from __future__ import annotations
 
-from typing import Any, Callable, Deque, Dict, Optional, Iterable, Tuple
+from typing import Any, Callable, Deque, Dict, Optional, Iterable, Tuple, List
 from collections import deque
 import logging
 import ssl
@@ -30,6 +30,9 @@ logger = logging.getLogger(__name__)
 
 class AgentBridge:
     """为控制器提供与 Agent 的连接/通信能力（Mixin）。"""
+
+    # WS 任务流路径模板（按你的后端路由改这里即可）
+    WS_TASK_PATH_TPL = "/ws/tasks/{task_id}"
 
     # ------------------------ 生命周期 / 状态 ------------------------
     def __init__(self) -> None:
@@ -145,36 +148,56 @@ class AgentBridge:
         timeout: float = 60.0,
     ) -> str:
         """
-        1) HTTP 提交建模 -> 获得 task_id
+        1) HTTP 提交建模 -> 获得 task_id（从 JSON 中提取）
         2) 连接该 task 的 WS 流（后台线程）
         :return: task_id
         """
         if not self._agent:
             raise RuntimeError("agent is not initialized, call agent_connect(base_url, ...) first")
 
-        self._set_status("submitting...")
-        task_id = self._agent.submit_modeling(
-            problem_text=problem_text,
-            files=files,
-            template=template,
-            output_format=output_format,
-            language=language,
-            extra_form=extra_form,
-            timeout=timeout,
-        )
-        self._current_task_id = task_id
+        # --- 构造 payload（JSON 方式） ---
+        payload = {
+            "problem_text": problem_text,
+            "template": template,
+            "output_format": output_format,
+            "language": language,
+            "extra_form": extra_form or {},
+            "timeout": timeout,
+            # 如需传文件且后端只收 JSON，可将 files 转成 base64 后放入自定义字段
+            # "files": [...],
+        }
 
-        self._set_status(f"connecting task {task_id}...")
-        self._agent.connect_task_ws(task_id, block=False)
-        return task_id
+        self._set_status("submitting...")
+        resp = self._agent.submit_modeling(payload)  # -> Dict
+
+        # --- 提取 task_id（兼容常见返回结构） ---
+        task_id = (
+            (resp.get("task_id"))
+            or (isinstance(resp.get("data"), dict) and resp["data"].get("task_id"))
+            or resp.get("id")
+        )
+        if not task_id:
+            raise RuntimeError(f"submit response missing task_id: {resp!r}")
+
+        self._current_task_id = str(task_id)
+
+        # --- 连接任务 WS ---
+        self._set_status(f"connecting task {self._current_task_id}...")
+        ws_path = self.WS_TASK_PATH_TPL.format(task_id=self._current_task_id)
+        self._agent.connect_ws(path=ws_path, block=False)
+        return self._current_task_id
 
     # ------------------------ 已有 task_id 时直接连接 ------------------------
     def agent_connect_task(self, task_id: str) -> None:
+        """
+        已有 task_id（例如从历史记录拿到）时，直接连接该任务的 WS。
+        """
         if not self._agent:
             raise RuntimeError("agent is not initialized, call agent_connect(base_url, ...) first")
         self._current_task_id = task_id.strip()
         self._set_status(f"connecting task {self._current_task_id}...")
-        self._agent.connect_task_ws(self._current_task_id, block=False)
+        ws_path = self.WS_TASK_PATH_TPL.format(task_id=self._current_task_id)
+        self._agent.connect_ws(path=ws_path, block=False)
 
     # ------------------------ 断开 ------------------------
     def agent_close(self) -> None:
@@ -212,7 +235,7 @@ class AgentBridge:
             raise RuntimeError("agent not connected")
         if not hasattr(self._agent, "send_json"):
             raise NotImplementedError("current backend does not accept JSON messages on task stream")
-        # 有些后端会要求附带 task_id；如需可在此注入
+        # 有些后端会要求附带 task_id；如需可在此注入 payload["task_id"] = self._current_task_id
         self._agent.send_json(payload)  # type: ignore[attr-defined]
 
     def agent_request(self, payload: Dict[str, Any], timeout: float = 15.0) -> Any:
@@ -278,11 +301,9 @@ WorkbenchController
   但不直接操作 UI；所有需要的输入（例如“当前编辑器文本”）在调用时作为参数传入。
 """
 
-
 import os
 import re
 import pathlib
-from typing import List, Dict, Any, Optional, Tuple
 
 import appdirs
 

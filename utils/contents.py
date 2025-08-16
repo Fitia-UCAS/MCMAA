@@ -52,9 +52,10 @@ IGNORE_EXTENSIONS = [
     ".yaml",
     ".json",
     ".lock",
-    # ".cls",
-    # ".tex",
-    # ".txt",
+    ".cls",
+    ".tex",
+    ".template",
+    ".txt",
 ]
 
 # 定义需要忽略的文件
@@ -73,7 +74,7 @@ IGNORE_FILES = [
 ]
 
 # 排除的文件夹列表
-IGNORE_FOLDERS = [".git", "__pycache__", "ai-aid-mcmaa"]
+IGNORE_FOLDERS = [".git", "__pycache__", "other_version"]
 
 
 def generate_directory_structure(startpath, indent="", IGNORE_FOLDERS=None):

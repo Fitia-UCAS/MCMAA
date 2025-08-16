@@ -2,63 +2,29 @@
 # -*- coding: utf-8 -*-
 
 """
-mathmodelagent_client.py — 使用 websocket-client 的简洁稳定版客户端
-=================================================================
+mathmodelagent_client.py — HTTP+WebSocket 双栈客户端（兼容旧用法）
+================================================================
 
 特性
 ----
 - 依赖 `websocket-client`（而非已弃用/冷门的 `websocket` + gevent）。
-- 线程安全，内置自动重连（指数退避），并支持心跳 Ping 保活。
+- HTTP 使用 `requests`。
+- “两项配置”模型：
+  1) Base URL（HTTP），例如 http://host:port
+  2) WS Base（可选），若不填则自动从 Base URL 推断（http→ws / https→wss）
+- WebSocket：线程安全，内置自动重连（指数退避），支持 Ping 保活。
 - 统一回调：on_open / on_message / on_error / on_close / on_reconnect。
 - 同步/异步两种发送：
-  - send_json / send_text：异步发送，不等待结果；
-  - request()：带 `request_id` 的同步请求，等待指定超时的对应响应。
-- 支持 Token 认证（可在 Header 中带入 Authorization），HTTP 代理，TLS 自定义。
-- 仅标准库 + websocket-client，无额外依赖。
+  - send_json / send_text：异步发送
+  - request()：带 request_id 的同步请求，等待指定超时的对应响应。
+- 支持 Token 认证（Authorization: Bearer <token>）、HTTP 代理、TLS 自定义。
+- 兼容旧构造方式：若仅传入 `url="wss://host/ws"` 也能工作（等价于仅 WS 客户端）。
 
 安装
 ----
-    pip install websocket-client
-
-最简示例
---------
-```python
-from mathmodelagent_client import MathModelAgentClient
-
-client = MathModelAgentClient(
-    url="wss://your-agent-server/ws",
-    token="YOUR_TOKEN",              # 可选
-)
-
-# 绑定消息回调（可选）
-@client.on_message
-def _on_msg(message: dict | str):
-    print("[MSG]", message)
-
-client.connect(block=False)  # 后台线程运行
-
-# 异步发送
-client.send_json({"type": "ping"})
-
-# 同步请求-响应（带 request_id）
-resp = client.request({"type": "infer", "payload": {"text": "hello"}}, timeout=15.0)
-print("sync resp:", resp)
-
-client.close()
-```
-
-与后端协议约定
---------------
-- 默认以 JSON 通信，消息结构建议：
-  - 请求：`{"request_id": "uuid", "type": "...", "payload": {...}}`
-  - 响应：`{"request_id": "uuid", "ok": true, "data": {...}}`
-- 若返回为纯文本，客户端会原样转交。
-
-注意
-----
-- 若你的后端不是以上 JSON 协议，请在 `parse_message`/`_route_response` 按需调整。
-- Windows/conda 环境无需 gevent/zope 依赖。
+    pip install websocket-client requests
 """
+
 from __future__ import annotations
 
 import json
@@ -68,12 +34,15 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, List
+from urllib.parse import urlparse, urlunparse
 
-import websocket  # 来自 websocket-client 包
+import requests  # HTTP
+import websocket  # 来自 websocket-client 包（包名即 websocket）
 
 
-# ------------------------- 日志配置（可按需接入你项目的 logger） -------------------------
+# ------------------------- 日志配置 -------------------------
+
 logger = logging.getLogger(__name__)
 if not logger.handlers:
     _h = logging.StreamHandler()
@@ -83,7 +52,9 @@ if not logger.handlers:
 logger.setLevel(logging.INFO)
 
 
-# ------------------------------- 内部数据结构 -------------------------------
+# --------------------------- 内部结构 ---------------------------
+
+
 @dataclass
 class _PendingRequest:
     event: threading.Event = field(default_factory=threading.Event)
@@ -91,32 +62,51 @@ class _PendingRequest:
     error: Exception | None = None
 
 
-# ------------------------------- 主客户端类 -------------------------------
+def _infer_ws_base_from_http(base_url: str) -> str:
+    """
+    从 HTTP 基址推断 WS 基址：
+    http://host:port -> ws://host:port
+    https://host:port -> wss://host:port
+    """
+    u = urlparse(base_url)
+    scheme = {"http": "ws", "https": "wss"}.get(u.scheme, "ws")
+    return urlunparse((scheme, u.netloc, "", "", "", ""))
+
+
+# --------------------------- 主客户端 ---------------------------
+
+
 class MathModelAgentClient:
     def __init__(
         self,
-        url: str,
+        # 新用法（推荐）
+        base_url: Optional[str] = None,  # HTTP 基址，如 http://host:port
+        ws_base: Optional[str] = None,  # WS 基址，如 ws://host:port（可省略）
+        # 旧用法（兼容）：直接传完整 WS URL
+        url: Optional[str] = None,  # 完整 wss://host:port/ws
+        # 通用参数
         token: Optional[str] = None,
         headers: Optional[Dict[str, str]] = None,
-        proxy: Optional[str] = None,
+        proxy: Optional[str] = None,  # 形如 http://127.0.0.1:7890
         ping_interval: float = 20.0,
         ping_timeout: float = 10.0,
         reconnect: bool = True,
         max_reconnect_delay: float = 60.0,
         sslopt: Optional[Dict[str, Any]] = None,
+        http_timeout: float = 30.0,
     ) -> None:
         """
-        :param url: WebSocket 服务地址，例如 wss://host:port/ws
-        :param token: 可选的 Bearer Token，会以 Authorization 头发送
-        :param headers: 额外 HTTP 头
-        :param proxy: 代理地址，例如 http://127.0.0.1:7890
-        :param ping_interval: 心跳间隔（秒）；<=0 关闭心跳
-        :param ping_timeout: 心跳超时（秒）
-        :param reconnect: 网络异常/断线自动重连
-        :param max_reconnect_delay: 自动重连的最大退避时间
-        :param sslopt: 传入 websocket-client 的 sslopt，例如 {"cert_reqs": ssl.CERT_NONE}
+        说明：
+        - 推荐：传 base_url（HTTP），可选 ws_base；WS 可用 connect_ws() 建立。
+        - 兼容：若只传 url（完整 WS），则作为仅 WS 客户端工作（connect() 生效）。
         """
-        self.url = url
+        # HTTP
+        self.base_url = (base_url or "").rstrip("/")
+        self.ws_base = (ws_base or (_infer_ws_base_from_http(self.base_url) if self.base_url else "")).rstrip("/")
+
+        # 旧用法：直接给完整 WS URL
+        self._legacy_ws_url = url  # 若提供，则 connect() 走它
+
         self.token = token
         self.base_headers = headers or {}
         self.proxy = proxy
@@ -125,15 +115,9 @@ class MathModelAgentClient:
         self.reconnect = reconnect
         self.max_reconnect_delay = max_reconnect_delay
         self.sslopt = sslopt or {"cert_reqs": ssl.CERT_REQUIRED}
+        self.http_timeout = http_timeout
 
-        # 回调
-        self._on_open_cb: Optional[Callable[[], None]] = None
-        self._on_message_cb: Optional[Callable[[Any], None]] = None
-        self._on_error_cb: Optional[Callable[[Exception], None]] = None
-        self._on_close_cb: Optional[Callable[[int, str], None]] = None
-        self._on_reconnect_cb: Optional[Callable[[int, float], None]] = None
-
-        # 基础状态
+        # WS 状态
         self._wsapp: Optional[websocket.WebSocketApp] = None
         self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
@@ -143,7 +127,14 @@ class MathModelAgentClient:
         self._pending: Dict[str, _PendingRequest] = {}
         self._pending_lock = threading.Lock()
 
-    # ---------------------------- 装饰器形式绑定回调 ----------------------------
+        # 回调
+        self._on_open_cb: Optional[Callable[[], None]] = None
+        self._on_message_cb: Optional[Callable[[Any], None]] = None
+        self._on_error_cb: Optional[Callable[[Exception], None]] = None
+        self._on_close_cb: Optional[Callable[[int, str], None]] = None
+        self._on_reconnect_cb: Optional[Callable[[int, float], None]] = None
+
+    # ---------------------- 装饰器：绑定回调 ----------------------
     def on_open(self, func: Callable[[], None]):
         self._on_open_cb = func
         return func
@@ -165,18 +156,67 @@ class MathModelAgentClient:
         self._on_reconnect_cb = func
         return func
 
-    # --------------------------------- 连接管理 ---------------------------------
-    def connect(self, block: bool = False) -> None:
-        """建立连接。
-        :param block: True 则阻塞当前线程直到连接线程结束；False 则后台线程运行。
+    # ======================= HTTP 能力 =======================
+    def _http_headers(self) -> Dict[str, str]:
+        h = dict(self.base_headers)
+        if self.token:
+            h.setdefault("Authorization", f"Bearer {self.token}")
+        h.setdefault("Content-Type", "application/json")
+        return h
+
+    def post(self, path: str, json_obj: Dict[str, Any]) -> Dict[str, Any]:
         """
-        self._stop_event.clear()
-        self._spawn_ws_thread()
+        通用 POST。path 必须以 "/" 开头。
+        例：post("/api/modeling/submit", {...})
+        """
+        if not self.base_url:
+            raise RuntimeError("base_url is not set")
+        url = f"{self.base_url}{path}"
+        proxies = {"http": self.proxy, "https": self.proxy} if self.proxy else None
+        resp = requests.post(
+            url,
+            headers=self._http_headers(),
+            json=json_obj,
+            timeout=self.http_timeout,
+            proxies=proxies,
+        )
+        resp.raise_for_status()
+        try:
+            return resp.json()
+        except Exception:
+            return {"ok": True, "text": resp.text}
+
+    def submit_modeling(self, payload: Dict[str, Any], path: str = "/api/modeling/submit") -> Dict[str, Any]:
+        """
+        提交建模任务（薄封装）。默认路由为占位名，请按后端实际路径替换。
+        """
+        return self.post(path, payload)
+
+    # ======================= WebSocket 能力 =======================
+    def connect_ws(self, path: str = "/ws", block: bool = False) -> None:
+        """
+        使用 ws_base + path 建立 WS 连接。
+        - ws_base 为空时，会尝试从 base_url 推断（http→ws / https→wss）。
+        """
+        if not self.ws_base and not self._legacy_ws_url:
+            raise RuntimeError("ws_base/url is not set (provide base_url or url)")
+        ws_url = self._legacy_ws_url or f"{self.ws_base}{path}"
+        self._start_ws_thread(ws_url)
+        if block and self._thread is not None:
+            self._thread.join()
+
+    def connect(self, block: bool = False) -> None:
+        """
+        兼容旧版 API：当 __init__ 提供了 url（完整 WS 地址）时可用。
+        """
+        if not self._legacy_ws_url:
+            raise RuntimeError("legacy url not provided; use connect_ws(base_url/ws_base) instead")
+        self._start_ws_thread(self._legacy_ws_url)
         if block and self._thread is not None:
             self._thread.join()
 
     def close(self) -> None:
-        """优雅关闭连接与线程"""
+        """优雅关闭连接与线程（仅 WS 部分需要关闭；HTTP 无需关闭）"""
         self._stop_event.set()
         if self._wsapp is not None:
             try:
@@ -190,7 +230,7 @@ class MathModelAgentClient:
     def is_connected(self) -> bool:
         return self._connected.is_set()
 
-    # --------------------------------- 发送 API ---------------------------------
+    # ---------------------- 发送 API（WS） ----------------------
     def send_text(self, text: str) -> None:
         if not self._wsapp:
             raise RuntimeError("WebSocket is not connected")
@@ -200,7 +240,8 @@ class MathModelAgentClient:
         self.send_text(json.dumps(obj, ensure_ascii=False))
 
     def request(self, obj: Dict[str, Any], timeout: float = 10.0) -> Any:
-        """同步请求-响应：附加 request_id 并阻塞等待对应响应或超时。
+        """
+        同步请求-响应：附加 request_id 并阻塞等待对应响应或超时。
         要求后端在响应中原样返回 `request_id` 字段。
         """
         req_id = obj.get("request_id") or str(uuid.uuid4())
@@ -226,33 +267,31 @@ class MathModelAgentClient:
             raise pend.error
         return pend.response
 
-    # --------------------------------- 内部逻辑 ---------------------------------
-    def _spawn_ws_thread(self) -> None:
-        if self._thread and self._thread.is_alive():
-            return
-        t = threading.Thread(target=self._run_forever, name="MathModelAgentWS", daemon=True)
-        t.start()
-        self._thread = t
-
-    def _build_headers(self) -> list[str]:
-        headers = []
-        merged = dict(self.base_headers)
-        if self.token:
-            merged.setdefault("Authorization", f"Bearer {self.token}")
-        # 明确 JSON
-        merged.setdefault("Content-Type", "application/json")
+    # ---------------------- 内部：WS 循环 ----------------------
+    def _http_like_headers(self) -> List[str]:
+        """将 HTTP 头转为 websocket-client 需要的 header 列表形式。"""
+        headers: List[str] = []
+        merged = self._http_headers()
         for k, v in merged.items():
             headers.append(f"{k}: {v}")
         return headers
 
-    def _run_forever(self) -> None:
+    def _start_ws_thread(self, ws_url: str) -> None:
+        self._stop_event.clear()
+        if self._thread and self._thread.is_alive():
+            return
+        t = threading.Thread(target=self._run_forever, args=(ws_url,), name="MathModelAgentWS", daemon=True)
+        t.start()
+        self._thread = t
+
+    def _run_forever(self, ws_url: str) -> None:
         attempt = 0
         backoff = 1.0
         while not self._stop_event.is_set():
             try:
                 self._wsapp = websocket.WebSocketApp(
-                    self.url,
-                    header=self._build_headers(),
+                    ws_url,
+                    header=self._http_like_headers(),
                     on_open=self._on_open,
                     on_message=self._on_message,
                     on_error=self._on_error,
@@ -260,7 +299,7 @@ class MathModelAgentClient:
                     on_pong=self._on_pong,
                 )
 
-                # 代理拆分
+                # 代理拆分给 websocket-client
                 http_proxy_host = http_proxy_port = None
                 if self.proxy:
                     try:
@@ -269,10 +308,9 @@ class MathModelAgentClient:
                         host, port = host_port.split(":", 1)
                         http_proxy_host = host
                         http_proxy_port = int(port)
-                    except Exception:  # noqa
+                    except Exception:
                         logger.warning("proxy format invalid, expecting http://host:port")
 
-                # 连接并阻塞，直到 close
                 self._connected.clear()
                 self._wsapp.run_forever(
                     sslopt=self.sslopt,
@@ -294,16 +332,16 @@ class MathModelAgentClient:
             if self._on_reconnect_cb:
                 try:
                     self._on_reconnect_cb(attempt, delay)
-                except Exception:  # noqa
+                except Exception:
                     pass
             logger.info("reconnecting in %.1fs (attempt %d)", delay, attempt)
             self._sleep(delay)
             backoff = min(backoff * 2, self.max_reconnect_delay)
 
-    # ----------------------------- WebSocket 回调 -----------------------------
+    # ---------------------- WS 回调 ----------------------
     def _on_open(self, ws: websocket.WebSocketApp):  # noqa: ARG002
         self._connected.set()
-        logger.info("WebSocket connected: %s", self.url)
+        logger.info("WebSocket connected")
         if self._on_open_cb:
             try:
                 self._on_open_cb()
@@ -324,7 +362,7 @@ class MathModelAgentClient:
         if self._on_error_cb:
             try:
                 self._on_error_cb(error)
-            except Exception:  # noqa
+            except Exception:
                 pass
 
     def _on_close(self, ws: websocket.WebSocketApp, status_code: int, msg: str):  # noqa: ARG002
@@ -333,28 +371,27 @@ class MathModelAgentClient:
         if self._on_close_cb:
             try:
                 self._on_close_cb(status_code, msg)
-            except Exception:  # noqa
+            except Exception:
                 pass
 
     def _on_pong(self, ws: websocket.WebSocketApp, data: str | bytes):  # noqa: ARG002
         logger.debug("< PONG %s", data)
 
-    # ----------------------------- 解析与路由 -----------------------------
+    # ---------------------- 解析与路由 ----------------------
     def parse_message(self, message: str | bytes) -> Any:
-        """将原始消息解析为 Python 对象。优先按 JSON 解析，不是 JSON 则返回原始文本/二进制。"""
+        """优先按 JSON 解析；不是 JSON 则返回原始文本/二进制。"""
         if isinstance(message, (bytes, bytearray)):
             try:
                 return json.loads(message.decode("utf-8"))
             except Exception:
-                return message  # 二进制按原样返回
-        # str
+                return message
         try:
             return json.loads(message)
         except Exception:
             return message
 
     def _route_response(self, payload: Any) -> None:
-        """若是带 request_id 的响应，唤醒对应等待的 request()；否则忽略，由 on_message 处理。"""
+        """若是带 request_id 的响应，唤醒对应等待的 request()；否则由 on_message 处理。"""
         if not isinstance(payload, dict):
             return
         req_id = payload.get("request_id")
@@ -364,14 +401,13 @@ class MathModelAgentClient:
             pend = self._pending.get(req_id)
         if pend is None:
             return
-        # 认为这是同步响应
         if payload.get("ok") is False and "error" in payload:
             pend.error = RuntimeError(str(payload["error"]))
         else:
             pend.response = payload
         pend.event.set()
 
-    # --------------------------------- 工具 ---------------------------------
+    # ---------------------- 工具 ----------------------
     @staticmethod
     def _sleep(seconds: float) -> None:
         try:
@@ -380,29 +416,41 @@ class MathModelAgentClient:
             pass
 
 
-# ----------------------------- 可选：简单 CLI -----------------------------
+# ----------------------------- 简单 CLI -----------------------------
+
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="MathModelAgent WebSocket Client")
-    parser.add_argument("url", help="wss://host/ws")
+    parser = argparse.ArgumentParser(description="MathModelAgent HTTP+WS Client")
+    # 新用法
+    parser.add_argument("--base", dest="base_url", default=None, help="HTTP base, e.g. http://127.0.0.1:8000")
+    parser.add_argument("--ws", dest="ws_base", default=None, help="WS base, e.g. ws://127.0.0.1:8000 (optional)")
+    parser.add_argument("--ws-path", dest="ws_path", default="/ws", help="WS path, default: /ws")
+    # 旧用法
+    parser.add_argument("--url", dest="legacy_url", default=None, help="full WS url, e.g. wss://host/ws")
+    # 通用
     parser.add_argument("--token", default=None, help="Bearer token")
     parser.add_argument("--proxy", default=None, help="http://host:port")
-    parser.add_argument("--ping", type=float, default=20.0, help="ping interval seconds (<=0 to disable)")
+    parser.add_argument("--ping", type=float, default=20.0, help="WS ping interval seconds (<=0 to disable)")
     args = parser.parse_args()
 
     client = MathModelAgentClient(
-        url=args.url,
+        base_url=args.base_url,
+        ws_base=args.ws_base,
+        url=args.legacy_url,
         token=args.token,
         proxy=args.proxy,
         ping_interval=args.ping,
-        sslopt={"cert_reqs": ssl.CERT_NONE},  # 如需跳过证书校验（内网自签名），请知晓安全风险
+        sslopt={"cert_reqs": ssl.CERT_NONE},  # 内网自签名时可用；注意安全风险
     )
 
     @client.on_open
     def _opened():
         logger.info("opened -> send hello")
-        client.send_json({"type": "hello", "ts": time.time()})
+        try:
+            client.send_json({"type": "hello", "ts": time.time()})
+        except Exception as e:
+            logger.error("send hello failed: %s", e)
 
     @client.on_message
     def _msg(m):
@@ -412,4 +460,8 @@ if __name__ == "__main__":
     def _reconn(attempt, delay):
         logger.info("reconnect attempt=%d delay=%.1fs", attempt, delay)
 
-    client.connect(block=True)
+    # 选择连接方式
+    if args.legacy_url:
+        client.connect(block=True)
+    else:
+        client.connect_ws(path=args.ws_path, block=True)
