@@ -11,6 +11,7 @@ import tkinter.messagebox as messagebox
 
 # 第三方库
 import ttkbootstrap as ttk
+from tkinterdnd2 import TkinterDnD, DND_FILES
 
 from view.config import DATA_CONFIG, SCREEN_CONFIG
 from view.screens.screen_workbench import Screen_Workbench
@@ -203,6 +204,7 @@ class Screen(ttk.Frame):
         )
 
 
+
 class App:
     """应用主体"""
 
@@ -210,13 +212,13 @@ class App:
         DATA_CONFIG["app"] = self
         DATA_CONFIG["py_path"] = py_path
 
-        # 先创建主窗口，但先隐藏
-        DATA_CONFIG["window"] = ttk.Window(
-            themename="sandstone",
-            title="数学建模论文写作辅助软件 MCM Aid Assistant v1.1.0",
-        )
-        root = DATA_CONFIG["window"]
+        # 使用支持拖拽的 Tk 根窗口，然后套用 ttkbootstrap 的主题
+        root = TkinterDnD.Tk()
         root.withdraw()
+        root.title("数学建模论文写作辅助软件 MCM Aid Assistant v1.1.0")
+        ttk.Style(theme="sandstone")  # 应用主题到当前 Tk
+
+        DATA_CONFIG["window"] = root
 
         # 图标
         try:
@@ -231,6 +233,7 @@ class App:
                     root.iconphoto(True, ttk.PhotoImage(file=resource_path("mcmaa.png")))
         except Exception as e:
             logging.info(f"图标加载失败: {e}")
+
 
         # ========== 尺寸 ==========
         min_height = 960

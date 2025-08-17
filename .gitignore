@@ -42,8 +42,12 @@ dist/*
 
 *.exe
 
+*.html
+
 cumcm/*
 
 ques_solving_code/*
-*.html
+
+test/*
+
 mcmaa_tk/build/main/warn-main.txt

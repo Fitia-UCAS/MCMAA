@@ -22,6 +22,7 @@ from tkinter.scrolledtext import ScrolledText
 import tkinter.filedialog as filedialog
 import tkinter.messagebox as messagebox
 import ttkbootstrap as ttk
+from tkinterdnd2 import DND_FILES
 
 from ..config import SCREEN_CONFIG, MAIN_FRAME_CONFIG
 from controller.workbench_controller import WorkbenchController
@@ -182,15 +183,27 @@ class Screen_Workbench(ttk.Frame):
         topbar.pack(side="top", fill="x")
 
         ttk.Label(topbar, text="标记对：").pack(side="left")
-        self.pair_combo = ttk.Combobox(topbar, textvariable=self.selected_pair_display, state="readonly", width=40)
+        self.pair_combo = ttk.Combobox(
+            topbar,
+            textvariable=self.selected_pair_display,
+            state="readonly",
+            width=40,
+        )
         self.pair_combo.pack(side="left", padx=(6, 8), fill="x", expand=True)
         self.pair_combo.bind("<<ComboboxSelected>>", lambda e: self.on_pair_select())
 
         # 保留“仅应用所选” + “应用所有块”
-        ttk.Button(topbar, text="应用所有块（Ctrl+S）", bootstyle="primary", command=self.apply_replace_all).pack(
-            side="right"
-        )
-        ttk.Button(topbar, text="仅应用所选", command=self.apply_replace).pack(side="right", padx=(0, 8))
+        ttk.Button(
+            topbar,
+            text="应用所有块（Ctrl+S）",
+            bootstyle="primary",
+            command=self.apply_replace_all,
+        ).pack(side="right")
+        ttk.Button(
+            topbar,
+            text="仅应用所选",
+            command=self.apply_replace,
+        ).pack(side="right", padx=(0, 8))
 
         # 右侧分屏区域
         self.replace_paned = ttk.PanedWindow(self.tab_replace, orient="horizontal")
@@ -201,6 +214,14 @@ class Screen_Workbench(ttk.Frame):
 
         # 初始给一个空块
         self._rebuild_replace_blocks([])
+
+        # NEW: 让整个“替换”页支持文件拖放
+        try:
+            self.tab_replace.drop_target_register(DND_FILES)
+            self.tab_replace.dnd_bind("<<Drop>>", self._on_drop_files_to_replace_page)
+        except Exception:
+            pass
+
 
     # -------------------------------- 辅助页 --------------------------------
     def _build_tab_aid(self):
@@ -566,6 +587,16 @@ class Screen_Workbench(ttk.Frame):
             txt = ScrolledText(frame, wrap="word")
             txt.pack(fill="both", expand=True)
             self.replace_blocks.append(("未发现标记对", txt))
+
+            # NEW: 允许把文件拖到这个空块
+            try:
+                txt.drop_target_register(DND_FILES)
+                txt.dnd_bind(
+                    "<<Drop>>",
+                    lambda e, lab="未发现标记对", widget=txt: self._on_drop_file_to_block(e, lab, widget),
+                )
+            except Exception:
+                pass
             return
 
         # 有 N 个标记对 -> N 个分屏块
@@ -577,6 +608,17 @@ class Screen_Workbench(ttk.Frame):
             txt.pack(fill="both", expand=True)
             txt.insert("1.0", p["content"].strip())
             self.replace_blocks.append((p["label"], txt))
+
+            # NEW: 允许把文件拖到具体分屏块，覆盖其内容
+            try:
+                txt.drop_target_register(DND_FILES)
+                txt.dnd_bind(
+                    "<<Drop>>",
+                    lambda e, lab=p["label"], widget=txt: self._on_drop_file_to_block(e, lab, widget),
+                )
+            except Exception:
+                pass
+
 
     def on_pair_select(self, *_):
         """
@@ -894,3 +936,118 @@ class Screen_Workbench(ttk.Frame):
             top.update_idletasks()
         except Exception:
             pass
+
+    # ==============================
+    # Drag & Drop: 文件导入逻辑
+    # ==============================
+    def _safe_read_text_file(self, path: str) -> str:
+        """尝试多种编码读取文本文件。"""
+        for enc in ("utf-8", "utf-8-sig", "gbk", "ansi"):
+            try:
+                with open(path, "r", encoding=enc, errors="strict") as f:
+                    return f.read()
+            except Exception:
+                continue
+        # 最后兜底：忽略非法字符
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            return f.read()
+
+    def _split_dnd_file_list(self, data: str):
+        """
+        DND_FILES 传入形如：'{C:\\a b\\c.txt} D:\\x.md' 这样的列表。
+        用 Tk 的 splitlist 更稳，但这里以最通用方式兼容。
+        """
+        try:
+            # Tk 自带解析（可用时最稳）
+            return self.tk.splitlist(data)
+        except Exception:
+            # 退化解析：去大括号并按空格拆（不含空格路径则 OK）
+            s = data.replace("{", "").replace("}", "")
+            return [p for p in s.split() if p]
+
+    def _on_drop_file_to_block(self, event, label: str, widget):
+        """
+        把文件拖到某个具体分屏块：该块的文本将被拖入文件的内容覆盖（多个文件则依次拼接）。
+        """
+        paths = self._split_dnd_file_list(event.data)
+        if not paths:
+            return
+
+        contents = []
+        for path in paths:
+            try:
+                text = self._safe_read_text_file(path)
+                contents.append(text.strip())
+            except Exception as e:
+                messagebox.showerror("导入失败", f"读取文件失败：{e}")
+                return
+
+        merged_text = "\n\n".join(contents)
+
+        # 覆盖该块文本
+        try:
+            widget.delete("1.0", "end")
+            widget.insert("1.0", merged_text)
+            widget.focus_set()
+            widget.tag_add("sel", "1.0", "end")
+        except Exception as e:
+            messagebox.showerror("导入失败", str(e))
+
+
+    def _on_drop_files_to_replace_page(self, event):
+        """
+        把文件拖到“替换”页空白处/顶部栏：
+        - 每个文件逐一解析：
+          - 若文件内含 <-----标签-----> ... <-----标签----->，按标签名自动分发到各块；
+          - 若不含标记：累积，最后统一填充到当前下拉选中的块。
+        """
+        paths = self._split_dnd_file_list(event.data)
+        if not paths:
+            return
+
+        exist_labels = {lab: txt for lab, txt in getattr(self, "replace_blocks", [])}
+        hit = 0
+        free_texts = []
+
+        for path in paths:
+            try:
+                text = self._safe_read_text_file(path)
+            except Exception as e:
+                messagebox.showerror("导入失败", f"读取文件失败：{e}")
+                return
+
+            pairs = self._parse_marker_pairs(text)
+            if pairs:
+                for p in pairs:
+                    lab = p["label"]
+                    if lab in exist_labels:
+                        txt = exist_labels[lab]
+                        txt.delete("1.0", "end")
+                        txt.insert("1.0", p["content"].strip())
+                        hit += 1
+            else:
+                free_texts.append(text.strip())
+
+        if hit > 0:
+            self.notebook.select(self.tab_replace)
+            first_label = next((lab for lab in exist_labels if exist_labels[lab].get("1.0", "end").strip()), None)
+            if first_label:
+                self.selected_pair_display.set(first_label)
+                self.on_pair_select()
+            messagebox.showinfo("成功", f"已自动填充 {hit} 个分屏块。")
+
+        if free_texts:
+            sel = (self.selected_pair_display.get() or "").strip()
+            target_txt = self._find_block_by_label(sel) if sel else None
+            if target_txt:
+                merged_text = "\n\n".join(free_texts)
+                target_txt.delete("1.0", "end")
+                target_txt.insert("1.0", merged_text)
+                target_txt.focus_set()
+                target_txt.tag_add("sel", "1.0", "end")
+                messagebox.showinfo("成功", f"已把 {len(free_texts)} 个文件内容填充到分屏块：{sel}")
+            else:
+                messagebox.showinfo(
+                    "提示",
+                    f"{len(free_texts)} 个文件不含标记对，且未选择具体分屏块；请先在下拉中选择目标块，或直接拖到某个具体分屏块。",
+                )
