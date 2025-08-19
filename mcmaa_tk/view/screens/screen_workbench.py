@@ -222,7 +222,6 @@ class Screen_Workbench(ttk.Frame):
         except Exception:
             pass
 
-
     # -------------------------------- 辅助页 --------------------------------
     def _build_tab_aid(self):
         self.tab_aid = ttk.Frame(self.notebook)
@@ -251,12 +250,18 @@ class Screen_Workbench(ttk.Frame):
         self.tab_agent = ttk.Frame(self.notebook)
         self.notebook.add(self.tab_agent, text="Agent")
 
+        # 运行期缓存：附件 & 参数
+        self.agent_files = []
+        self.agent_template = ttk.StringVar(value="CHINA")
+        self.agent_format = ttk.StringVar(value="Markdown")
+        self.agent_lang = ttk.StringVar(value="zh")
+
         # 顶部连接区
         agent_top = ttk.Frame(self.tab_agent, padding=(8, 6))
         agent_top.pack(side="top", fill="x")
 
         ttk.Label(agent_top, text="URL:").pack(side="left")
-        self.agent_url = ttk.StringVar(value="ws://127.0.0.1:8000/ws")
+        self.agent_url = ttk.StringVar(value="http://127.0.0.1:8000")
         ttk.Entry(agent_top, textvariable=self.agent_url, width=34).pack(side="left", padx=(4, 12))
 
         ttk.Label(agent_top, text="Token:").pack(side="left")
@@ -270,6 +275,29 @@ class Screen_Workbench(ttk.Frame):
         ttk.Button(agent_top, text="连接", bootstyle="success", command=self._agent_connect).pack(side="left", padx=4)
         ttk.Button(agent_top, text="断开", command=self._agent_close).pack(side="left", padx=4)
 
+        # —— 提交参数区（模板/格式/语言/附件） ——
+        opt = ttk.Frame(self.tab_agent, padding=(8, 0))
+        opt.pack(side="top", fill="x")
+
+        ttk.Label(opt, text="Template:").pack(side="left")
+        ttk.Combobox(
+            opt, textvariable=self.agent_template, width=10, values=("CHINA", "AMERICAN"), state="readonly"
+        ).pack(side="left", padx=(4, 12))
+
+        ttk.Label(opt, text="Format:").pack(side="left")
+        ttk.Combobox(
+            opt, textvariable=self.agent_format, width=10, values=("Markdown", "LaTeX"), state="readonly"
+        ).pack(side="left", padx=(4, 12))
+
+        ttk.Label(opt, text="Language:").pack(side="left")
+        ttk.Combobox(opt, textvariable=self.agent_lang, width=8, values=("zh", "en"), state="readonly").pack(
+            side="left", padx=(4, 12)
+        )
+
+        ttk.Button(opt, text="添加附件", command=self._agent_add_files).pack(side="left")
+        self.agent_files_hint = ttk.StringVar(value="(0 个附件)")
+        ttk.Label(opt, textvariable=self.agent_files_hint, bootstyle="secondary").pack(side="left", padx=(8, 0))
+
         # 中部消息/输入区
         mid = ttk.Frame(self.tab_agent, padding=(8, 6))
         mid.pack(side="top", fill="both", expand=True)
@@ -277,20 +305,37 @@ class Screen_Workbench(ttk.Frame):
         # 左：消息控制
         left = ttk.Frame(mid)
         left.pack(side="left", fill="y")
-        ttk.Button(left, text="Ping", command=self._agent_ping).pack(side="top", fill="x", pady=(0, 6))
-        ttk.Button(left, text="发送请求 infer", bootstyle="primary", command=self._agent_infer).pack(
-            side="top", fill="x"
-        )
+
+        # 按钮1：提交并连接（HTTP 提交 -> 连接 /ws/tasks/{task_id}）
+        ttk.Button(
+            left,
+            text="提交并连接",
+            bootstyle="primary",
+            command=self._agent_submit_and_connect,
+        ).pack(side="top", fill="x", pady=(0, 6))
+
+        # 按钮2：仅初始化（等价顶部“连接”）
+        ttk.Button(
+            left,
+            text="仅初始化",
+            command=self._agent_connect,
+        ).pack(side="top", fill="x")
 
         # 右：日志/状态
         right = ttk.Frame(mid)
         right.pack(side="left", fill="both", expand=True, padx=(12, 0))
+
         ttk.Label(right, text="状态:").pack(anchor="w")
         self.agent_status_var = ttk.StringVar(value="disconnected")
         ttk.Label(right, textvariable=self.agent_status_var, bootstyle="secondary").pack(anchor="w", pady=(0, 6))
+
         ttk.Label(right, text="消息:").pack(anchor="w")
-        self.agent_console = ScrolledText(right, wrap="word", state="disabled", height=14)
+        self.agent_console = ScrolledText(right, wrap="word", state="normal", height=14)
         self.agent_console.pack(fill="both", expand=True)
+
+        # 定义日志样式（错误红，成功绿）
+        self.agent_console.tag_config("error", foreground="red")
+        self.agent_console.tag_config("success", foreground="green")
 
     # ---------------------------------------------------------------------
     # Tab 变更钩子
@@ -619,7 +664,6 @@ class Screen_Workbench(ttk.Frame):
             except Exception:
                 pass
 
-
     def on_pair_select(self, *_):
         """
         下拉选择某个标记时，把焦点定位到对应的分屏编辑框；
@@ -741,44 +785,89 @@ class Screen_Workbench(ttk.Frame):
         self.agent_status_var.set(str(s))
 
     def _agent_log(self, text: str):
-        self.agent_console.config(state="normal")
-        self.agent_console.insert("end", text)
+        """在控制台输出带时间戳的日志，错误红色，成功绿色。"""
+        ts = time.strftime("[%H:%M:%S] ")
+        full_text = ts + text
+
+        if text.strip().startswith("!"):  # 错误 → 红色
+            self.agent_console.insert("end", full_text, "error")
+        elif text.strip().startswith(">"):  # 成功 → 绿色
+            self.agent_console.insert("end", full_text, "success")
+        else:  # 普通
+            self.agent_console.insert("end", full_text)
+
         self.agent_console.see("end")
-        self.agent_console.config(state="disabled")
 
     def _agent_connect(self):
-        url = self.agent_url.get().strip()
-        token = self.agent_token.get().strip() or None
-        proxy = self.agent_proxy.get().strip() or None
+        """仅初始化 Agent 客户端，不提交任务。"""
         try:
             self.ctrl.agent_connect(
-                url=url, token=token, proxy=proxy, ping_interval=20.0, insecure_skip_tls_verify=True
+                base_url=self.agent_url.get().strip(),
+                token=self.agent_token.get().strip(),
+                proxy=self.agent_proxy.get().strip(),
             )
-            self._agent_log(f"> CONNECT {url}\n")
+            self._agent_log("> CONNECTED (ready)\n")
         except Exception as e:
             messagebox.showerror("连接失败", str(e))
+            self._agent_log(f"! CONNECT ERROR: {e}\n")
 
     def _agent_close(self):
+        """断开与 Agent 的连接。"""
         try:
             self.ctrl.agent_close()
-            self._agent_log("> CLOSE\n")
+            self._agent_log("> DISCONNECTED\n")
         except Exception as e:
             messagebox.showerror("断开失败", str(e))
+            self._agent_log(f"! CLOSE ERROR: {e}\n")
 
-    def _agent_ping(self):
+    def _agent_add_files(self):
+        """选择并缓存要随任务一同上传的附件（多选）。"""
         try:
-            self.ctrl.agent_send_json({"type": "ping", "ts": time.time()})
-            self._agent_log("> ping\n")
+            paths = filedialog.askopenfilenames(
+                title="选择要上传的文件（可多选）",
+                filetypes=[
+                    ("All", "*.*"),
+                    ("CSV", "*.csv"),
+                    ("Excel", "*.xls;*.xlsx"),
+                    ("Zip", "*.zip"),
+                    ("Text", "*.txt;*.md"),
+                    ("PDF", "*.pdf"),
+                ],
+            )
+            if not paths:
+                return
+            self.agent_files = list(paths)
+            self.agent_files_hint.set(f"({len(self.agent_files)} 个附件)")
+            self._agent_log(f"> ATTACH {len(self.agent_files)} files\n")
+        except Exception as e:
+            messagebox.showerror("选择附件失败", str(e))
+
+    def _agent_submit_and_connect(self):
+        """提交建模并连接任务 WS（推荐流程）。"""
+        try:
+            # 1) 确保已初始化（右上角 URL= http://127.0.0.1:8000）
+            self._agent_connect()
+
+            # 2) 用编辑器全文作为 problem_text
+            problem_text = self._get_editor_text()
+            template = self.agent_template.get().strip() or "CHINA"
+            output_format = self.agent_format.get().strip() or "Markdown"
+            language = self.agent_language.get().strip() or "zh"
+
+            # 3) HTTP 提交 -> 获得 task_id -> 连接该 task 的 WS
+            task_id = self.ctrl.agent_submit_and_connect(
+                problem_text=problem_text,
+                template=template,  # CHINA / AMERICAN
+                output_format=output_format,  # Markdown / LaTeX（大小写严格）
+                language=language,  # zh / en
+                files=self.agent_files,  # 把附件带上（可为空）
+                extra_form={},  # 有额外表单参数就放这里
+                timeout=60.0,
+            )
+            self._agent_log(f"> SUBMIT task_id={task_id}\n")
+
         except Exception as e:
             messagebox.showerror("发送失败", str(e))
-
-    def _agent_infer(self):
-        """示例：同步请求-响应。"""
-        try:
-            resp = self.ctrl.agent_request({"type": "infer", "payload": {"text": "hello mcmaa"}}, timeout=15.0)
-            self._agent_log(f"> infer hello mcmaa\n< {resp}\n")
-        except Exception as e:
-            messagebox.showerror("请求失败", str(e))
 
     # ---------------------------------------------------------------------
     # 编辑器：全文搜索 / 替换对话框
@@ -993,7 +1082,6 @@ class Screen_Workbench(ttk.Frame):
         except Exception as e:
             messagebox.showerror("导入失败", str(e))
 
-
     def _on_drop_files_to_replace_page(self, event):
         """
         把文件拖到“替换”页空白处/顶部栏：
@@ -1051,3 +1139,27 @@ class Screen_Workbench(ttk.Frame):
                     "提示",
                     f"{len(free_texts)} 个文件不含标记对，且未选择具体分屏块；请先在下拉中选择目标块，或直接拖到某个具体分屏块。",
                 )
+
+    def _agent_add_files(self):
+        """选择并缓存要随任务一同上传的附件（多选）。"""
+        try:
+            paths = filedialog.askopenfilenames(
+                title="选择要上传的文件（可多选）",
+                filetypes=[
+                    ("All", "*.*"),
+                    ("CSV", "*.csv"),
+                    ("Excel", "*.xls;*.xlsx"),
+                    ("Zip", "*.zip"),
+                    ("Text", "*.txt;*.md"),
+                    ("PDF", "*.pdf"),
+                ],
+            )
+            if not paths:
+                return
+            # 允许多次添加，去重
+            new_set = set(self.agent_files) | set(paths)
+            self.agent_files = list(new_set)
+            self.agent_files_hint.set(f"({len(self.agent_files)} 个附件)")
+            self._agent_log(f"> ADD FILES: {len(paths)} added, total {len(self.agent_files)}\n")
+        except Exception as e:
+            messagebox.showerror("选择附件失败", str(e))

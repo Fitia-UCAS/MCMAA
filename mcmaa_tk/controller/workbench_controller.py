@@ -142,52 +142,39 @@ class AgentBridge:
     def agent_submit_and_connect(
         self,
         problem_text: str,
-        files: Optional[Iterable[Tuple[str, Tuple[str, Any, str]]]] = None,
-        template: str = "mcm",
-        output_format: str = "latex",
+        template: str,
+        output_format: str,
         language: str = "zh",
-        extra_form: Optional[Dict[str, Any]] = None,
+        files: list[str] | None = None,
+        extra_form: dict | None = None,
         timeout: float = 60.0,
     ) -> str:
         """
-        1) HTTP 提交建模 -> 获得 task_id（从 JSON 中提取）
-        2) 连接该 task 的 WS 流（后台线程）
-        :return: task_id
+        1) POST /modeling 提交建模 → 返回 task_id
+        2) 自动连接 ws://.../ws/tasks/{task_id}，把流式消息回传 UI
         """
         if not self._agent:
-            raise RuntimeError("agent is not initialized, call agent_connect(base_url, ...) first")
+            raise RuntimeError("Agent client not initialized")
 
-        # --- 构造 payload（JSON 方式） ---
         payload = {
-            "problem_text": problem_text,
-            "template": template,
-            "output_format": output_format,
+            "problem_text": problem_text,  # -> ques_all
+            "template": template,  # -> comp_template（已是 CHINA/AMERICAN）
+            "output_format": output_format,  # -> format_output（已是 Markdown/LaTeX）
             "language": language,
-            "extra_form": extra_form or {},
-            "timeout": timeout,
-            # 如需传文件且后端只收 JSON，可将 files 转成 base64 后放入自定义字段
-            # "files": [...],
         }
+        if extra_form:
+            payload.update(extra_form)
 
-        self._set_status("submitting...")
-        resp = self._agent.submit_modeling(payload)  # -> Dict
-
-        # --- 提取 task_id（兼容常见返回结构） ---
-        task_id = (
-            (resp.get("task_id"))
-            or (isinstance(resp.get("data"), dict) and resp["data"].get("task_id"))
-            or resp.get("id")
-        )
+        # 附件以 files 字段上传；client 会转成 multipart files={"files": [...]}
+        files_dict = {"files": files} if files else None
+        resp = self._agent.submit_modeling(payload, file_paths=files_dict)
+        task_id = resp.get("task_id")
         if not task_id:
-            raise RuntimeError(f"submit response missing task_id: {resp!r}")
+            raise RuntimeError(f"后端未返回 task_id: {resp}")
 
-        self._current_task_id = str(task_id)
-
-        # --- 连接任务 WS ---
-        self._set_status(f"connecting task {self._current_task_id}...")
-        ws_path = self.WS_TASK_PATH_TPL.format(task_id=self._current_task_id)
-        self._agent.connect_ws(path=ws_path, block=False)
-        return self._current_task_id
+        # 连接 WS
+        self._agent.connect_task_ws(task_id=task_id, timeout=timeout)
+        return task_id
 
     # ------------------------ 已有 task_id 时直接连接 ------------------------
     def agent_connect_task(self, task_id: str) -> None:

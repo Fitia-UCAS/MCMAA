@@ -1,0 +1,13 @@
+fastapi
+loguru
+pypandoc
+pydantic-settings
+icecream
+redis
+litellm
+nbformat
+ansi2html
+e2b_code_interpreter
+jupyter_client
+python-multipart
+uvicorn[standard]

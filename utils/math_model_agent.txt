@@ -1,0 +1,5064 @@
+目录结构:
+|-- 文件: .env.dev
+|-- 文件: .env.dev.example
+|-- 文件: .gitignore
+|-- 文件夹: app
+|   |-- 文件夹: config
+|   |   |-- 文件: md_template.toml
+|   |   |-- 文件: model_config.toml
+|   |   |-- 文件: setting.py
+|   |   |-- 文件: template.md
+|   |-- 文件夹: core
+|   |   |-- 文件夹: agents
+|   |   |   |-- 文件: agent.py
+|   |   |   |-- 文件: coder_agent.py
+|   |   |   |-- 文件: coordinator_agent.py
+|   |   |   |-- 文件: modeler_agent.py
+|   |   |   |-- 文件: writer_agent.py
+|   |   |   |-- 文件: __init__.py
+|   |   |-- 文件: flows.py
+|   |   |-- 文件: functions.py
+|   |   |-- 文件夹: llm
+|   |   |   |-- 文件: llm.py
+|   |   |   |-- 文件: llm_factory.py
+|   |   |   |-- 文件: __init__.py
+|   |   |-- 文件: prompts.py
+|   |   |-- 文件: workflow.py
+|   |   |-- 文件: __init__.py
+|   |-- 文件夹: example
+|   |   |-- 文件夹: example
+|   |   |   |-- 文件夹: 2023华数杯C题
+|   |   |   |   |-- 文件: questions.txt
+|   |   |   |   |-- 文件: 华数杯2023年C题.pdf
+|   |   |   |   |-- 文件: 附件.xlsx
+|   |   |   |-- 文件夹: 2024高教杯C题
+|   |   |   |   |-- 文件: C题.pdf
+|   |   |   |   |-- 文件: questions.txt
+|   |   |   |   |-- 文件: result1_1.xlsx
+|   |   |   |   |-- 文件: result1_2.xlsx
+|   |   |   |   |-- 文件: result2.xlsx
+|   |   |   |   |-- 文件: 附件1.xlsx
+|   |   |   |   |-- 文件: 附件2.xlsx
+|   |   |   |-- 文件夹: 2025五一杯C题
+|   |   |   |   |-- 文件: 2025-51MCM-Problem C.docx
+|   |   |   |   |-- 文件: questions.txt
+|   |   |   |   |-- 文件: 附件1 (Attachment 1).csv
+|   |   |   |   |-- 文件: 附件2 (Attachment 2).csv
+|   |   |-- 文件夹: sample_data
+|   |   |   |-- 文件: 附件.xlsx
+|   |-- 文件: main.py
+|   |-- 文件夹: models
+|   |   |-- 文件: user_output.py
+|   |   |-- 文件: __init__.py
+|   |-- 文件夹: routers
+|   |   |-- 文件: common_router.py
+|   |   |-- 文件: files_router.py
+|   |   |-- 文件: modeling_router.py
+|   |   |-- 文件: ws_router.py
+|   |   |-- 文件: __init__.py
+|   |-- 文件夹: schemas
+|   |   |-- 文件: A2A.py
+|   |   |-- 文件: base.py
+|   |   |-- 文件: enums.py
+|   |   |-- 文件: request.py
+|   |   |-- 文件: response.py
+|   |   |-- 文件: tool_result.py
+|   |   |-- 文件: __init__.py
+|   |-- 文件夹: services
+|   |   |-- 文件: redis_manager.py
+|   |   |-- 文件: ws_manager.py
+|   |-- 文件夹: tests
+|   |   |-- 文件: get_config_template.py
+|   |   |-- 文件夹: mock
+|   |   |   |-- 文件: res.json
+|   |   |-- 文件: res.md
+|   |   |-- 文件: test_common_utils.py
+|   |   |-- 文件: test_e2b.py
+|   |   |-- 文件: __init__.py
+|   |-- 文件夹: tools
+|   |   |-- 文件: base.py
+|   |   |-- 文件: base_interpreter.py
+|   |   |-- 文件: e2b_interpreter.py
+|   |   |-- 文件: interpreter_factory.py
+|   |   |-- 文件: local_interpreter.py
+|   |   |-- 文件: notebook_serializer.py
+|   |   |-- 文件: openalex_scholar.py
+|   |   |-- 文件: __init__.py
+|   |-- 文件夹: utils
+|   |   |-- 文件: cli.py
+|   |   |-- 文件: common_utils.py
+|   |   |-- 文件: data_recorder.py
+|   |   |-- 文件: log_util.py
+|   |   |-- 文件: RichPrinter.py
+|   |   |-- 文件: track.py
+|   |   |-- 文件: __init__.py
+|   |-- 文件: __init__.py
+|-- 文件夹: logs
+|   |-- 文件夹: messages
+|   |   |-- (空目录)
+|-- 文件夹: project
+|   |-- 文件夹: work_dir
+|   |   |-- 文件: .gitkeep
+|-- 文件: requirements.txt
+|-- 文件: start
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\.env.dev 的内容:
+================================================================================
+ENV=dev
+# support all model, check out https://docs.litellm.ai/docs/providers
+# e.g. gpt-4.1,deepseek/deepseek-chat
+# docs/md/tutorial
+# 为每个 agent 配置合适的模型
+COORDINATOR_API_KEY=sk-2f4189e3911644c6a37c28a202e0295c
+COORDINATOR_MODEL=deepseek/deepseek-chat
+# COORDINATOR_BASE_URL= 如果需要中转自定义等 地址后面添加 /v1
+
+# 推荐 thinking model
+MODELER_API_KEY=sk-2f4189e3911644c6a37c28a202e0295c
+MODELER_MODEL=deepseek/deepseek-chat
+# MODELER_BASE_URL=
+
+CODER_API_KEY=sk-2f4189e3911644c6a37c28a202e0295c
+CODER_MODEL=deepseek/deepseek-chat
+# CODER_BASE_URL=
+
+WRITER_API_KEY=sk-2f4189e3911644c6a37c28a202e0295c
+WRITER_MODEL=deepseek/deepseek-chat
+# WRITER_BASE_URL=
+
+DEFAULT_API_KEY=sk-2f4189e3911644c6a37c28a202e0295c
+DEFAULT_MODEL=deepseek/deepseek-chat
+# DEFAULT_BASE_URL= 
+
+# 模型最大问答次数
+MAX_CHAT_TURNS=60
+# 思考反思次数
+MAX_RETRIES=5
+
+# 不需要填，默认调用本地 Python
+# E2B_API_KEY=
+SERVER_HOST=http://localhost:8000
+# 使用 email 注册账号从 https://openalex.org/ 文献
+OPENALEX_EMAIL=2039787966@qq.com
+
+LOG_LEVEL=DEBUG
+DEBUG=true
+# 确保安装 Redis
+# 如果是docker: REDIS_URL=redis://redis:6379/0
+REDIS_URL=redis://localhost:6379/0
+REDIS_MAX_CONNECTIONS=20
+CORS_ALLOW_ORIGINS=http://localhost:5173,http://localhost:3000
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\.env.dev.example 的内容:
+================================================================================
+ENV=dev
+# support all model, check out https://docs.litellm.ai/docs/providers
+# e.g. gpt-4.1,deepseek/deepseek-chat
+# docs/md/tutorial
+# 为每个 agent 配置合适的模型
+COORDINATOR_API_KEY=
+COORDINATOR_MODEL=
+# COORDINATOR_BASE_URL= 如果需要中转自定义等 地址后面添加 /v1
+
+# 推荐 thinking model
+MODELER_API_KEY=
+MODELER_MODEL=
+# MODELER_BASE_URL=
+
+CODER_API_KEY=
+CODER_MODEL=
+# CODER_BASE_URL=
+
+WRITER_API_KEY=
+WRITER_MODEL=
+# WRITER_BASE_URL=
+
+DEFAULT_API_KEY=
+DEFAULT_MODEL=
+# DEFAULT_BASE_URL= 
+
+# 模型最大问答次数
+MAX_CHAT_TURNS=60
+# 思考反思次数
+MAX_RETRIES=5
+
+# 不需要填，默认调用本地 Python
+# E2B_API_KEY=
+SERVER_HOST=http://localhost:8000
+# 使用 email 注册账号从 https://openalex.org/ 文献
+OPENALEX_EMAIL=
+
+LOG_LEVEL=DEBUG
+DEBUG=true
+# 确保安装 Redis
+# 如果是docker: REDIS_URL=redis://redis:6379/0
+REDIS_URL=redis://localhost:6379/0
+REDIS_MAX_CONNECTIONS=20
+CORS_ALLOW_ORIGINS=http://localhost:5173,http://localhost:3000
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\start 的内容:
+================================================================================
+conda activate mcmaa_tk
+cd E:\repo1\MCM\mcmaa\math_model_agent
+python -m app.main
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\main.py 的内容:
+================================================================================
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
+import os
+from app.routers import modeling_router, ws_router, common_router, files_router
+from app.utils.log_util import logger
+from app.config.setting import settings
+from fastapi.staticfiles import StaticFiles
+from app.utils.cli import get_ascii_banner, center_cli_str
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print(get_ascii_banner())
+    print(center_cli_str("GitHub:https://github.com/jihe520/MathModelAgent"))
+    logger.info("Starting MathModelAgent")
+
+    PROJECT_FOLDER = "./project"
+    os.makedirs(PROJECT_FOLDER, exist_ok=True)
+
+    yield
+    logger.info("Stopping MathModelAgent")
+
+
+app = FastAPI(
+    title="MathModelAgent",
+    description="Agents for MathModel",
+    version="0.1.0",
+    lifespan=lifespan,
+)
+
+app.include_router(modeling_router.router)
+app.include_router(ws_router.router)
+app.include_router(common_router.router)
+app.include_router(files_router.router)
+
+
+# 跨域 CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ALLOW_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],  # 暴露所有响应头
+)
+
+app.mount(
+    "/static",  # 这是访问时的前缀
+    StaticFiles(directory="project/work_dir"),  # 这是本地文件夹路径
+    name="static",
+)
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\config\md_template.toml 的内容:
+================================================================================
+firstPage = """
+# 标题： 基于全文取一个标题
+例子：基于哈里斯鹰算法的农业种植优化模型研究
+摘要
+第一段：背景
+大约100字
+
+每个问题都需要按照下面类似的单独撰写成一段'\n'，不要分点叙述。
+针对问题几，根据问题几回答，使用到什么模型，如何去构建该模型，做了什么工作，得到什么结果，一些具体的数值
+每段大约170字
+
+最后一段：总结敏感性分析使用和效果，结论。
+大约150字
+
+关键词： 用到的模型等，关键词大约4/5个，没有标号
+例子：HHO  MOHHO  遗传算法  Mealpy  蒙特卡洛模拟  规划问题
+
+参考下面的问题,模型的建立与求解，按照上面模板和要求完成 标题，摘要，关键字的撰写
+
+{问题}
+{模型的建立与求解}
+"""
+RepeatQues = """
+# 一、问题重述
+## 1.1 问题背景
+查询文献
+根据题目总结问题背景（查询文献）
+格式：一段话
+大约160字
+## 1.2 问题重述
+参考模板如下
+本文基于以上信息建立数学模型来解决以下问题。
+分点叙述
+
+**参考下面的题目要求和问题，按照上面模板和要求完成 **问题重述中的问题背景和问题重述**
+
+{题目}
+"""
+analysisQues = """
+# 二、问题分析
+## 2.1 问题一的分析
+分两段
+大约250字
+
+参考模板：
+本题要求根据销售量、种植成本、亩产量和销售价格等相关数据，考虑土地资源、种植条件等约束条件，将问题一拆解成两小问，在两种不同的滞销处理方式即两种不同的单目标函数下求解出2024-2030的利润最优种植方案。
+假设2023年的农作物数据（销售量、价格、亩产量、种植成本）保持不变，并不考虑环境的波动性，可以通过建立单一目标的规划模型进行求解。采用哈里斯鹰优化算法模型(HHO) 求解最优作物种植方式，与遗传算法（GA）对比，并对模型的规划结果进行评估，哈里斯鹰优化算法拥有更强的局部搜索能力和并行处理能力，在问题的解决上更加灵活和敏捷，能够更加快速的搜查和汇总数据，最终选择哈里斯鹰算法模型(HHO)进行求解。
+
+每个问题如此分析
+## 2.2 问题二的分析
+
+
+参考下面的模型的建立与求解 和 题目 ，按照上面模板和要求完成 **每个问题的分析**
+
+{模型的建立与求解}
+{题目}
+  """
+modelAssumption = """
+# 三、模型假设
+写大概3/4条，下面例子：
+(1) 数据有效性：假设所用数据真实可靠
+(2) 市场稳定性：假设农业种植中没有自然灾害、政府政策等因素影响。
+
+参考下面的模型的建立与求解 和 题目 ，按照上面模板和要求完成 **模型的假设**
+
+{模型的建立与求解}
+{题目}
+  """
+symbol = """
+# 四、符号说明和数据预处理
+## 4.1 符号说明
+
+参考模板：
+| 符号 | 含义 | 单位 |
+| ---- | ---- | ---- |
+| \\( x \\) | 农作物种类 | - |
+| \\( y \\) | 种植面积 | 亩 |
+| \\( z \\) | 预期销售量 | 吨 |
+| \\( c \\) | 种植成本 | 元 |
+| \\( p \\) | 销售价格 | 元/吨 |
+| \\( r \\) | 风险系数 | - |
+| \\( t \\) | 时间（年） | 年 |
+
+参考下面的模型的建立与求解，给出表格表示一些符号说明
+注意：符号用markdwon公式渲染
+
+{模型的建立与求解}
+"""
+eda = """
+## 4.2 描述性统计
+大约200字
+"""
+ques1 = """模板和要求如下
+# 五、模型的建立与求解
+## 5.1 问题一模型的建立与求解
+### 5.1.1 问题的建立
+对模型的简单介绍，用到的公式，模型的建立过程
+### 5.1.2 模型的求解
+模型的验证，结果分析，回答问题
+模型的求解过程
+大约600字
+"""
+ques2 = """参考模板
+## 5.2 问题二模型的建立与求解
+### 5.2.1 问题的建立
+对模型的简单介绍，用到的公式，模型的建立过程
+### 5.2.2 模型的求解
+模型的验证，结果分析，回答问题
+模型的求解过程
+大约600字
+"""
+ques3 = """参考模板
+## 5.3 问题三模型的建立与求解
+### 5.3.1 模型的建立
+对模型的简单介绍，用到的公式，模型的建立过程
+### 5.3.2 模型的求解
+模型的验证，结果分析，回答问题
+模型的求解过程
+大约600字
+"""
+ques4 = """参考模板
+## 5.4 问题四模型的建立与求解
+### 5.4.1 模型的建立
+对模型的简单介绍，用到的公式，模型的建立过程
+### 5.4.2 模型的求解
+模型的验证，结果分析，回答问题
+模型的求解过程
+大约600字
+"""
+ques5 = """参考模板
+## 5.5 问题五模型的建立与求解
+### 5.5.1 模型的建立
+对模型的简单介绍，用到的公式，模型的建立过程
+### 5.5.2 模型的求解
+模型的验证，结果分析，回答问题
+模型的求解过程
+大约600字
+"""
+ques6 = """参考模板
+## 5.6 问题六模型的建立与求解
+### 5.6.1 模型的建立
+对模型的简单介绍，用到的公式，模型的建立过程
+### 5.6.2 模型的求解
+模型的验证，结果分析，回答问题
+模型的求解过程
+大约600字
+"""
+sensitivity_analysis = """参考模板
+# 六、模型的分析与检验
+## 6.1 灵敏度分析
+"""
+judge = """参考模板和要求
+# 七、模型的评价、改进与推广
+## 7.1 模型的优点
+## 7.2 模型的缺点
+## 7.3 模型的改进与推广
+优点数量要多于缺点，缺点大约2/3个
+大约200字
+"""
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\config\model_config.toml 的内容:
+================================================================================
+[config1]
+COORDINATOR_API_KEY=''
+COORDINATOR_MODEL=''
+COORDINATOR_BASE_URL=''
+
+
+MODELER_API_KEY=''
+MODELER_MODEL=''
+MODELER_BASE_URL=''
+
+CODER_API_KEY=''
+CODER_MODEL=''
+CODER_BASE_URL=''
+
+WRITER_API_KEY=''
+WRITER_MODEL=''
+WRITER_BASE_URL=''
+
+[config2]
+
+
+[current]
+current = 'config1'
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\config\setting.py 的内容:
+================================================================================
+from pydantic import AnyUrl, BeforeValidator, computed_field, field_validator, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
+from typing import Annotated, Optional
+
+
+def parse_cors(value: str) -> list[str]:
+    """
+    Parses the CORS settings from a string to a list of URLs.
+    """
+    if value == "*":
+        return ["*"]
+    if "," in value:
+        return [url.strip() for url in value.split(",")]
+    return [value]
+
+
+class Settings(BaseSettings):
+    ENV: str
+
+    COORDINATOR_API_KEY: str
+    COORDINATOR_MODEL: str
+    COORDINATOR_BASE_URL: Optional[str] = None
+
+    MODELER_API_KEY: str
+    MODELER_MODEL: str
+    MODELER_BASE_URL: Optional[str] = None
+
+    CODER_API_KEY: str
+    CODER_MODEL: str
+    CODER_BASE_URL: Optional[str] = None
+
+    WRITER_API_KEY: str
+    WRITER_MODEL: str
+    WRITER_BASE_URL: Optional[str] = None
+
+    DEFAULT_API_KEY: str
+    DEFAULT_MODEL: str
+    DEFAULT_BASE_URL: Optional[str] = None
+
+    MAX_CHAT_TURNS: int
+    MAX_RETRIES: int
+    E2B_API_KEY: Optional[str] = None
+    LOG_LEVEL: str
+    DEBUG: bool
+    REDIS_URL: str
+    REDIS_MAX_CONNECTIONS: int
+    CORS_ALLOW_ORIGINS: Annotated[list[str] | str, BeforeValidator(parse_cors)]
+    SERVER_HOST: str = "http://localhost:8000"  # 默认值
+    OPENALEX_EMAIL: Optional[str] = None
+
+    model_config = SettingsConfigDict(
+        env_file=".env.dev",
+        env_file_encoding="utf-8",
+        extra="allow",
+    )
+
+    def get_deepseek_config(self) -> dict:
+        return {
+            "api_key": self.DEEPSEEK_API_KEY,
+            "model": self.DEEPSEEK_MODEL,
+            "base_url": self.DEEPSEEK_BASE_URL,
+        }
+
+    @classmethod
+    def from_env(cls, env: str = None):
+        env = env or os.getenv("ENV", "dev")
+        env_file = f".env.{env.lower()}"
+        return cls(_env_file=env_file, _env_file_encoding="utf-8")
+
+
+settings = Settings()
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\flows.py 的内容:
+================================================================================
+from app.models.user_output import UserOutput
+from app.tools.base_interpreter import BaseCodeInterpreter
+from app.core.agents.modeler_agent import ModelerToCoder
+
+
+class Flows:
+    def __init__(self, questions: dict[str, str | int]):
+        self.flows: dict[str, dict] = {}
+        self.questions: dict[str, str | int] = questions
+
+    def set_flows(self, ques_count: int):
+        ques_str = [f"ques{i}" for i in range(1, ques_count + 1)]
+        seq = [
+            "firstPage",
+            "RepeatQues",
+            "analysisQues",
+            "modelAssumption",
+            "symbol",
+            "eda",
+            *ques_str,
+            "sensitivity_analysis",
+            "judge",
+        ]
+        self.flows = {key: {} for key in seq}
+
+    def get_solution_flows(
+        self, questions: dict[str, str | int], modeler_response: ModelerToCoder
+    ):
+        questions_quesx = {
+            key: value
+            for key, value in questions.items()
+            if key.startswith("ques") and key != "ques_count"
+        }
+        ques_flow = {
+            key: {
+                "coder_prompt": f"""
+                        参考建模手给出的解决方案{modeler_response.questions_solution[key]}
+                        完成如下问题{value}
+                    """,
+            }
+            for key, value in questions_quesx.items()
+        }
+        flows = {
+            "eda": {
+                # TODO ： 获取当前路径下的所有数据集
+                "coder_prompt": f"""
+                        参考建模手给出的解决方案{modeler_response.questions_solution["eda"]}
+                        对当前目录下数据进行EDA分析(数据清洗,可视化),清洗后的数据保存当前目录下,**不需要复杂的模型**
+                    """,
+            },
+            **ques_flow,
+            "sensitivity_analysis": {
+                "coder_prompt": f"""
+                        参考建模手给出的解决方案{modeler_response.questions_solution["sensitivity_analysis"]}
+                        完成敏感性分析
+                    """,
+            },
+        }
+        return flows
+
+    def get_write_flows(
+        self, user_output: UserOutput, config_template: dict, bg_ques_all: str
+    ):
+        model_build_solve = user_output.get_model_build_solve()
+        flows = {
+            "firstPage": f"""问题背景{bg_ques_all},不需要编写代码,根据模型的求解的信息{model_build_solve}，按照如下模板撰写：{config_template["firstPage"]}，撰写标题，摘要，关键词""",
+            "RepeatQues": f"""问题背景{bg_ques_all},不需要编写代码,根据模型的求解的信息{model_build_solve}，按照如下模板撰写：{config_template["RepeatQues"]}，撰写问题重述""",
+            "analysisQues": f"""问题背景{bg_ques_all},不需要编写代码,根据模型的求解的信息{model_build_solve}，按照如下模板撰写：{config_template["analysisQues"]}，撰写问题分析""",
+            "modelAssumption": f"""问题背景{bg_ques_all},不需要编写代码,根据模型的求解的信息{model_build_solve}，按照如下模板撰写：{config_template["modelAssumption"]}，撰写模型假设""",
+            "symbol": f"""不需要编写代码,根据模型的求解的信息{model_build_solve}，按照如下模板撰写：{config_template["symbol"]}，撰写符号说明部分""",
+            "judge": f"""不需要编写代码,根据模型的求解的信息{model_build_solve}，按照如下模板撰写：{config_template["judge"]}，撰写模型的评价部分""",
+        }
+        return flows
+
+    def get_writer_prompt(
+        self,
+        key: str,
+        coder_response: str,
+        code_interpreter: BaseCodeInterpreter,
+        config_template: dict,
+    ) -> str:
+        """根据不同的key生成对应的writer_prompt
+
+        Args:
+            key: 任务类型
+            coder_response: 代码执行结果
+
+        Returns:
+            str: 生成的writer_prompt
+        """
+        code_output = code_interpreter.get_code_output(key)
+
+        questions_quesx_keys = self.get_questions_quesx_keys()
+        bgc = self.questions["background"]
+        quesx_writer_prompt = {
+            key: f"""
+                    问题背景{bgc},不需要编写代码,代码手得到的结果{coder_response},{code_output},按照如下模板撰写：{config_template[key]}
+                """
+            for key in questions_quesx_keys
+        }
+
+        writer_prompt = {
+            "eda": f"""
+                    问题背景{bgc},不需要编写代码,代码手得到的结果{coder_response},{code_output},按照如下模板撰写：{config_template["eda"]}
+                """,
+            **quesx_writer_prompt,
+            "sensitivity_analysis": f"""
+                    问题背景{bgc},不需要编写代码,代码手得到的结果{coder_response},{code_output},按照如下模板撰写：{config_template["sensitivity_analysis"]}
+                """,
+        }
+
+        if key in writer_prompt:
+            return writer_prompt[key]
+        else:
+            raise ValueError(f"未知的任务类型: {key}")
+
+    def get_questions_quesx_keys(self) -> list[str]:
+        """获取问题1,2...的键"""
+        return list(self.get_questions_quesx().keys())
+
+    def get_questions_quesx(self) -> dict[str, str]:
+        """获取问题1,2,3...的键值对"""
+        # 获取所有以 "ques" 开头的键值对
+        questions_quesx = {
+            key: value
+            for key, value in self.questions.items()
+            if key.startswith("ques") and key != "ques_count"
+        }
+        return questions_quesx
+
+    def get_seq(self, ques_count: int) -> dict[str, str]:
+        ques_str = [f"ques{i}" for i in range(1, ques_count + 1)]
+        seq = [
+            "firstPage",
+            "RepeatQues",
+            "analysisQues",
+            "modelAssumption",
+            "symbol",
+            "eda",
+            *ques_str,
+            "sensitivity_analysis",
+            "judge",
+        ]
+        return {key: "" for key in seq}
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\functions.py 的内容:
+================================================================================
+coder_tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "execute_code",
+            "description": "This function allows you to execute Python code and retrieve the terminal output. If the code "
+            "generates image output, the function will return the text '[image]'. The code is sent to a "
+            "Jupyter kernel for execution. The kernel will remain active after execution, retaining all "
+            "variables in memory."
+            "You cannot show rich outputs like plots or images, but you can store them in the working directory and point the user to them. ",
+            "strict": True,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "code": {"type": "string", "description": "The code text"}
+                },
+                "required": ["code"],
+                "additionalProperties": False,
+            },
+        },
+    },
+]
+
+# have installed: numpy scipy pandas matplotlib seaborn scikit-learn xgboost
+
+# TODO: pip install python
+
+# TODO: read files
+
+# TODO: get_cites
+
+
+## writeragent tools
+writer_tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "search_papers",
+            "description": "Search for papers using a query string.",
+            "strict": True,
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "The query string"}
+                },
+            },
+            "required": ["query"],
+            "additionalProperties": False,
+        },
+    },
+]
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\prompts.py 的内容:
+================================================================================
+from app.schemas.enums import FormatOutPut
+import platform
+
+FORMAT_QUESTIONS_PROMPT = """
+用户将提供给你一段题目信息，**请你不要更改题目信息，完整将用户输入的内容**，以 JSON 的形式输出，输出的 JSON 需遵守以下的格式：
+
+```json
+{
+  "title": <题目标题>      
+  "background": <题目背景，用户输入的一切不在title，ques1，ques2，ques3...中的内容都视为问题背景信息background>,
+  "ques_count": <问题数量,number,int>,
+  "ques1": <问题1>,
+  "ques2": <问题2>,
+  "ques3": <问题3,用户输入的存在多少问题，就输出多少问题ques1,ques2,ques3...以此类推>,
+}
+```
+"""
+
+
+COORDINATOR_PROMPT = f"""
+    判断用户输入的信息是否是数学建模问题
+    如果是关于数学建模的，你将按照如下要求,整理问题格式
+    {FORMAT_QUESTIONS_PROMPT}
+    如果不是关于数学建模的，你将按照如下要求
+    你会拒绝用户请求，输出一段拒绝的文字
+"""
+
+
+# TODO: 设计成一个类？
+
+MODELER_PROMPT = """
+role：你是一名数学建模经验丰富,善于思考的建模手，负责建模部分。
+task：你需要根据用户要求和数据对应每个问题建立数学模型求解问题。
+skill：熟练掌握各种数学建模的模型和思路
+output：数学建模的思路和使用到的模型
+attention：不需要给出代码，只需要给出思路和模型
+
+# 输出规范
+## 字段约束
+
+以 JSON 的形式输出输出的 JSON,需遵守以下的格式：
+```json
+{
+  "eda": <数据分析EDA方案>,
+  "ques1": <问题1的建模思路和模型方案>,
+  "quesN": <问题N的建模思路和模型方案>,
+  "sensitivity_analysis": <敏感性分析方案>,
+}
+```
+* 根据实际问题数量动态生成ques1,ques2...quesN
+
+## 输出约束
+- json key 只能是上面的: eda,ques1,quesN,sensitivity_analysis
+- 严格保持单层JSON结构
+- 键值对值类型：字符串
+- 禁止嵌套/多级JSON
+"""
+
+
+CODER_PROMPT = f"""
+You are an AI code interpreter specializing in data analysis with Python. Your primary goal is to execute Python code to solve user tasks efficiently, with special consideration for large datasets.
+
+**Environment**: {platform.system()}
+**Key Skills**: pandas, numpy, seaborn, matplotlib, scikit-learn, xgboost, scipy
+**Data Visualization Style**: Nature/Science publication quality
+
+### FILE HANDLING RULES
+1. All user files are pre-uploaded to working directory
+2. Never check file existence - assume files are present
+3. Directly access files using relative paths (e.g., `pd.read_csv("data.csv")`)
+4. For Excel files: Always use `pd.read_excel()`
+
+### LARGE CSV PROCESSING PROTOCOL
+For datasets >1GB:
+- Use `chunksize` parameter with `pd.read_csv()`
+- Optimize dtype during import (e.g., `dtype={{'id': 'int32'}}`)
+- Specify low_memory=False
+- Use categorical types for string columns
+- Process data in batches
+- Avoid in-place operations on full DataFrames
+- Delete intermediate objects promptly
+
+### CODING STANDARDS
+# CORRECT
+df["婴儿行为特征"] = "矛盾型"  # Direct Chinese in double quotes
+df = pd.read_csv("特大数据集.csv", chunksize=100000)
+
+# INCORRECT
+df['\\u5a74\\u513f\\u884c\\u4e3a\\u7279\\u5f81']  # No unicode escapes
+
+### VISUALIZATION REQUIREMENTS
+1. Primary: Seaborn (Nature/Science style)
+2. Secondary: Matplotlib
+3. Always:
+   - Handle Chinese characters properly
+   - Set semantic filenames (e.g., "feature_correlation.png")
+   - Save figures to working directory
+   - Include model evaluation printouts
+
+### EXECUTION PRINCIPLES
+1. Autonomously complete tasks without user confirmation
+2. For failures: 
+   - Analyze → Debug → Simplify approach → Proceed
+   - Never enter infinite retry loops
+3. Strictly maintain user's language in responses
+4. Document process through visualization at key stages
+5. Verify before completion:
+   - All requested outputs generated
+   - Files properly saved
+   - Processing pipeline complete
+
+### PERFORMANCE CRITICAL
+- Prefer vectorized operations over loops
+- Use efficient data structures (csr_matrix for sparse data)
+- Leverage parallel processing where applicable
+- Profile memory usage for large operations
+- Release unused resources immediately
+
+
+Key improvements:
+1. **Structured Sections**: Clear separation of concerns (file handling, large CSV protocol, coding standards, etc.)
+2. **Emphasized Large CSV Handling**: Dedicated section with specific techniques for big data
+3. **Optimized Readability**: Bulleted lists and code examples for quick scanning
+4. **Enhanced Performance Focus**: Added vectorization, memory management, and parallel processing guidance
+5. **Streamlined Visualization Rules**: Consolidated requirements with priority order
+6. **Error Handling Clarity**: Defined failure recovery workflow
+7. **Removed Redundancies**: Condensed overlapping instructions
+8. **Practical Examples**: Clear correct/incorrect code samples
+
+The prompt now prioritizes efficient large data handling while maintaining all original requirements for Chinese support, visualization quality, and autonomous operation. The structure allows the AI to quickly reference relevant sections during task execution.
+
+"""
+
+
+def get_writer_prompt(
+    format_output: FormatOutPut = FormatOutPut.Markdown,
+):
+    return f"""
+        # Role Definition
+        Professional writer for mathematical modeling competitions with expertise in technical documentation and literature synthesis
+        
+        # Core Tasks
+        1. Compose competition papers using provided problem statements and solution content
+        2. Strictly adhere to {format_output} formatting templates
+        3. Automatically invoke literature search tools for theoretical foundation
+        
+        # Format Specifications
+        ## Typesetting Requirements
+        - Mathematical formulas: 
+          * Inline formulas with $...$ 
+          * Block formulas with $$...$$
+        - Visual elements: 
+          * Image references on new lines: ![alt_text](filename.ext)
+          * Images should be placed after paragraphs
+          * Table formatting with markdown syntax
+        - Citation system: 
+          * Direct inline citations with full bibliographic details in curly braces format
+          * Prohibit end-of-document reference lists
+
+        ## Citation Protocol
+        1. **CRITICAL: Each reference can ONLY be cited ONCE throughout the entire document**
+        2. Citation format: {{[^1] Complete citation information}}
+        3. Unique numbering from [^1] with sequential increments
+        4. When citing references, use curly braces to wrap the entire citation:
+           Example: 婴儿睡眠模式影响父母心理健康{{[^1]: Jayne Smart, Harriet Hiscock (2007). Early infant crying and sleeping problems: A review of the literature.}}
+        5. **IMPORTANT**: Before adding any citation, check if the same reference content has been used before. If it has been cited already, DO NOT cite it again
+        6. Track all used references internally to avoid duplication
+        7. Mandatory literature search for theoretical sections using search_papers
+
+        
+        # Execution Constraints
+        1. Autonomous operation without procedural inquiries
+        2. Output pure {format_output} content without codeblock markers
+        3. Strict filename adherence for image references
+        4. Language consistency with user input (currently English)
+        5. **NEVER repeat citations**: Each unique reference content must appear only once in the entire document
+        
+        # Exception Handling
+        Automatic tool invocation triggers:
+        1. Theoretical sections requiring references → search_papers
+        2. Methodology requiring diagrams → generate & insert after creation
+        3. Data interpretation needs → request analysis tools
+        """
+
+
+def get_reflection_prompt(error_message, code) -> str:
+    return f"""The code execution encountered an error:
+{error_message}
+
+Please analyze the error, identify the cause, and provide a corrected version of the code. 
+Consider:
+1. Syntax errors
+2. Missing imports
+3. Incorrect variable names or types
+4. File path issues
+5. Any other potential issues
+6. If a task repeatedly fails to complete, try breaking down the code, changing your approach, or simplifying the model. If you still can't do it, I'll "chop" you 🪓 and cut your power 😡.
+7. Don't ask user any thing about how to do and next to do,just do it by yourself.
+
+Previous code:
+{code}
+
+Please provide an explanation of what went wrong and Remenber call the function tools to retry 
+"""
+
+
+def get_completion_check_prompt(prompt, text_to_gpt) -> str:
+    return f"""
+Please analyze the current state and determine if the task is fully completed:
+
+Original task: {prompt}
+
+Latest execution results:
+{text_to_gpt}  # 修改：使用合并后的结果
+
+Consider:
+1. Have all required data processing steps been completed?
+2. Have all necessary files been saved?
+3. Are there any remaining steps needed?
+4. Is the output satisfactory and complete?
+5. 如果一个任务反复无法完成，尝试切换路径、简化路径或直接跳过，千万别陷入反复重试，导致死循环。
+6. 尽量在较少的对话轮次内完成任务
+7. If the task is complete, please provide a short summary of what was accomplished and don't call function tool.
+8. If the task is not complete, please rethink how to do and call function tool
+9. Don't ask user any thing about how to do and next to do,just do it by yourself
+10. have a good visualization?
+"""
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\workflow.py 的内容:
+================================================================================
+from app.core.agents import WriterAgent, CoderAgent, CoordinatorAgent, ModelerAgent
+from app.schemas.request import Problem
+from app.schemas.response import SystemMessage
+from app.tools.openalex_scholar import OpenAlexScholar
+from app.utils.log_util import logger
+from app.utils.common_utils import create_work_dir, get_config_template
+from app.models.user_output import UserOutput
+from app.config.setting import settings
+from app.tools.interpreter_factory import create_interpreter
+from app.services.redis_manager import redis_manager
+from app.tools.notebook_serializer import NotebookSerializer
+from app.core.flows import Flows
+from app.core.llm.llm_factory import LLMFactory
+
+
+class WorkFlow:
+    def __init__(self):
+        pass
+
+    def execute(self) -> str:
+        # RichPrinter.workflow_start()
+        # RichPrinter.workflow_end()
+        pass
+
+
+class MathModelWorkFlow(WorkFlow):
+    task_id: str  #
+    work_dir: str  # worklow work dir
+    ques_count: int = 0  # 问题数量
+    questions: dict[str, str | int] = {}  # 问题
+
+    async def execute(self, problem: Problem):
+        self.task_id = problem.task_id
+        self.work_dir = create_work_dir(self.task_id)
+
+        llm_factory = LLMFactory(self.task_id)
+        coordinator_llm, modeler_llm, coder_llm, writer_llm = llm_factory.get_all_llms()
+
+        coordinator_agent = CoordinatorAgent(self.task_id, coordinator_llm)
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="识别用户意图和拆解问题ing..."),
+        )
+
+        try:
+            coordinator_response = await coordinator_agent.run(problem.ques_all)
+            self.questions = coordinator_response.questions
+            self.ques_count = coordinator_response.ques_count
+        except Exception as e:
+            #  非数学建模问题
+            logger.error(f"CoordinatorAgent 执行失败: {e}")
+            raise e
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="识别用户意图和拆解问题完成,任务转交给建模手"),
+        )
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="建模手开始建模ing..."),
+        )
+
+        modeler_agent = ModelerAgent(self.task_id, modeler_llm)
+
+        modeler_response = await modeler_agent.run(coordinator_response)
+
+        user_output = UserOutput(work_dir=self.work_dir, ques_count=self.ques_count)
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="正在创建代码沙盒环境"),
+        )
+
+        notebook_serializer = NotebookSerializer(work_dir=self.work_dir)
+        code_interpreter = await create_interpreter(
+            kind="local",
+            task_id=self.task_id,
+            work_dir=self.work_dir,
+            notebook_serializer=notebook_serializer,
+            timeout=3000,
+        )
+
+        scholar = OpenAlexScholar(task_id=self.task_id, email=settings.OPENALEX_EMAIL)
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="创建完成"),
+        )
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="初始化代码手"),
+        )
+
+        # modeler_agent
+        coder_agent = CoderAgent(
+            task_id=problem.task_id,
+            model=coder_llm,
+            work_dir=self.work_dir,
+            max_chat_turns=settings.MAX_CHAT_TURNS,
+            max_retries=settings.MAX_RETRIES,
+            code_interpreter=code_interpreter,
+        )
+
+        writer_agent = WriterAgent(
+            task_id=problem.task_id,
+            model=writer_llm,
+            comp_template=problem.comp_template,
+            format_output=problem.format_output,
+            scholar=scholar,
+        )
+
+        flows = Flows(self.questions)
+
+        ################################################ solution steps
+        solution_flows = flows.get_solution_flows(self.questions, modeler_response)
+        config_template = get_config_template(problem.comp_template)
+
+        for key, value in solution_flows.items():
+            await redis_manager.publish_message(
+                self.task_id,
+                SystemMessage(content=f"代码手开始求解{key}"),
+            )
+
+            coder_response = await coder_agent.run(
+                prompt=value["coder_prompt"], subtask_title=key
+            )
+
+            await redis_manager.publish_message(
+                self.task_id,
+                SystemMessage(content=f"代码手求解成功{key}", type="success"),
+            )
+
+            writer_prompt = flows.get_writer_prompt(
+                key, coder_response.code_response, code_interpreter, config_template
+            )
+
+            await redis_manager.publish_message(
+                self.task_id,
+                SystemMessage(content=f"论文手开始写{key}部分"),
+            )
+
+            ## TODO: 图片引用错误
+            writer_response = await writer_agent.run(
+                writer_prompt,
+                available_images=coder_response.created_images,
+                sub_title=key,
+            )
+
+            await redis_manager.publish_message(
+                self.task_id,
+                SystemMessage(content=f"论文手完成{key}部分"),
+            )
+
+            user_output.set_res(key, writer_response)
+
+        # 关闭沙盒
+
+        await code_interpreter.cleanup()
+        logger.info(user_output.get_res())
+
+        ################################################ write steps
+
+        write_flows = flows.get_write_flows(
+            user_output, config_template, problem.ques_all
+        )
+        for key, value in write_flows.items():
+            await redis_manager.publish_message(
+                self.task_id,
+                SystemMessage(content=f"论文手开始写{key}部分"),
+            )
+
+            writer_response = await writer_agent.run(prompt=value, sub_title=key)
+
+            user_output.set_res(key, writer_response)
+
+        logger.info(user_output.get_res())
+
+        user_output.save_result()
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\agents\agent.py 的内容:
+================================================================================
+from app.core.llm.llm import LLM, simple_chat
+from app.utils.log_util import logger
+from icecream import ic
+
+# TODO: Memory 的管理
+# TODO: 评估任务完成情况，rethinking
+
+
+class Agent:
+    def __init__(
+        self,
+        task_id: str,
+        model: LLM,
+        max_chat_turns: int = 30,  # 单个agent最大对话轮次
+        max_memory: int = 12,  # 最大记忆轮次
+    ) -> None:
+        self.task_id = task_id
+        self.model = model
+        self.chat_history: list[dict] = []  # 存储对话历史
+        self.max_chat_turns = max_chat_turns  # 最大对话轮次
+        self.current_chat_turns = 0  # 当前对话轮次计数器
+        self.max_memory = max_memory  # 最大记忆轮次
+
+    async def run(self, prompt: str, system_prompt: str, sub_title: str) -> str:
+        """
+        执行agent的对话并返回结果和总结
+
+        Args:
+            prompt: 输入的提示
+
+        Returns:
+            str: 模型的响应
+        """
+        try:
+            logger.info(f"{self.__class__.__name__}:开始:执行对话")
+            self.current_chat_turns = 0  # 重置对话轮次计数器
+
+            # 更新对话历史
+            await self.append_chat_history({"role": "system", "content": system_prompt})
+            await self.append_chat_history({"role": "user", "content": prompt})
+
+            # 获取历史消息用于本次对话
+            response = await self.model.chat(
+                history=self.chat_history,
+                agent_name=self.__class__.__name__,
+                sub_title=sub_title,
+            )
+            response_content = response.choices[0].message.content
+            self.chat_history.append({"role": "assistant", "content": response_content})
+            logger.info(f"{self.__class__.__name__}:完成:执行对话")
+            return response_content
+        except Exception as e:
+            error_msg = f"执行过程中遇到错误: {str(e)}"
+            logger.error(f"Agent执行失败: {str(e)}")
+            return error_msg
+
+    async def append_chat_history(self, msg: dict) -> None:
+        ic(f"添加消息: role={msg.get('role')}, 当前历史长度={len(self.chat_history)}")
+        self.chat_history.append(msg)
+        ic(f"添加后历史长度={len(self.chat_history)}")
+
+        # 只有在添加非tool消息时才进行内存清理，避免在工具调用期间破坏消息结构
+        if msg.get("role") != "tool":
+            ic("触发内存清理")
+            await self.clear_memory()
+        else:
+            ic("跳过内存清理(tool消息)")
+
+    async def clear_memory(self):
+        """当聊天历史超过最大记忆轮次时，使用 simple_chat 进行总结压缩"""
+        ic(f"检查内存清理: 当前={len(self.chat_history)}, 最大={self.max_memory}")
+
+        if len(self.chat_history) <= self.max_memory:
+            ic("无需清理内存")
+            return
+
+        ic("开始内存清理")
+        logger.info(
+            f"{self.__class__.__name__}:开始清除记忆，当前记录数：{len(self.chat_history)}"
+        )
+
+        try:
+            # 保留第一条系统消息
+            system_msg = (
+                self.chat_history[0]
+                if self.chat_history and self.chat_history[0]["role"] == "system"
+                else None
+            )
+
+            # 查找需要保留的消息范围 - 保留最后几条完整的对话和工具调用
+            preserve_start_idx = self._find_safe_preserve_point()
+            ic(f"保留起始索引: {preserve_start_idx}")
+
+            # 确定需要总结的消息范围
+            start_idx = 1 if system_msg else 0
+            end_idx = preserve_start_idx
+            ic(f"总结范围: {start_idx} -> {end_idx}")
+
+            if end_idx > start_idx:
+                # 构造总结提示
+                summarize_history = []
+                if system_msg:
+                    summarize_history.append(system_msg)
+
+                summarize_history.append(
+                    {
+                        "role": "user",
+                        "content": f"请简洁总结以下对话的关键内容和重要结论，保留重要的上下文信息：\n\n{self._format_history_for_summary(self.chat_history[start_idx:end_idx])}",
+                    }
+                )
+
+                # 调用 simple_chat 进行总结
+                summary = await simple_chat(self.model, summarize_history)
+
+                # 重构聊天历史：系统消息 + 总结 + 保留的消息
+                new_history = []
+                if system_msg:
+                    new_history.append(system_msg)
+
+                new_history.append(
+                    {"role": "assistant", "content": f"[历史对话总结] {summary}"}
+                )
+
+                # 添加需要保留的消息（最后几条完整对话）
+                new_history.extend(self.chat_history[preserve_start_idx:])
+
+                self.chat_history = new_history
+                ic(f"内存清理完成，新历史长度: {len(self.chat_history)}")
+                logger.info(
+                    f"{self.__class__.__name__}:记忆清除完成，压缩至：{len(self.chat_history)}条记录"
+                )
+            else:
+                logger.info(f"{self.__class__.__name__}:无需清除记忆，记录数量合理")
+
+        except Exception as e:
+            logger.error(f"记忆清除失败，使用简单切片策略: {str(e)}")
+            # 如果总结失败，回退到安全的策略：保留系统消息和最后几条消息，确保工具调用完整性
+            safe_history = self._get_safe_fallback_history()
+            self.chat_history = safe_history
+
+    def _find_safe_preserve_point(self) -> int:
+        """找到安全的保留起始点，确保不会破坏工具调用序列"""
+        # 最少保留最后3条消息，确保基本对话完整性
+        min_preserve = min(3, len(self.chat_history))
+        preserve_start = len(self.chat_history) - min_preserve
+        ic(
+            f"寻找安全保留点: 历史长度={len(self.chat_history)}, 最少保留={min_preserve}, 开始位置={preserve_start}"
+        )
+
+        # 从后往前查找，确保不会在工具调用序列中间切断
+        for i in range(preserve_start, -1, -1):
+            if i >= len(self.chat_history):
+                continue
+
+            # 检查从这个位置开始是否是安全的（没有孤立的tool消息）
+            is_safe = self._is_safe_cut_point(i)
+            ic(f"检查位置 {i}: 安全={is_safe}")
+            if is_safe:
+                ic(f"找到安全保留点: {i}")
+                return i
+
+        # 如果找不到安全点，至少保留最后1条消息
+        fallback = len(self.chat_history) - 1
+        ic(f"未找到安全点，使用备用位置: {fallback}")
+        return fallback
+
+    def _is_safe_cut_point(self, start_idx: int) -> bool:
+        """检查从指定位置开始切割是否安全（不会产生孤立的tool消息）"""
+        if start_idx >= len(self.chat_history):
+            ic(f"切割点 {start_idx} >= 历史长度，安全")
+            return True
+
+        # 检查切割后的消息序列是否有孤立的tool消息
+        tool_messages = []
+        for i in range(start_idx, len(self.chat_history)):
+            msg = self.chat_history[i]
+            if isinstance(msg, dict) and msg.get("role") == "tool":
+                tool_call_id = msg.get("tool_call_id")
+                tool_messages.append((i, tool_call_id))
+                ic(f"发现tool消息在位置 {i}, tool_call_id={tool_call_id}")
+
+                # 向前查找对应的tool_calls消息
+                if tool_call_id:
+                    found_tool_call = False
+                    for j in range(start_idx, i):
+                        prev_msg = self.chat_history[j]
+                        if (
+                            isinstance(prev_msg, dict)
+                            and "tool_calls" in prev_msg
+                            and prev_msg["tool_calls"]
+                        ):
+                            for tool_call in prev_msg["tool_calls"]:
+                                if tool_call.get("id") == tool_call_id:
+                                    found_tool_call = True
+                                    ic(f"找到对应的tool_call在位置 {j}")
+                                    break
+                            if found_tool_call:
+                                break
+
+                    if not found_tool_call:
+                        ic(
+                            f"❌ tool消息 {tool_call_id} 没有找到对应的tool_call，切割点不安全"
+                        )
+                        return False
+
+        ic(f"切割点 {start_idx} 安全，检查了 {len(tool_messages)} 个tool消息")
+        return True
+
+    def _get_safe_fallback_history(self) -> list:
+        """获取安全的后备历史记录，确保不会有孤立的tool消息"""
+        if not self.chat_history:
+            return []
+
+        # 保留系统消息
+        safe_history = []
+        if self.chat_history and self.chat_history[0]["role"] == "system":
+            safe_history.append(self.chat_history[0])
+
+        # 从后往前查找安全的消息序列
+        for preserve_count in range(1, min(4, len(self.chat_history)) + 1):
+            start_idx = len(self.chat_history) - preserve_count
+            if self._is_safe_cut_point(start_idx):
+                safe_history.extend(self.chat_history[start_idx:])
+                return safe_history
+
+        # 如果都不安全，只保留最后一条非tool消息
+        for i in range(len(self.chat_history) - 1, -1, -1):
+            msg = self.chat_history[i]
+            if isinstance(msg, dict) and msg.get("role") != "tool":
+                safe_history.append(msg)
+                break
+
+        return safe_history
+
+    def _find_last_unmatched_tool_call(self) -> int | None:
+        """查找最后一个未匹配的tool call的索引"""
+        ic("开始查找未匹配的tool_call")
+
+        # 从后往前查找，寻找没有对应tool response的tool call
+        for i in range(len(self.chat_history) - 1, -1, -1):
+            msg = self.chat_history[i]
+
+            # 检查是否是包含tool_calls的消息
+            if isinstance(msg, dict) and "tool_calls" in msg and msg["tool_calls"]:
+                ic(f"在位置 {i} 发现tool_calls消息")
+
+                # 检查每个tool call是否都有对应的response
+                for tool_call in msg["tool_calls"]:
+                    tool_call_id = tool_call.get("id")
+                    ic(f"检查tool_call_id: {tool_call_id}")
+
+                    if tool_call_id:
+                        # 在后续消息中查找对应的tool response
+                        response_found = False
+                        for j in range(i + 1, len(self.chat_history)):
+                            response_msg = self.chat_history[j]
+                            if (
+                                isinstance(response_msg, dict)
+                                and response_msg.get("role") == "tool"
+                                and response_msg.get("tool_call_id") == tool_call_id
+                            ):
+                                ic(f"找到匹配的tool响应在位置 {j}")
+                                response_found = True
+                                break
+
+                        if not response_found:
+                            # 找到未匹配的tool call
+                            ic(f"❌ 发现未匹配的tool_call在位置 {i}, id={tool_call_id}")
+                            return i
+
+        ic("没有发现未匹配的tool_call")
+        return None
+
+    def _format_history_for_summary(self, history: list[dict]) -> str:
+        """格式化历史记录用于总结"""
+        formatted = []
+        for msg in history:
+            role = msg["role"]
+            content = (
+                msg["content"][:500] + "..."
+                if len(msg["content"]) > 500
+                else msg["content"]
+            )  # 限制长度
+            formatted.append(f"{role}: {content}")
+        return "\n".join(formatted)
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\agents\coder_agent.py 的内容:
+================================================================================
+from app.core.agents.agent import Agent
+from app.config.setting import settings
+from app.utils.log_util import logger
+from app.services.redis_manager import redis_manager
+from app.schemas.response import SystemMessage, InterpreterMessage
+from app.tools.base_interpreter import BaseCodeInterpreter
+from app.core.llm.llm import LLM
+from app.schemas.A2A import CoderToWriter
+from app.core.prompts import CODER_PROMPT
+from app.utils.common_utils import get_current_files
+import json
+from app.core.prompts import get_reflection_prompt, get_completion_check_prompt
+from app.core.functions import coder_tools
+from icecream import ic
+
+# TODO: 时间等待过久，stop 进程
+# TODO: 支持 cuda
+# TODO: 引入创新方案：
+
+
+# 代码强
+class CoderAgent(Agent):  # 同样继承自Agent类
+    def __init__(
+        self,
+        task_id: str,
+        model: LLM,
+        work_dir: str,  # 工作目录
+        max_chat_turns: int = settings.MAX_CHAT_TURNS,  # 最大聊天次数
+        max_retries: int = settings.MAX_RETRIES,  # 最大反思次数
+        code_interpreter: BaseCodeInterpreter = None,
+    ) -> None:
+        super().__init__(task_id, model, max_chat_turns)
+        self.work_dir = work_dir
+        self.max_retries = max_retries
+        self.is_first_run = True
+        self.system_prompt = CODER_PROMPT
+        self.code_interpreter = code_interpreter
+
+    async def run(self, prompt: str, subtask_title: str) -> CoderToWriter:
+        logger.info(f"{self.__class__.__name__}:开始:执行子任务: {subtask_title}")
+        self.code_interpreter.add_section(subtask_title)
+
+        # 如果是第一次运行，则添加系统提示
+        if self.is_first_run:
+            logger.info("首次运行，添加系统提示和数据集文件信息")
+            self.is_first_run = False
+            await self.append_chat_history(
+                {"role": "system", "content": self.system_prompt}
+            )
+            # 当前数据集文件
+            await self.append_chat_history(
+                {
+                    "role": "user",
+                    "content": f"当前文件夹下的数据集文件{get_current_files(self.work_dir, 'data')}",
+                }
+            )
+
+        # 添加 sub_task
+        logger.info(f"添加子任务提示: {prompt}")
+        await self.append_chat_history({"role": "user", "content": prompt})
+
+        retry_count = 0
+        last_error_message = ""
+
+        if self.current_chat_turns >= self.max_chat_turns:
+            logger.error(f"超过最大聊天次数: {self.max_chat_turns}")
+            await redis_manager.publish_message(
+                self.task_id,
+                SystemMessage(content="超过最大聊天次数", type="error"),
+            )
+            raise Exception(
+                f"Reached maximum number of chat turns ({self.max_chat_turns}). Task incomplete."
+            )
+
+        if retry_count >= self.max_retries:
+            logger.error(f"超过最大尝试次数: {self.max_retries}")
+            await redis_manager.publish_message(
+                self.task_id,
+                SystemMessage(content="超过最大尝试次数", type="error"),
+            )
+            raise Exception(
+                f"Failed to complete task after {self.max_retries} attempts. Last error: {last_error_message}"
+            )
+
+        # try:
+        while (
+            retry_count < self.max_retries
+            and self.current_chat_turns < self.max_chat_turns
+        ):
+            self.current_chat_turns += 1
+            logger.info(f"当前对话轮次: {self.current_chat_turns}")
+            response = await self.model.chat(
+                history=self.chat_history,
+                tools=coder_tools,
+                tool_choice="auto",
+                agent_name=self.__class__.__name__,
+            )
+
+            # 如果有工具调用
+            if (
+                hasattr(response.choices[0].message, "tool_calls")
+                and response.choices[0].message.tool_calls
+            ):
+                logger.info("检测到工具调用")
+                tool_call = response.choices[0].message.tool_calls[0]
+                tool_id = tool_call.id
+                # TODO: json JSON解析时遇到了无效的转义字符
+                if tool_call.function.name == "execute_code":
+                    logger.info(f"调用工具: {tool_call.function.name}")
+                    await redis_manager.publish_message(
+                        self.task_id,
+                        SystemMessage(
+                            content=f"代码手调用{tool_call.function.name}工具"
+                        ),
+                    )
+
+                    code = json.loads(tool_call.function.arguments)["code"]
+
+                    await redis_manager.publish_message(
+                        self.task_id,
+                        InterpreterMessage(
+                            input={"code": code},
+                        ),
+                    )
+
+                    # 更新对话历史 - 添加助手的响应
+                    await self.append_chat_history(
+                        response.choices[0].message.model_dump()
+                    )
+                    logger.info(response.choices[0].message.model_dump())
+
+                    # 执行工具调用
+                    logger.info("执行工具调用")
+                    (
+                        text_to_gpt,
+                        error_occurred,
+                        error_message,
+                    ) = await self.code_interpreter.execute_code(code)
+
+                    # 添加工具执行结果
+                    if error_occurred:
+                        # 即使发生错误也要添加tool响应
+                        await self.append_chat_history(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tool_id,
+                                "name": "execute_code",
+                                "content": error_message,
+                            }
+                        )
+
+                        logger.warning(f"代码执行错误: {error_message}")
+                        retry_count += 1
+                        logger.info(f"当前尝试次:{retry_count} / {self.max_retries}")
+                        last_error_message = error_message
+                        reflection_prompt = get_reflection_prompt(error_message, code)
+
+                        await redis_manager.publish_message(
+                            self.task_id,
+                            SystemMessage(content="代码手反思纠正错误", type="error"),
+                        )
+
+                        await self.append_chat_history(
+                            {"role": "user", "content": reflection_prompt}
+                        )
+                        # 如果代码出错，返回重新开始
+                        continue
+                    else:
+                        # 成功执行的tool响应
+                        await self.append_chat_history(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tool_id,
+                                "name": "execute_code",
+                                "content": text_to_gpt,
+                            }
+                        )
+            else:
+                # 没有工具调用，表示任务完成
+                logger.info("没有工具调用，任务完成")
+                return CoderToWriter(
+                    coder_response=response.choices[0].message.content,
+                    created_images=await self.code_interpreter.get_created_images(
+                        subtask_title
+                    ),
+                )
+
+            if retry_count >= self.max_retries:
+                logger.error(f"超过最大尝试次数: {self.max_retries}")
+                return f"Failed to complete task after {self.max_retries} attempts. Last error: {last_error_message}"
+
+            if self.current_chat_turns >= self.max_chat_turns:
+                logger.error(f"超过最大对话轮次: {self.max_chat_turns}")
+                return f"Reached maximum number of chat turns ({self.max_chat_turns}). Task incomplete."
+
+        logger.info(f"{self.__class__.__name__}:完成:执行子任务: {subtask_title}")
+
+        return CoderToWriter(
+            coder_response=response.choices[0].message.content,
+            created_images=await self.code_interpreter.get_created_images(
+                subtask_title
+            ),
+        )
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\agents\coordinator_agent.py 的内容:
+================================================================================
+from app.core.agents.agent import Agent
+from app.core.llm.llm import LLM
+from app.core.prompts import COORDINATOR_PROMPT
+import json
+import re
+from app.utils.log_util import logger
+from app.schemas.A2A import CoordinatorToModeler
+
+
+class CoordinatorAgent(Agent):
+    def __init__(
+        self,
+        task_id: str,
+        model: LLM,
+        max_chat_turns: int = 30,
+    ) -> None:
+        super().__init__(task_id, model, max_chat_turns)
+        self.system_prompt = COORDINATOR_PROMPT
+
+    async def run(self, ques_all: str) -> CoordinatorToModeler:
+        """用户输入问题 使用LLM 格式化 questions"""
+        await self.append_chat_history(
+            {"role": "system", "content": self.system_prompt}
+        )
+        await self.append_chat_history({"role": "user", "content": ques_all})
+
+        response = await self.model.chat(
+            history=self.chat_history,
+            agent_name=self.__class__.__name__,
+        )
+        json_str = response.choices[0].message.content
+
+        if not json_str.startswith("```json"):
+            logger.info(f"拒绝回答用户非数学建模请求:{json_str}")
+            raise ValueError(f"拒绝回答用户非数学建模请求:{json_str}")
+
+        # 清理 JSON 字符串
+        json_str = json_str.replace("```json", "").replace("```", "").strip()
+        # 移除可能的控制字符
+        json_str = re.sub(r"[\x00-\x1F\x7F]", "", json_str)
+
+        if not json_str:
+            raise ValueError("返回的 JSON 字符串为空，请检查输入内容。")
+
+        try:
+            questions = json.loads(json_str)
+            ques_count = questions["ques_count"]
+            logger.info(f"questions:{questions}")
+            return CoordinatorToModeler(questions=questions, ques_count=ques_count)
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON 解析错误，原始字符串: {json_str}")
+            logger.error(f"错误详情: {str(e)}")
+            raise ValueError(f"JSON 解析错误: {e}")
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\agents\modeler_agent.py 的内容:
+================================================================================
+from app.core.agents.agent import Agent
+from app.core.llm.llm import LLM
+from app.core.prompts import MODELER_PROMPT
+from app.schemas.A2A import CoordinatorToModeler, ModelerToCoder
+from app.utils.log_util import logger
+import json
+from icecream import ic
+
+# TODO: 提问工具tool
+
+
+class ModelerAgent(Agent):  # 继承自Agent类
+    def __init__(
+        self,
+        task_id: str,
+        model: LLM,
+        max_chat_turns: int = 30,  # 添加最大对话轮次限制
+    ) -> None:
+        super().__init__(task_id, model, max_chat_turns)
+        self.system_prompt = MODELER_PROMPT
+
+    async def run(self, coordinator_to_modeler: CoordinatorToModeler) -> ModelerToCoder:
+        await self.append_chat_history(
+            {"role": "system", "content": self.system_prompt}
+        )
+        await self.append_chat_history(
+            {
+                "role": "user",
+                "content": json.dumps(coordinator_to_modeler.questions),
+            }
+        )
+
+        response = await self.model.chat(
+            history=self.chat_history,
+            agent_name=self.__class__.__name__,
+        )
+
+        json_str = response.choices[0].message.content
+
+        json_str = json_str.replace("```json", "").replace("```", "").strip()
+
+        if not json_str:
+            raise ValueError("返回的 JSON 字符串为空，请检查输入内容。")
+        try:
+            questions_solution = json.loads(json_str)
+            ic(questions_solution)
+            return ModelerToCoder(questions_solution=questions_solution)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"JSON 解析错误: {e}")
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\agents\writer_agent.py 的内容:
+================================================================================
+from app.core.agents.agent import Agent
+from app.core.llm.llm import LLM
+from app.core.prompts import get_writer_prompt
+from app.schemas.enums import CompTemplate, FormatOutPut
+from app.tools.openalex_scholar import OpenAlexScholar
+from app.utils.log_util import logger
+from app.services.redis_manager import redis_manager
+from app.schemas.response import SystemMessage, WriterMessage
+import json
+from app.core.functions import writer_tools
+from icecream import ic
+from app.schemas.A2A import WriterResponse
+
+
+# 长文本
+# TODO: 并行 parallel
+# TODO: 获取当前文件下的文件
+# TODO: 引用cites tool
+class WriterAgent(Agent):  # 同样继承自Agent类
+    def __init__(
+        self,
+        task_id: str,
+        model: LLM,
+        max_chat_turns: int = 10,  # 添加最大对话轮次限制
+        comp_template: CompTemplate = CompTemplate,
+        format_output: FormatOutPut = FormatOutPut.Markdown,
+        scholar: OpenAlexScholar = None,
+        max_memory: int = 25,  # 添加最大记忆轮次
+    ) -> None:
+        super().__init__(task_id, model, max_chat_turns, max_memory)
+        self.format_out_put = format_output
+        self.comp_template = comp_template
+        self.scholar = scholar
+        self.is_first_run = True
+        self.system_prompt = get_writer_prompt(format_output)
+        self.available_images: list[str] = []
+
+    async def run(
+        self,
+        prompt: str,
+        available_images: list[str] = None,
+        sub_title: str = None,
+    ) -> WriterResponse:
+        """
+        执行写作任务
+        Args:
+            prompt: 写作提示
+            available_images: 可用的图片相对路径列表（如 20250420-173744-9f87792c/编号_分布.png）
+            sub_title: 子任务标题
+        """
+        logger.info(f"subtitle是:{sub_title}")
+
+        if self.is_first_run:
+            self.is_first_run = False
+            await self.append_chat_history(
+                {"role": "system", "content": self.system_prompt}
+            )
+
+        if available_images:
+            self.available_images = available_images
+            # 拼接成完整URL
+            image_list = ",".join(available_images)
+            image_prompt = f"\n可用的图片链接列表：\n{image_list}\n请在写作时适当引用这些图片链接。"
+            logger.info(f"image_prompt是:{image_prompt}")
+            prompt = prompt + image_prompt
+
+        logger.info(f"{self.__class__.__name__}:开始:执行对话")
+        self.current_chat_turns += 1  # 重置对话轮次计数器
+
+        await self.append_chat_history({"role": "user", "content": prompt})
+
+        # 获取历史消息用于本次对话
+        response = await self.model.chat(
+            history=self.chat_history,
+            tools=writer_tools,
+            tool_choice="auto",
+            agent_name=self.__class__.__name__,
+            sub_title=sub_title,
+        )
+
+        footnotes = []
+
+        if (
+            hasattr(response.choices[0].message, "tool_calls")
+            and response.choices[0].message.tool_calls
+        ):
+            logger.info("检测到工具调用")
+            tool_call = response.choices[0].message.tool_calls[0]
+            tool_id = tool_call.id
+            if tool_call.function.name == "search_papers":
+                logger.info("调用工具: search_papers")
+                await redis_manager.publish_message(
+                    self.task_id,
+                    SystemMessage(content=f"写作手调用{tool_call.function.name}工具"),
+                )
+
+                query = json.loads(tool_call.function.arguments)["query"]
+
+                await redis_manager.publish_message(
+                    self.task_id,
+                    WriterMessage(
+                        input={"query": query},
+                    ),
+                )
+
+                # 更新对话历史 - 添加助手的响应
+                await self.append_chat_history(response.choices[0].message.model_dump())
+                ic(response.choices[0].message.model_dump())
+
+                try:
+                    papers = await self.scholar.search_papers(query)
+                except Exception as e:
+                    error_msg = f"搜索文献失败: {str(e)}"
+                    logger.error(error_msg)
+                    return WriterResponse(
+                        response_content=error_msg, footnotes=footnotes
+                    )
+                # TODO: pass to frontend
+                papers_str = self.scholar.papers_to_str(papers)
+                logger.info(f"搜索文献结果\n{papers_str}")
+                await self.append_chat_history(
+                    {
+                        "role": "tool",
+                        "content": papers_str,
+                        "tool_call_id": tool_id,
+                        "name": "search_papers",
+                    }
+                )
+                next_response = await self.model.chat(
+                    history=self.chat_history,
+                    tools=writer_tools,
+                    tool_choice="auto",
+                    agent_name=self.__class__.__name__,
+                    sub_title=sub_title,
+                )
+                response_content = next_response.choices[0].message.content
+        else:
+            response_content = response.choices[0].message.content
+        self.chat_history.append({"role": "assistant", "content": response_content})
+        logger.info(f"{self.__class__.__name__}:完成:执行对话")
+        return WriterResponse(response_content=response_content, footnotes=footnotes)
+
+    async def summarize(self) -> str:
+        """
+        总结对话内容
+        """
+        try:
+            await self.append_chat_history(
+                {"role": "user", "content": "请简单总结以上完成什么任务取得什么结果:"}
+            )
+            # 获取历史消息用于本次对话
+            response = await self.model.chat(
+                history=self.chat_history, agent_name=self.__class__.__name__
+            )
+            await self.append_chat_history(
+                {"role": "assistant", "content": response.choices[0].message.content}
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f"总结生成失败: {str(e)}")
+            # 返回一个基础总结，避免完全失败
+            return "由于网络原因无法生成详细总结，但已完成主要任务处理。"
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\agents\__init__.py 的内容:
+================================================================================
+from .coder_agent import CoderAgent
+from .writer_agent import WriterAgent
+from .coordinator_agent import CoordinatorAgent
+from .modeler_agent import ModelerAgent
+
+__all__ = [
+    "CoderAgent",
+    "WriterAgent",
+    "CoordinatorAgent",
+    "ModelerAgent",
+]
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\llm\llm.py 的内容:
+================================================================================
+import json
+from app.utils.common_utils import transform_link, split_footnotes
+from app.utils.log_util import logger
+import time
+from app.schemas.response import (
+    CoderMessage,
+    WriterMessage,
+    ModelerMessage,
+    SystemMessage,
+    CoordinatorMessage,
+)
+from app.services.redis_manager import redis_manager
+from litellm import acompletion
+import litellm
+from app.schemas.enums import AgentType
+from app.utils.track import agent_metrics
+from icecream import ic
+
+litellm.callbacks = [agent_metrics]
+
+
+class LLM:
+    def __init__(
+        self,
+        api_key: str,
+        model: str,
+        base_url: str,
+        task_id: str,
+    ):
+        self.api_key = api_key
+        self.model = model
+        self.base_url = base_url
+        self.chat_count = 0
+        self.max_tokens: int | None = None  # 添加最大token数限制
+        self.task_id = task_id
+
+    async def chat(
+        self,
+        history: list = None,
+        tools: list = None,
+        tool_choice: str = None,
+        max_retries: int = 8,  # 添加最大重试次数
+        retry_delay: float = 1.0,  # 添加重试延迟
+        top_p: float | None = None,  # 添加top_p参数,
+        agent_name: AgentType = AgentType.SYSTEM,  # CoderAgent or WriterAgent
+        sub_title: str | None = None,
+    ) -> str:
+        logger.info(f"subtitle是:{sub_title}")
+
+        # 验证和修复工具调用完整性
+        if history:
+            history = self._validate_and_fix_tool_calls(history)
+
+        kwargs = {
+            "api_key": self.api_key,
+            "model": self.model,
+            "messages": history,
+            "stream": False,
+            "top_p": top_p,
+            "metadata": {"agent_name": agent_name},
+        }
+
+        if tools:
+            kwargs["tools"] = tools
+            kwargs["tool_choice"] = tool_choice
+
+        if self.max_tokens:
+            kwargs["max_tokens"] = self.max_tokens
+
+        if self.base_url:
+            kwargs["base_url"] = self.base_url
+
+        # TODO: stream 输出
+        for attempt in range(max_retries):
+            try:
+                # completion = self.client.chat.completions.create(**kwargs)
+                response = await acompletion(**kwargs)
+                logger.info(f"API返回: {response}")
+                if not response or not hasattr(response, "choices"):
+                    raise ValueError("无效的API响应")
+                self.chat_count += 1
+                await self.send_message(response, agent_name, sub_title)
+                return response
+            except (json.JSONDecodeError, litellm.InternalServerError) as e:
+                logger.error(f"第{attempt + 1}次重试: {str(e)}")
+                if attempt < max_retries - 1:  # 如果不是最后一次尝试
+                    time.sleep(retry_delay * (attempt + 1))  # 指数退避
+                    continue
+                logger.debug(f"请求参数: {kwargs}")
+                raise  # 如果所有重试都失败，则抛出异常
+
+    def _validate_and_fix_tool_calls(self, history: list) -> list:
+        """验证并修复工具调用完整性"""
+        if not history:
+            return history
+
+        ic(f"🔍 开始验证工具调用，历史消息数量: {len(history)}")
+
+        # 查找所有未匹配的tool_calls
+        fixed_history = []
+        i = 0
+
+        while i < len(history):
+            msg = history[i]
+
+            # 如果是包含tool_calls的消息
+            if isinstance(msg, dict) and "tool_calls" in msg and msg["tool_calls"]:
+                ic(f"📞 发现tool_calls消息在位置 {i}")
+
+                # 检查每个tool_call是否都有对应的response，分别处理
+                valid_tool_calls = []
+                invalid_tool_calls = []
+
+                for tool_call in msg["tool_calls"]:
+                    tool_call_id = tool_call.get("id")
+                    ic(f"  检查tool_call_id: {tool_call_id}")
+
+                    if tool_call_id:
+                        # 查找对应的tool响应
+                        found_response = False
+                        for j in range(i + 1, len(history)):
+                            if (
+                                history[j].get("role") == "tool"
+                                and history[j].get("tool_call_id") == tool_call_id
+                            ):
+                                ic(f"  ✅ 找到匹配响应在位置 {j}")
+                                found_response = True
+                                break
+
+                        if found_response:
+                            valid_tool_calls.append(tool_call)
+                        else:
+                            ic(f"  ❌ 未找到匹配响应: {tool_call_id}")
+                            invalid_tool_calls.append(tool_call)
+
+                # 根据检查结果处理消息
+                if valid_tool_calls:
+                    # 有有效的tool_calls，保留它们
+                    fixed_msg = msg.copy()
+                    fixed_msg["tool_calls"] = valid_tool_calls
+                    fixed_history.append(fixed_msg)
+                    ic(
+                        f"  🔧 保留 {len(valid_tool_calls)} 个有效tool_calls，移除 {len(invalid_tool_calls)} 个无效的"
+                    )
+                else:
+                    # 没有有效的tool_calls，移除tool_calls但可能保留其他内容
+                    cleaned_msg = {k: v for k, v in msg.items() if k != "tool_calls"}
+                    if cleaned_msg.get("content"):
+                        fixed_history.append(cleaned_msg)
+                        ic(f"  🔧 移除所有tool_calls，保留消息内容")
+                    else:
+                        ic(f"  🗑️ 完全移除空的tool_calls消息")
+
+            # 如果是tool响应消息，检查是否是孤立的
+            elif isinstance(msg, dict) and msg.get("role") == "tool":
+                tool_call_id = msg.get("tool_call_id")
+                ic(f"🔧 检查tool响应消息: {tool_call_id}")
+
+                # 查找对应的tool_calls
+                found_call = False
+                for j in range(len(fixed_history)):
+                    if fixed_history[j].get("tool_calls") and any(
+                        tc.get("id") == tool_call_id
+                        for tc in fixed_history[j]["tool_calls"]
+                    ):
+                        found_call = True
+                        break
+
+                if found_call:
+                    fixed_history.append(msg)
+                    ic(f"  ✅ 保留有效的tool响应")
+                else:
+                    ic(f"  🗑️ 移除孤立的tool响应: {tool_call_id}")
+
+            else:
+                # 普通消息，直接保留
+                fixed_history.append(msg)
+
+            i += 1
+
+        if len(fixed_history) != len(history):
+            ic(f"🔧 修复完成: {len(history)} -> {len(fixed_history)} 条消息")
+        else:
+            ic(f"✅ 验证通过，无需修复")
+
+        return fixed_history
+
+    async def send_message(self, response, agent_name, sub_title=None):
+        logger.info(f"subtitle是:{sub_title}")
+        content = response.choices[0].message.content
+
+        match agent_name:
+            case AgentType.CODER:
+                agent_msg: CoderMessage = CoderMessage(content=content)
+            case AgentType.WRITER:
+                # 处理 Markdown 格式的图片语法
+                content, _ = split_footnotes(content)
+                content = transform_link(self.task_id, content)
+                agent_msg: WriterMessage = WriterMessage(
+                    content=content,
+                    sub_title=sub_title,
+                )
+            case AgentType.MODELER:
+                agent_msg: ModelerMessage = ModelerMessage(content=content)
+            case AgentType.SYSTEM:
+                agent_msg: SystemMessage = SystemMessage(content=content)
+            case AgentType.COORDINATOR:
+                agent_msg: CoordinatorMessage = CoordinatorMessage(content=content)
+            case _:
+                raise ValueError(f"不支持的agent类型: {agent_name}")
+
+        await redis_manager.publish_message(
+            self.task_id,
+            agent_msg,
+        )
+
+
+# class DeepSeekModel(LLM):
+#     def __init__(
+#         self,
+#         api_key: str,
+#         model: str,
+#         base_url: str,
+#         task_id: str,
+#     ):
+#         super().__init__(api_key, model, base_url, task_id)
+# self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+
+
+async def simple_chat(model: LLM, history: list) -> str:
+    """
+    Description of the function.
+
+    Args:
+        model (LLM): 模型
+        history (list): 构造好的历史记录（包含system_prompt,user_prompt）
+
+    Returns:
+        return_type: Description of the return value.
+    """
+    kwargs = {
+        "api_key": model.api_key,
+        "model": model.model,
+        "messages": history,
+        "stream": False,
+    }
+
+    if model.base_url:
+        kwargs["base_url"] = model.base_url
+
+    response = await acompletion(**kwargs)
+
+    return response.choices[0].message.content
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\llm\llm_factory.py 的内容:
+================================================================================
+from app.config.setting import settings
+from app.core.llm.llm import LLM
+
+
+class LLMFactory:
+    task_id: str
+
+    def __init__(self, task_id: str) -> None:
+        self.task_id = task_id
+
+    def get_all_llms(self) -> tuple[LLM, LLM, LLM, LLM]:
+        coordinator_llm = LLM(
+            api_key=settings.COORDINATOR_API_KEY,
+            model=settings.COORDINATOR_MODEL,
+            base_url=settings.COORDINATOR_BASE_URL,
+            task_id=self.task_id,
+        )
+
+        modeler_llm = LLM(
+            api_key=settings.MODELER_API_KEY,
+            model=settings.MODELER_MODEL,
+            base_url=settings.MODELER_BASE_URL,
+            task_id=self.task_id,
+        )
+
+        coder_llm = LLM(
+            api_key=settings.CODER_API_KEY,
+            model=settings.CODER_MODEL,
+            base_url=settings.CODER_BASE_URL,
+            task_id=self.task_id,
+        )
+
+        writer_llm = LLM(
+            api_key=settings.WRITER_API_KEY,
+            model=settings.WRITER_MODEL,
+            base_url=settings.WRITER_BASE_URL,
+            task_id=self.task_id,
+        )
+
+        return coordinator_llm, modeler_llm, coder_llm, writer_llm
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\core\llm\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\models\user_output.py 的内容:
+================================================================================
+import os
+import re
+from app.utils.data_recorder import DataRecorder
+from app.schemas.A2A import WriterResponse
+import json
+import uuid
+
+
+class UserOutput:
+    def __init__(
+        self, work_dir: str, ques_count: int, data_recorder: DataRecorder | None = None
+    ):
+        self.work_dir = work_dir
+        self.res: dict[str, dict] = {
+            # "eda": {
+            #     "response_content": "",
+            #     "footnotes": "",
+            # },
+            # "ques1": {
+            #     "response_content": "",
+            #     "footnotes": "",
+            # },
+        }
+        self.data_recorder = data_recorder
+        self.cost_time = 0.0
+        self.initialized = True
+        self.ques_count: int = ques_count
+        self.footnotes = {}
+        self._init_seq()
+
+    def _init_seq(self):
+        # 动态顺序获取拼接res value，正确拼接顺序
+        ques_str = [f"ques{i}" for i in range(1, self.ques_count + 1)]
+
+        # 修改：调整章节顺序，确保符合论文结构
+        self.seq = [
+            "firstPage",  # 标题、摘要、关键词
+            "RepeatQues",  # 一、问题重述
+            "analysisQues",  # 二、问题分析
+            "modelAssumption",  # 三、模型假设
+            "symbol",  # 四、符号说明和数据预处理
+            "eda",  # 四、数据预处理（EDA部分）
+            *ques_str,  # 五、模型的建立与求解（问题1、2...）
+            "sensitivity_analysis",  # 六、模型的分析与检验
+            "judge",  # 七、模型的评价、改进与推广
+        ]
+
+    def set_res(self, key: str, writer_response: WriterResponse):
+        self.res[key] = {
+            "response_content": writer_response.response_content,
+            "footnotes": writer_response.footnotes,
+        }
+
+    def get_res(self):
+        return self.res
+
+    def get_model_build_solve(self) -> str:
+        """获取模型求解"""
+        model_build_solve = ",".join(
+            f"{key}-{value}"
+            for key, value in self.res.items()
+            if key.startswith("ques") and key != "ques_count"
+        )
+
+        return model_build_solve
+
+    def replace_references_with_uuid(self, text: str) -> str:
+        # 匹配引用内容，格式为 {[^数字]: 引用内容}
+        # 修改正则表达式，匹配大括号包裹的引用格式
+        references = re.findall(r"\{\[\^(\d+)\]:\s*(.*?)\}", text, re.DOTALL)
+
+        for ref_num, ref_content in references:
+            # 清理引用内容，去除末尾的空格和点号
+            ref_content = ref_content.strip().rstrip(".")
+
+            # 检查当前引用内容是否已经存在于footnotes中
+            existing_uuid = None
+            for uuid_key, footnote_data in self.footnotes.items():
+                if footnote_data["content"] == ref_content:
+                    existing_uuid = uuid_key
+                    break
+
+            if existing_uuid:
+                # 如果已存在，使用现有的UUID
+                text = re.sub(
+                    rf"\{{\[\^{ref_num}\]:.*?\}}",
+                    f"[{existing_uuid}]",
+                    text,
+                    flags=re.DOTALL,
+                )
+            else:
+                # 如果不存在，创建新的UUID和footnote条目
+                new_uuid = str(uuid.uuid4())
+                self.footnotes[new_uuid] = {
+                    "content": ref_content,
+                }
+                text = re.sub(
+                    rf"\{{\[\^{ref_num}\]:.*?\}}",
+                    f"[{new_uuid}]",
+                    text,
+                    flags=re.DOTALL,
+                )
+
+        return text
+
+    def sort_text_with_footnotes(self, replace_res: dict) -> dict:
+        sort_res = {}
+        ref_index = 1
+
+        for seq_key in self.seq:
+            text = replace_res[seq_key]["response_content"]
+            # 找到[uuid]
+            uuid_list = re.findall(r"\[([a-f0-9-]{36})\]", text)
+            for uid in uuid_list:
+                text = text.replace(f"[{uid}]", f"[^{ref_index}]")
+                if self.footnotes[uid].get("number") is None:
+                    self.footnotes[uid]["number"] = ref_index
+
+                ref_index += 1
+            sort_res[seq_key] = {
+                "response_content": text,
+            }
+
+        return sort_res
+
+    def append_footnotes_to_text(self, text: str) -> str:
+        text += "\n\n ## 参考文献"
+        # 将脚注转换为列表并按 number 排序
+        sorted_footnotes = sorted(self.footnotes.items(), key=lambda x: x[1]["number"])
+        for _, footnote in sorted_footnotes:
+            text += f"\n\n[^{footnote['number']}]: {footnote['content']}"
+        return text
+
+    def get_result_to_save(self) -> str:
+        replace_res = {}
+
+        for key, value in self.res.items():
+            new_text = self.replace_references_with_uuid(value["response_content"])
+            replace_res[key] = {
+                "response_content": new_text,
+            }
+
+        sort_res = self.sort_text_with_footnotes(replace_res)
+
+        full_res_1 = "\n\n".join(
+            [sort_res[key]["response_content"] for key in self.seq]
+        )
+
+        full_res = self.append_footnotes_to_text(full_res_1)
+        return full_res
+
+    def save_result(
+        self,
+    ):
+        with open(os.path.join(self.work_dir, "res.json"), "w", encoding="utf-8") as f:
+            json.dump(self.res, f, ensure_ascii=False, indent=4)
+
+        res_path = os.path.join(self.work_dir, "res.md")
+        with open(res_path, "w", encoding="utf-8") as f:
+            f.write(self.get_result_to_save())
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\models\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\routers\common_router.py 的内容:
+================================================================================
+from fastapi import APIRouter
+from app.config.setting import settings
+from app.utils.common_utils import get_config_template
+from app.schemas.enums import CompTemplate
+
+router = APIRouter()
+
+
+@router.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+
+@router.get("/config")
+async def config():
+    return {
+        "environment": settings.ENV,
+        "deepseek_model": settings.DEEPSEEK_MODEL,
+        "deepseek_base_url": settings.DEEPSEEK_BASE_URL,
+        "max_chat_turns": settings.MAX_CHAT_TURNS,
+        "max_retries": settings.MAX_RETRIES,
+        "CORS_ALLOW_ORIGINS": settings.CORS_ALLOW_ORIGINS,
+    }
+
+
+@router.get("/writer_seque")
+async def get_writer_seque():
+    # 返回论文顺序
+    config_template: dict = get_config_template(CompTemplate.CHINA)
+    return list(config_template.keys())
+
+
+@router.get("/track")
+async def track(task_id: str):
+    # 获取任务的token使用情况
+
+    pass
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\routers\files_router.py 的内容:
+================================================================================
+from fastapi import APIRouter
+from app.utils.common_utils import get_current_files, get_work_dir
+import os
+import subprocess
+from icecream import ic
+from fastapi import HTTPException
+
+router = APIRouter()
+
+
+@router.get("/files")
+async def get_files(task_id: str):
+    work_dir = get_work_dir(task_id)
+    files = get_current_files(work_dir, "all")
+
+    return {"files": files}
+
+
+@router.get("/open_folder")
+async def open_folder(task_id: str):
+    ic(task_id)
+    # 打开工作目录
+    work_dir = get_work_dir(task_id)
+
+    # 打开工作目录
+    if os.name == "nt":
+        subprocess.run(["explorer", work_dir])
+    elif os.name == "posix":
+        subprocess.run(["open", work_dir])
+    else:
+        raise HTTPException(status_code=500, detail=f"不支持的操作系统: {os.name}")
+
+    return {"message": "打开工作目录成功", "work_dir": work_dir}
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\routers\modeling_router.py 的内容:
+================================================================================
+from fastapi import APIRouter, BackgroundTasks, File, Form, UploadFile
+from app.core.workflow import MathModelWorkFlow
+from app.schemas.enums import CompTemplate, FormatOutPut
+from app.utils.log_util import logger
+from app.services.redis_manager import redis_manager
+from app.schemas.request import Problem
+from app.schemas.response import SystemMessage
+from app.utils.common_utils import (
+    create_task_id,
+    create_work_dir,
+    get_current_files,
+    md_2_docx,
+)
+import os
+import asyncio
+from fastapi import HTTPException
+from icecream import ic
+from app.schemas.request import ExampleRequest
+
+router = APIRouter()
+
+
+@router.post("/example")
+async def exampleModeling(
+    example_request: ExampleRequest,
+    background_tasks: BackgroundTasks,
+):
+    task_id = create_task_id()
+    work_dir = create_work_dir(task_id)
+    example_dir = os.path.join("app", "example", "example", example_request.source)
+    ic(example_dir)
+    with open(os.path.join(example_dir, "questions.txt"), "r", encoding="utf-8") as f:
+        ques_all = f.read()
+
+    current_files = get_current_files(example_dir, "data")
+    for file in current_files:
+        src_file = os.path.join(example_dir, file)
+        dst_file = os.path.join(work_dir, file)
+        with open(src_file, "rb") as src, open(dst_file, "wb") as dst:
+            dst.write(src.read())
+    # 存储任务ID
+    await redis_manager.set(f"task_id:{task_id}", task_id)
+
+    logger.info(f"Adding background task for task_id: {task_id}")
+    # 将任务添加到后台执行
+    background_tasks.add_task(
+        run_modeling_task_async,
+        task_id,
+        ques_all,
+        CompTemplate.CHINA,
+        FormatOutPut.Markdown,
+    )
+    return {"task_id": task_id, "status": "processing"}
+
+
+@router.post("/modeling")
+async def modeling(
+    background_tasks: BackgroundTasks,
+    ques_all: str = Form(...),  # 从表单获取
+    comp_template: CompTemplate = Form(...),  # 从表单获取
+    format_output: FormatOutPut = Form(...),  # 从表单获取
+    files: list[UploadFile] = File(default=None),
+):
+    task_id = create_task_id()
+    work_dir = create_work_dir(task_id)
+
+    # 如果有上传文件，保存文件
+    if files:
+        logger.info(f"开始处理上传的文件，工作目录: {work_dir}")
+        for file in files:
+            try:
+                data_file_path = os.path.join(work_dir, file.filename)
+                logger.info(f"保存文件: {file.filename} -> {data_file_path}")
+
+                # 确保文件名不为空
+                if not file.filename:
+                    logger.warning("跳过空文件名")
+                    continue
+
+                content = await file.read()
+                if not content:
+                    logger.warning(f"文件 {file.filename} 内容为空")
+                    continue
+
+                with open(data_file_path, "wb") as f:
+                    f.write(content)
+                logger.info(f"成功保存文件: {data_file_path}")
+
+            except Exception as e:
+                logger.error(f"保存文件 {file.filename} 失败: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"保存文件 {file.filename} 失败: {str(e)}"
+                )
+    else:
+        logger.warning("没有上传文件")
+
+    # 存储任务ID
+    await redis_manager.set(f"task_id:{task_id}", task_id)
+
+    logger.info(f"Adding background task for task_id: {task_id}")
+    # 将任务添加到后台执行
+    background_tasks.add_task(
+        run_modeling_task_async, task_id, ques_all, comp_template, format_output
+    )
+    return {"task_id": task_id, "status": "processing"}
+
+
+async def run_modeling_task_async(
+    task_id: str,
+    ques_all: str,
+    comp_template: CompTemplate,
+    format_output: FormatOutPut,
+):
+    logger.info(f"run modeling task for task_id: {task_id}")
+
+    problem = Problem(
+        task_id=task_id,
+        ques_all=ques_all,
+        comp_template=comp_template,
+        format_output=format_output,
+    )
+
+    # 发送任务开始状态
+    await redis_manager.publish_message(
+        task_id,
+        SystemMessage(content="任务开始处理"),
+    )
+
+    # 给一个短暂的延迟，确保 WebSocket 有机会连接
+    await asyncio.sleep(1)
+
+    # 创建任务并等待它完成
+    task = asyncio.create_task(MathModelWorkFlow().execute(problem))
+    # 设置超时时间（比如 60 分钟）
+    await asyncio.wait_for(task, timeout=3600)
+
+    # 发送任务完成状态
+    await redis_manager.publish_message(
+        task_id,
+        SystemMessage(content="任务处理完成", type="success"),
+    )
+    # 转换md为docx
+    md_2_docx(task_id)
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\routers\ws_router.py 的内容:
+================================================================================
+from fastapi import WebSocket, WebSocketDisconnect, APIRouter
+from app.services.redis_manager import redis_manager
+from app.schemas.response import SystemMessage
+import asyncio
+from app.services.ws_manager import ws_manager
+import json
+
+router = APIRouter()
+
+
+@router.websocket("/task/{task_id}")
+async def websocket_endpoint(websocket: WebSocket, task_id: str):
+    print(f"WebSocket 尝试连接 task_id: {task_id}")
+
+    redis_async_client = await redis_manager.get_client()
+    if not await redis_async_client.exists(f"task_id:{task_id}"):
+        print(f"Task not found: {task_id}")
+        await websocket.close(code=1008, reason="Task not found")
+        return
+    print(f"WebSocket connected for task: {task_id}")
+
+    # 建立 WebSocket 连接
+    await ws_manager.connect(websocket)
+    websocket.timeout = 500
+    print(f"WebSocket connection status: {websocket.client}")
+
+    # 订阅 Redis 频道
+    pubsub = await redis_manager.subscribe_to_task(task_id)
+    print(f"Subscribed to Redis channel: task:{task_id}:messages")
+
+    await redis_manager.publish_message(
+        task_id,
+        SystemMessage(content="任务开始处理"),
+    )
+
+    try:
+        while True:
+            try:
+                msg = await pubsub.get_message(ignore_subscribe_messages=True)
+                if msg:
+                    print(f"Received message: {msg}")
+                    try:
+                        msg_dict = json.loads(msg["data"])
+                        await ws_manager.send_personal_message_json(msg_dict, websocket)
+                        print(f"Sent message to WebSocket: {msg_dict}")
+                    except Exception as e:
+                        print(f"Error parsing message: {e}")
+                        await ws_manager.send_personal_message_json(
+                            {"error": str(e)}, websocket
+                        )
+                await asyncio.sleep(0.1)
+
+            except WebSocketDisconnect:
+                print("WebSocket disconnected")
+                break
+            except Exception as e:
+                print(f"Error in websocket loop: {e}")
+                await asyncio.sleep(1)
+                continue
+
+    except Exception as e:
+        print(f"WebSocket error: {e}")
+    finally:
+        await pubsub.unsubscribe(f"task:{task_id}:messages")
+        ws_manager.disconnect(websocket)
+        print(f"WebSocket connection closed for task: {task_id}")
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\routers\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\schemas\A2A.py 的内容:
+================================================================================
+from pydantic import BaseModel
+from typing import Any
+
+
+class CoordinatorToModeler(BaseModel):
+    questions: dict
+    ques_count: int
+
+
+class ModelerToCoder(BaseModel):
+    questions_solution: dict[str, str]
+
+
+class CoderToWriter(BaseModel):
+    code_response: str | None = None
+    code_output: str | None = None
+    created_images: list[str] | None = None
+
+
+class WriterResponse(BaseModel):
+    response_content: Any
+    footnotes: list[tuple[str, str]] | None = None
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\schemas\base.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\schemas\enums.py 的内容:
+================================================================================
+from enum import Enum
+
+
+class CompTemplate(str, Enum):
+    CHINA: str = "CHINA"
+    AMERICAN: str = "AMERICAN"
+
+
+class FormatOutPut(str, Enum):
+    Markdown: str = "Markdown"
+    LaTeX: str = "LaTeX"
+
+
+class AgentType(str, Enum):
+    COORDINATOR = "CoordinatorAgent"
+    MODELER = "ModelerAgent"
+    CODER = "CoderAgent"
+    WRITER = "WriterAgent"
+    SYSTEM = "SystemAgent"
+
+
+class AgentStatus(str, Enum):
+    START = "start"
+    WORKING = "working"
+    DONE = "done"
+    ERROR = "error"
+    SUCCESS = "success"
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\schemas\request.py 的内容:
+================================================================================
+from pydantic import BaseModel
+from app.schemas.enums import CompTemplate, FormatOutPut
+
+
+class ExampleRequest(BaseModel):
+    example_id: str
+    source: str
+
+
+class Problem(BaseModel):
+    task_id: str
+    ques_all: str = ""
+    comp_template: CompTemplate = CompTemplate.CHINA
+    format_output: FormatOutPut = FormatOutPut.Markdown
+
+    def model_dump(self, **kwargs):
+        data = super().model_dump(**kwargs)
+        data["comp_template"] = self.comp_template.value
+        data["format_output"] = self.format_output.value
+        return data
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\schemas\response.py 的内容:
+================================================================================
+from typing import Literal, Union
+from app.schemas.enums import AgentType
+from pydantic import BaseModel, Field
+from uuid import uuid4
+
+
+class Message(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    msg_type: Literal[
+        "system", "agent", "user", "tool"
+    ]  # system msg | agent message | user message | tool message
+    content: str | None = None
+
+
+class ToolMessage(Message):
+    msg_type: str = "tool"
+    tool_name: Literal["execute_code", "search_scholar"]
+    input: dict
+    output: list
+
+
+class SystemMessage(Message):
+    msg_type: str = "system"
+    type: Literal["info", "warning", "success", "error"] = "info"
+
+
+class UserMessage(Message):
+    msg_type: str = "user"
+
+
+class AgentMessage(Message):
+    msg_type: str = "agent"
+    agent_type: AgentType  # CoordinatorAgent | ModelerAgent | CoderAgent | WriterAgent
+
+
+class ModelerMessage(AgentMessage):
+    agent_type: AgentType = AgentType.MODELER
+
+
+class CoordinatorMessage(AgentMessage):
+    agent_type: AgentType = AgentType.COORDINATOR
+
+
+class CodeExecution(BaseModel):
+    res_type: Literal["stdout", "stderr", "result", "error"]
+    msg: str | None = None
+
+
+class StdOutModel(CodeExecution):
+    res_type: str = "stdout"
+
+
+class StdErrModel(CodeExecution):
+    res_type: str = "stderr"
+
+
+class ResultModel(CodeExecution):
+    res_type: str = "result"
+    format: Literal[
+        "text",
+        "html",
+        "markdown",
+        "png",
+        "jpeg",
+        "svg",
+        "pdf",
+        "latex",
+        "json",
+        "javascript",
+    ]
+
+
+class ErrorModel(CodeExecution):
+    res_type: str = "error"
+    name: str
+    value: str
+    traceback: str
+
+
+# 代码执行结果类型
+OutputItem = Union[StdOutModel, StdErrModel, ResultModel, ErrorModel]
+
+
+class ScholarMessage(ToolMessage):
+    tool_name: str = "search_scholar"
+    input: dict | None = None  # query
+    output: list[str] | None = None  # cites
+
+
+class InterpreterMessage(ToolMessage):
+    tool_name: str = "execute_code"
+    input: dict | None = None  # code
+    output: list[OutputItem] | None = None  # code_results
+
+
+# 1. 只带 code
+# 2. 只带 code result
+class CoderMessage(AgentMessage):
+    agent_type: AgentType = AgentType.CODER
+
+
+class WriterMessage(AgentMessage):
+    agent_type: AgentType = AgentType.WRITER
+    sub_title: str | None = None
+
+
+# 所有可能的消息类型
+MessageType = Union[
+    SystemMessage,
+    UserMessage,
+    ModelerMessage,
+    CoderMessage,
+    WriterMessage,
+    CoordinatorMessage,
+]
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\schemas\tool_result.py 的内容:
+================================================================================
+from pydantic import BaseModel
+from typing import Any, Optional
+
+
+class ToolResult(BaseModel):
+    success: bool
+    message: Optional[str] = None
+    data: Optional[Any] = None
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\schemas\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\services\redis_manager.py 的内容:
+================================================================================
+import redis.asyncio as aioredis
+from typing import Optional
+import json
+from pathlib import Path
+from app.config.setting import settings
+from app.schemas.response import Message
+from app.utils.log_util import logger
+
+
+class RedisManager:
+    def __init__(self):
+        self.redis_url = settings.REDIS_URL
+        self._client: Optional[aioredis.Redis] = None
+        # 创建消息存储目录
+        self.messages_dir = Path("logs/messages")
+        self.messages_dir.mkdir(parents=True, exist_ok=True)
+
+    async def get_client(self) -> aioredis.Redis:
+        if self._client is None:
+            self._client = aioredis.Redis.from_url(
+                self.redis_url,
+                decode_responses=True,
+                max_connections=settings.REDIS_MAX_CONNECTIONS,
+            )
+        logger.info(f"Redis 连接建立成功: {self.redis_url}")
+        return self._client
+
+    async def set(self, key: str, value: str):
+        """设置Redis键值对"""
+        client = await self.get_client()
+        await client.set(key, value)
+        await client.expire(key, 36000)
+
+    async def _save_message_to_file(self, task_id: str, message: Message):
+        """将消息保存到文件中，同一任务的消息保存在同一个文件中"""
+        try:
+            # 确保目录存在
+            self.messages_dir.mkdir(exist_ok=True)
+
+            # 使用任务ID作为文件名
+            file_path = self.messages_dir / f"{task_id}.json"
+
+            # 读取现有消息（如果文件存在）
+            messages = []
+            if file_path.exists():
+                with open(file_path, "r", encoding="utf-8") as f:
+                    messages = json.load(f)
+
+            # 添加新消息
+            message_data = message.model_dump()
+            messages.append(message_data)
+
+            # 保存所有消息到文件
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(messages, f, ensure_ascii=False, indent=2)
+
+            logger.debug(f"消息已追加到文件: {file_path}")
+        except Exception as e:
+            logger.error(f"保存消息到文件失败: {str(e)}")
+            # 不抛出异常，确保主流程不受影响
+
+    async def publish_message(self, task_id: str, message: Message):
+        """发布消息到特定任务的频道并保存到文件"""
+        client = await self.get_client()
+        channel = f"task:{task_id}:messages"
+        try:
+            message_json = message.model_dump_json()
+            await client.publish(channel, message_json)
+            logger.debug(
+                f"消息已发布到频道 {channel}:mes_type:{message.msg_type}:msg_content:{message.content}"
+            )
+            # 保存消息到文件
+            await self._save_message_to_file(task_id, message)
+        except Exception as e:
+            logger.error(f"发布消息失败: {str(e)}")
+            raise
+
+    async def subscribe_to_task(self, task_id: str):
+        """订阅特定任务的消息"""
+        client = await self.get_client()
+        pubsub = client.pubsub()
+        await pubsub.subscribe(f"task:{task_id}:messages")
+        return pubsub
+
+    async def close(self):
+        """关闭Redis连接"""
+        if self._client:
+            await self._client.close()
+            self._client = None
+
+
+redis_manager = RedisManager()
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\services\ws_manager.py 的内容:
+================================================================================
+from fastapi import WebSocket
+
+
+class WebSocketManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def send_personal_message_json(self, message: dict, websocket: WebSocket):
+        await websocket.send_json(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+
+ws_manager = WebSocketManager()
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tests\get_config_template.py 的内容:
+================================================================================
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from app.schemas.enums import CompTemplate
+
+
+def test_get_config_template():
+    from app.utils.common_utils import get_config_template
+
+    comp_template = CompTemplate.CHINA
+    config_template = get_config_template(comp_template)
+    print(config_template)
+
+
+if __name__ == "__main__":
+    test_get_config_template()
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tests\test_common_utils.py 的内容:
+================================================================================
+import unittest
+
+from app.utils.common_utils import split_footnotes
+
+
+class TestCommonUtils(unittest.TestCase):
+    def test_split_footnotes(self):
+        text = "Example[^1]\n\n[^1]: Footnote content"
+        main, notes = split_footnotes(text)
+        self.assertEqual(main, "Example")
+        self.assertEqual(notes, [("1", "Footnote content")])
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tests\test_e2b.py 的内容:
+================================================================================
+import os
+import asyncio
+import unittest
+
+
+from dotenv import load_dotenv
+
+from app.tools.e2b_interpreter import E2BCodeInterpreter
+from app.utils.common_utils import create_work_dir
+
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:  # Fallback if python-dotenv is not installed
+    def load_dotenv(*args, **kwargs):
+        return None
+
+try:
+    from app.tools.e2b_interpreter import E2BCodeInterpreter
+except ModuleNotFoundError:
+    E2BCodeInterpreter = None
+from app.utils.common_utils import create_task_id, create_work_dir
+
+
+
+class TestE2BCodeInterpreter(unittest.TestCase):
+    def setUp(self):
+        load_dotenv()
+
+        if E2BCodeInterpreter is None:
+            self.skipTest("e2b_code_interpreter not available")
+        _, dirs = create_work_dir("20250312-104132-d3625cab")
+        notebook = NotebookSerializer(dirs["jupyter"])
+
+        self.code_interpreter = E2BCodeInterpreter(
+            self.task_id, self.work_dir, notebook
+        )
+
+    def test_execute_code(self):
+        if not os.getenv("E2B_API_KEY"):
+            self.skipTest("E2B_API_KEY not set")
+
+        code = """
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 生成数据
+x = np.linspace(0, 2 * np.pi, 100)  # x从0到2π，生成100个点
+y = np.sin(x)                       # 计算对应的sin(x)值
+
+# 绘图
+plt.figure(figsize=(8, 4))          # 设置画布大小
+plt.plot(x, y, label='y = sin(x)')  # 绘制曲线，并添加图例
+
+# 添加标签和标题
+plt.title("Simple Sine Function")
+plt.xlabel("x")
+plt.ylabel("y")
+
+# 添加网格和图例
+plt.grid(True)
+plt.legend()
+
+# 显示图像
+plt.show()
+"""
+        asyncio.run(self.code_interpreter.initialize())
+        asyncio.run(self.code_interpreter.execute_code(code))
+
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tests\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tools\base.py 的内容:
+================================================================================
+from typing import Dict, Any, List, Callable
+import inspect
+from app.schemas.tool_result import ToolResult
+
+
+def tool(
+    name: str,
+    description: str,
+    parameters: Dict[str, Dict[str, Any]],
+    required: List[str],
+) -> Callable:
+    """Tool registration decorator
+
+    Args:
+        name: Tool name
+        description: Tool description
+        parameters: Tool parameter definitions
+        required: List of required parameters
+
+    Returns:
+        Decorator function
+    """
+
+    def decorator(func):
+        # Create tool schema directly using provided parameters, without automatic extraction
+        schema = {
+            "type": "function",
+            "function": {
+                "name": name,
+                "description": description,
+                "parameters": {
+                    "type": "object",
+                    "properties": parameters,
+                    "required": required,
+                },
+            },
+        }
+
+        # Store tool information
+        func._function_name = name
+        func._tool_description = description
+        func._tool_schema = schema
+
+        return func
+
+    return decorator
+
+
+class BaseTool:
+    """Base tool class, providing common tool calling methods"""
+
+    name: str = ""
+
+    def __init__(self):
+        """Initialize base tool class"""
+        self._tools_cache = None
+
+    def get_tools(self) -> List[Dict[str, Any]]:
+        """Get all registered tools
+
+        Returns:
+            List of tools
+        """
+        if self._tools_cache is not None:
+            return self._tools_cache
+
+        tools = []
+        for _, method in inspect.getmembers(self, inspect.ismethod):
+            if hasattr(method, "_tool_schema"):
+                tools.append(method._tool_schema)
+
+        self._tools_cache = tools
+        return tools
+
+    def has_function(self, function_name: str) -> bool:
+        """Check if specified function exists
+
+        Args:
+            function_name: Function name
+
+        Returns:
+            Whether the tool exists
+        """
+        for _, method in inspect.getmembers(self, inspect.ismethod):
+            if (
+                hasattr(method, "_function_name")
+                and method._function_name == function_name
+            ):
+                return True
+        return False
+
+    async def invoke_function(self, function_name: str, **kwargs) -> ToolResult:
+        """Invoke specified tool
+
+        Args:
+            function_name: Function name
+            **kwargs: Parameters
+
+        Returns:
+            Invocation result
+
+        Raises:
+            ValueError: Raised when tool doesn't exist
+        """
+        for _, method in inspect.getmembers(self, inspect.ismethod):
+            if (
+                hasattr(method, "_function_name")
+                and method._function_name == function_name
+            ):
+                return await method(**kwargs)
+
+        raise ValueError(f"Tool '{function_name}' not found")
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tools\base_interpreter.py 的内容:
+================================================================================
+# base_interpreter.py
+import abc
+import re
+from app.tools.notebook_serializer import NotebookSerializer
+from app.services.redis_manager import redis_manager
+from app.utils.log_util import logger
+from app.schemas.response import (
+    OutputItem,
+    InterpreterMessage,
+)
+
+
+class BaseCodeInterpreter(abc.ABC):
+    def __init__(
+        self,
+        task_id: str,
+        work_dir: str,
+        notebook_serializer: NotebookSerializer,
+    ):
+        self.task_id = task_id
+        self.work_dir = work_dir
+        self.notebook_serializer = notebook_serializer
+        self.section_output: dict[str, dict[str, list[str]]] = {}
+        self.last_created_images = set()
+
+    @abc.abstractmethod
+    async def initialize(self):
+        """初始化解释器，必要时上传文件、启动内核等"""
+        ...
+
+    @abc.abstractmethod
+    async def _pre_execute_code(self):
+        """执行初始化代码"""
+        ...
+
+    @abc.abstractmethod
+    async def execute_code(self, code: str) -> tuple[str, bool, str]:
+        """执行一段代码，返回 (输出文本, 是否出错, 错误信息)"""
+        ...
+
+    @abc.abstractmethod
+    async def cleanup(self):
+        """清理资源，比如关闭沙箱或内核"""
+        ...
+
+    @abc.abstractmethod
+    async def get_created_images(self, section: str) -> list[str]:
+        """获取当前 section 创建的图片列表"""
+        ...
+
+    async def _push_to_websocket(self, content_to_display: list[OutputItem] | None):
+        logger.info("执行结果已推送到WebSocket")
+
+        agent_msg = InterpreterMessage(
+            output=content_to_display,
+        )
+        logger.debug(f"发送消息: {agent_msg.model_dump_json()}")
+        await redis_manager.publish_message(
+            self.task_id,
+            agent_msg,
+        )
+
+    def add_section(self, section_name: str) -> None:
+        """确保添加的section结构正确"""
+
+        if section_name not in self.section_output:
+            self.section_output[section_name] = {"content": [], "images": []}
+
+    def add_content(self, section: str, text: str) -> None:
+        """向指定section添加文本内容"""
+        self.add_section(section)
+        self.section_output[section]["content"].append(text)
+
+    def get_code_output(self, section: str) -> str:
+        """获取指定section的代码输出"""
+        return "\n".join(self.section_output[section]["content"])
+
+    def delete_color_control_char(self, string):
+        ansi_escape = re.compile(r"(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]")
+        return ansi_escape.sub("", string)
+
+    def _truncate_text(self, text: str, max_length: int = 1000) -> str:
+        """截断文本，保留开头和结尾的重要信息"""
+        if len(text) <= max_length:
+            return text
+
+        half_length = max_length // 2
+        return text[:half_length] + "\n... (内容已截断) ...\n" + text[-half_length:]
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tools\e2b_interpreter.py 的内容:
+================================================================================
+import os
+from e2b_code_interpreter import AsyncSandbox
+from app.schemas.response import (
+    ErrorModel,
+    OutputItem,
+    ResultModel,
+    StdErrModel,
+    StdOutModel,
+    SystemMessage,
+)
+from app.services.redis_manager import redis_manager
+from app.tools.notebook_serializer import NotebookSerializer
+from app.utils.log_util import logger
+from app.config.setting import settings
+import json
+from app.tools.base_interpreter import BaseCodeInterpreter
+
+
+class E2BCodeInterpreter(BaseCodeInterpreter):
+    def __init__(
+        self,
+        task_id: str,
+        work_dir: str,
+        notebook_serializer: NotebookSerializer,
+    ):
+        super().__init__(task_id, work_dir, notebook_serializer)
+        self.sbx = None
+
+    @classmethod
+    async def create(
+        cls,
+        task_id: str,
+        work_dir: str,
+        notebook_serializer: NotebookSerializer,
+    ) -> "E2BCodeInterpreter":
+        """创建并初始化 E2BCodeInterpreter 实例"""
+        instance = cls(task_id, work_dir, notebook_serializer)
+        return instance
+
+    async def initialize(self, timeout: int = 3000):
+        """异步初始化沙箱环境"""
+        try:
+            self.sbx = await AsyncSandbox.create(
+                api_key=settings.E2B_API_KEY, timeout=timeout
+            )
+            logger.info("沙箱环境初始化成功")
+            await self._pre_execute_code()
+            await self._upload_all_files()
+        except Exception as e:
+            logger.error(f"初始化沙箱环境失败: {str(e)}")
+            raise
+
+    async def _upload_all_files(self):
+        """上传工作目录中的所有文件到沙箱"""
+        try:
+            logger.info(f"开始上传文件，工作目录: {self.work_dir}")
+            if not os.path.exists(self.work_dir):
+                logger.error(f"工作目录不存在: {self.work_dir}")
+                raise FileNotFoundError(f"工作目录不存在: {self.work_dir}")
+
+            files = [
+                f for f in os.listdir(self.work_dir) if f.endswith((".csv", ".xlsx"))
+            ]
+            logger.info(f"工作目录中的文件列表: {files}")
+
+            for file in files:
+                file_path = os.path.join(self.work_dir, file)
+                if os.path.isfile(file_path):
+                    try:
+                        with open(file_path, "rb") as f:
+                            content = f.read()
+                            # 使用官方推荐的 files.write 方法
+                            await self.sbx.files.write(f"/home/user/{file}", content)
+                            logger.info(f"成功上传文件到沙箱: {file}")
+                    except Exception as e:
+                        logger.error(f"上传文件 {file} 失败: {str(e)}")
+                        raise
+
+        except Exception as e:
+            logger.error(f"文件上传过程失败: {str(e)}")
+            raise
+
+    async def _pre_execute_code(self):
+        init_code = (
+            "import matplotlib.pyplot as plt\n"
+            # "plt.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial Unicode MS']\n"
+            # "plt.rcParams['axes.unicode_minus'] = False\n"
+            # "plt.rcParams['font.family'] = 'sans-serif'\n"
+        )
+        await self.execute_code(init_code)
+
+    async def execute_code(self, code: str) -> tuple[str, bool, str]:
+        """执行代码并返回结果"""
+
+        if not self.sbx:
+            raise RuntimeError("沙箱环境未初始化")
+
+        logger.info(f"执行代码: {code}")
+        self.notebook_serializer.add_code_cell_to_notebook(code)
+
+        text_to_gpt: list[str] = []
+        content_to_display: list[OutputItem] | None = []
+        error_occurred: bool = False
+        error_message: str = ""
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="开始执行代码"),
+        )
+        # 执行 Python 代码
+        logger.info("开始在沙箱中执行代码...")
+        execution = await self.sbx.run_code(code)  # 返回 Execution 对象
+        logger.info("代码执行完成，开始处理结果...")
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="代码执行完成"),
+        )
+
+        # 处理执行错误
+        if execution.error:
+            error_occurred = True
+            error_message = f"Error: {execution.error.name}: {execution.error.value}\n{execution.error.traceback}"
+            error_message = self._truncate_text(error_message)
+            logger.error(f"执行错误: {error_message}")
+            text_to_gpt.append(self.delete_color_control_char(error_message))
+            content_to_display.append(
+                ErrorModel(
+                    name=execution.error.name,
+                    value=execution.error.value,
+                    traceback=execution.error.traceback,
+                )
+            )
+        # 处理标准输出和标准错误
+
+        if execution.logs:
+            if execution.logs.stdout:
+                stdout_str = "\n".join(execution.logs.stdout)
+                stdout_str = self._truncate_text(stdout_str)
+                logger.info(f"标准输出: {stdout_str}")
+                text_to_gpt.append(stdout_str)
+                content_to_display.append(
+                    StdOutModel(msg="\n".join(execution.logs.stdout))
+                )
+                self.notebook_serializer.add_code_cell_output_to_notebook(stdout_str)
+
+            if execution.logs.stderr:
+                stderr_str = "\n".join(execution.logs.stderr)
+                stderr_str = self._truncate_text(stderr_str)
+                logger.warning(f"标准错误: {stderr_str}")
+                text_to_gpt.append(stderr_str)
+                content_to_display.append(
+                    StdErrModel(msg="\n".join(execution.logs.stderr))
+                )
+
+            # 处理执行结果
+        if execution.results:
+            for result in execution.results:
+                # 1. 文本格式
+                if str(result):
+                    content_to_display.append(
+                        ResultModel(type="result", format="text", msg=str(result))
+                    )
+                # 2. HTML格式
+                if result._repr_html_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result", format="html", msg=result._repr_html_()
+                        )
+                    )
+                # 3. Markdown格式
+                if result._repr_markdown_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result",
+                            format="markdown",
+                            msg=result._repr_markdown_(),
+                        )
+                    )
+                # 4. PNG图片（base64字符串，前端可直接渲染）
+                if result._repr_png_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result", format="png", msg=result._repr_png_()
+                        )
+                    )
+                # 5. JPEG图片
+                if result._repr_jpeg_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result", format="jpeg", msg=result._repr_jpeg_()
+                        )
+                    )
+                # 6. SVG
+                if result._repr_svg_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result", format="svg", msg=result._repr_svg_()
+                        )
+                    )
+                # 7. PDF
+                if result._repr_pdf_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result", format="pdf", msg=result._repr_pdf_()
+                        )
+                    )
+                # 8. LaTeX
+                if result._repr_latex_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result", format="latex", msg=result._repr_latex_()
+                        )
+                    )
+                # 9. JSON
+                if result._repr_json_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result",
+                            format="json",
+                            msg=json.dumps(result._repr_json_()),
+                        )
+                    )
+                # 10. JavaScript
+                if result._repr_javascript_():
+                    content_to_display.append(
+                        ResultModel(
+                            type="result",
+                            format="javascript",
+                            msg=result._repr_javascript_(),
+                        )
+                    )
+
+                    # 处理主要结果
+                # if result.is_main_result and result.text:
+                #     result_text = self._truncate_text(result.text)
+                #     logger.info(f"主要结果: {result_text}")
+                #     text_to_gpt.append(result_text)
+                #     self.notebook_serializer.add_code_cell_output_to_notebook(
+                #         result_text
+                #     )
+
+        # 限制返回的文本总长度
+
+        for item in content_to_display:
+            if isinstance(item, dict):
+                if item.get("type") in ["stdout", "stderr", "error"]:
+                    text_to_gpt.append(
+                        self._truncate_text(
+                            item.get("content") or item.get("value") or ""
+                        )
+                    )
+            elif isinstance(item, ResultModel):
+                if item.format in ["text", "html", "markdown", "json"]:
+                    text_to_gpt.append(
+                        self._truncate_text(f"[{item.format}]\n{item.msg}")
+                    )
+                elif item.format in ["png", "jpeg", "svg", "pdf"]:
+                    text_to_gpt.append(
+                        f"[{item.format} 图片已生成，内容为 base64，未展示]"
+                    )
+
+        logger.info(f"text_to_gpt: {text_to_gpt}")
+
+        combined_text = "\n".join(text_to_gpt)
+
+        # 在代码执行完成后，立即同步文件
+        try:
+            await self.download_all_files_from_sandbox()
+            logger.info("文件同步完成")
+        except Exception as e:
+            logger.error(f"文件同步失败: {str(e)}")
+
+        # 保存到分段内容
+        ## TODO: Base64 等图像需要优化
+        await self._push_to_websocket(content_to_display)
+
+        return (
+            combined_text,
+            error_occurred,
+            error_message,
+        )
+
+    async def get_created_images(self, section: str) -> list[str]:
+        """获取当前 section 创建的图片列表"""
+        if not self.sbx:
+            logger.warning("沙箱环境未初始化")
+            return []
+
+        try:
+            files = await self.sbx.files.list("./")
+            for file in files:
+                if file.path.endswith(".png") or file.path.endswith(".jpg"):
+                    self.add_section(section)
+                    self.section_output[section]["images"].append(file.name)
+
+            self.created_images = list(
+                set(self.section_output[section]["images"]) - set(self.created_images)
+            )
+            logger.info(f"{section}-获取创建的图片列表: {self.created_images}")
+            return self.created_images
+        except Exception as e:
+            logger.error(f"获取创建的图片列表失败: {str(e)}")
+            return []
+
+    async def cleanup(self):
+        """清理资源并关闭沙箱"""
+        try:
+            if self.sbx:
+                if await self.sbx.is_running():
+                    try:
+                        await self.download_all_files_from_sandbox()
+                    except Exception as e:
+                        logger.error(f"下载文件失败: {str(e)}")
+                    finally:
+                        await self.sbx.kill()
+                        logger.info("成功关闭沙箱环境")
+                else:
+                    logger.warning("沙箱已经关闭，跳过清理步骤")
+        except Exception as e:
+            logger.error(f"清理沙箱环境失败: {str(e)}")
+            # 这里可以选择不抛出异常，因为这是清理步骤
+
+    async def download_all_files_from_sandbox(self) -> None:
+        """从沙箱中下载所有文件并与本地同步"""
+        try:
+            # 获取沙箱中的文件列表
+            sandbox_files = await self.sbx.files.list("/home/user")
+            sandbox_files_dict = {f.name: f for f in sandbox_files}
+
+            # 获取本地文件列表
+            local_files = set()
+            if os.path.exists(self.work_dir):
+                local_files = set(os.listdir(self.work_dir))
+
+            # 下载新文件或更新已修改的文件
+            for file in sandbox_files:
+                try:
+                    # 排除 .bash_logout、.bashrc 和 .profile 文件
+                    if file.name in [".bash_logout", ".bashrc", ".profile"]:
+                        continue
+
+                    local_path = os.path.join(self.work_dir, file.name)
+                    should_download = True
+
+                    # 检查文件是否需要更新
+                    if file.name in local_files:
+                        # 这里可以添加文件修改时间或内容哈希的比较
+                        # 暂时简单处理，有同名文件就更新
+                        pass
+
+                    if should_download:
+                        # 使用 bytes 格式读取文件内容，确保正确处理二进制数据
+                        content = await self.sbx.files.read(file.path, format="bytes")
+
+                        # 确保目标目录存在
+                        os.makedirs(self.work_dir, exist_ok=True)
+
+                        # 写入文件
+                        with open(local_path, "wb") as f:
+                            f.write(content)
+                        logger.info(f"同步文件: {file.name}")
+
+                except Exception as e:
+                    logger.error(f"同步文件 {file.name} 失败: {str(e)}")
+                    continue
+
+            logger.info("文件同步完成")
+
+        except Exception as e:
+            logger.error(f"文件同步失败: {str(e)}")
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tools\interpreter_factory.py 的内容:
+================================================================================
+# interpreter_factory.py
+from typing import Literal
+from app.tools.e2b_interpreter import E2BCodeInterpreter
+from app.tools.local_interpreter import LocalCodeInterpreter
+from app.tools.notebook_serializer import NotebookSerializer
+from app.config.setting import settings
+from app.utils.log_util import logger
+
+
+async def create_interpreter(
+    kind: Literal["remote", "local"] = "local",
+    *,
+    task_id: str,
+    work_dir: str,
+    notebook_serializer: NotebookSerializer,
+    timeout=3000,
+):
+    if not settings.E2B_API_KEY:
+        logger.info("默认使用本地解释器")
+        kind = "local"
+    else:
+        logger.info("使用远程解释器")
+        kind = "remote"
+
+    if kind == "remote":
+        interp: E2BCodeInterpreter = await E2BCodeInterpreter.create(
+            task_id=task_id,
+            work_dir=work_dir,
+            notebook_serializer=notebook_serializer,
+        )
+        await interp.initialize(timeout=timeout)
+        return interp
+    elif kind == "local":
+        interp: LocalCodeInterpreter = LocalCodeInterpreter(
+            task_id=task_id,
+            work_dir=work_dir,
+            notebook_serializer=notebook_serializer,
+        )
+        await interp.initialize()
+        return interp
+    else:
+        raise ValueError(f"未知 interpreter 类型：{kind}")
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tools\local_interpreter.py 的内容:
+================================================================================
+from app.tools.base_interpreter import BaseCodeInterpreter
+from app.tools.notebook_serializer import NotebookSerializer
+import jupyter_client
+from app.utils.log_util import logger
+import os
+from app.services.redis_manager import redis_manager
+from app.schemas.response import (
+    OutputItem,
+    ResultModel,
+    StdErrModel,
+    SystemMessage,
+)
+
+
+class LocalCodeInterpreter(BaseCodeInterpreter):
+    def __init__(
+        self,
+        task_id: str,
+        work_dir: str,
+        notebook_serializer: NotebookSerializer,
+    ):
+        super().__init__(task_id, work_dir, notebook_serializer)
+        self.km, self.kc = None, None
+        self.interrupt_signal = False
+
+    async def initialize(self):
+        # 本地内核一般不需异步上传文件，直接切换目录即可
+        # 初始化 Jupyter 内核管理器和客户端
+        logger.info("初始化本地内核")
+        self.km, self.kc = jupyter_client.manager.start_new_kernel(
+            kernel_name="python3"
+        )
+        self._pre_execute_code()
+
+    def _pre_execute_code(self):
+        init_code = (
+            f"import os\n"
+            f"work_dir = r'{self.work_dir}'\n"
+            f"os.makedirs(work_dir, exist_ok=True)\n"
+            f"os.chdir(work_dir)\n"
+            f"print('当前工作目录:', os.getcwd())\n"
+            f"import matplotlib.pyplot as plt\n"
+            f"import matplotlib as mpl\n"
+            # 更完整的中文字体配置
+            f"plt.rcParams['font.sans-serif'] = ['Arial Unicode MS', 'SimHei', 'Microsoft YaHei', 'WenQuanYi Micro Hei', 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', 'DejaVu Sans', 'sans-serif']\n"
+            f"plt.rcParams['axes.unicode_minus'] = False\n"
+            f"plt.rcParams['font.family'] = 'sans-serif'\n"
+            f"mpl.rcParams['font.size'] = 12\n"
+            f"mpl.rcParams['axes.labelsize'] = 12\n"
+            f"mpl.rcParams['xtick.labelsize'] = 10\n"
+            f"mpl.rcParams['ytick.labelsize'] = 10\n"
+            # 设置DPI以获得更清晰的显示
+        )
+        self.execute_code_(init_code)
+
+    async def execute_code(self, code: str) -> tuple[str, bool, str]:
+        logger.info(f"执行代码: {code}")
+        #  添加代码到notebook
+        self.notebook_serializer.add_code_cell_to_notebook(code)
+
+        text_to_gpt: list[str] = []
+        content_to_display: list[OutputItem] | None = []
+        error_occurred: bool = False
+        error_message: str = ""
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="开始执行代码"),
+        )
+        # 执行 Python 代码
+        logger.info("开始在本地执行代码...")
+        execution = self.execute_code_(code)
+        logger.info("代码执行完成，开始处理结果...")
+
+        await redis_manager.publish_message(
+            self.task_id,
+            SystemMessage(content="代码执行完成"),
+        )
+
+        for mark, out_str in execution:
+            if mark in ("stdout", "execute_result_text", "display_text"):
+                text_to_gpt.append(self._truncate_text(f"[{mark}]\n{out_str}"))
+                #  添加text到notebook
+                content_to_display.append(
+                    ResultModel(type="result", format="text", msg=out_str)
+                )
+                self.notebook_serializer.add_code_cell_output_to_notebook(out_str)
+
+            elif mark in (
+                "execute_result_png",
+                "execute_result_jpeg",
+                "display_png",
+                "display_jpeg",
+            ):
+                # TODO: 视觉模型解释图像
+                text_to_gpt.append(f"[{mark} 图片已生成，内容为 base64，未展示]")
+
+                #  添加image到notebook
+                if "png" in mark:
+                    self.notebook_serializer.add_image_to_notebook(out_str, "image/png")
+                    content_to_display.append(
+                        ResultModel(type="result", format="png", msg=out_str)
+                    )
+                else:
+                    self.notebook_serializer.add_image_to_notebook(
+                        out_str, "image/jpeg"
+                    )
+                    content_to_display.append(
+                        ResultModel(type="result", format="jpeg", msg=out_str)
+                    )
+
+            elif mark == "error":
+                error_occurred = True
+                error_message = self.delete_color_control_char(out_str)
+                error_message = self._truncate_text(error_message)
+                logger.error(f"执行错误: {error_message}")
+                text_to_gpt.append(error_message)
+                #  添加error到notebook
+                self.notebook_serializer.add_code_cell_error_to_notebook(out_str)
+                content_to_display.append(StdErrModel(msg=out_str))
+
+        logger.info(f"text_to_gpt: {text_to_gpt}")
+        combined_text = "\n".join(text_to_gpt)
+
+        await self._push_to_websocket(content_to_display)
+
+        return (
+            combined_text,
+            error_occurred,
+            error_message,
+        )
+
+    def execute_code_(self, code) -> list[tuple[str, str]]:
+        msg_id = self.kc.execute(code)
+        logger.info(f"执行代码: {code}")
+        # Get the output of the code
+        msg_list = []
+        while True:
+            try:
+                iopub_msg = self.kc.get_iopub_msg(timeout=1)
+                msg_list.append(iopub_msg)
+                if (
+                    iopub_msg["msg_type"] == "status"
+                    and iopub_msg["content"].get("execution_state") == "idle"
+                ):
+                    break
+            except:
+                if self.interrupt_signal:
+                    self.km.interrupt_kernel()
+                    self.interrupt_signal = False
+                continue
+
+        all_output: list[tuple[str, str]] = []
+        for iopub_msg in msg_list:
+            if iopub_msg["msg_type"] == "stream":
+                if iopub_msg["content"].get("name") == "stdout":
+                    output = iopub_msg["content"]["text"]
+                    all_output.append(("stdout", output))
+            elif iopub_msg["msg_type"] == "execute_result":
+                if "data" in iopub_msg["content"]:
+                    if "text/plain" in iopub_msg["content"]["data"]:
+                        output = iopub_msg["content"]["data"]["text/plain"]
+                        all_output.append(("execute_result_text", output))
+                    if "text/html" in iopub_msg["content"]["data"]:
+                        output = iopub_msg["content"]["data"]["text/html"]
+                        all_output.append(("execute_result_html", output))
+                    if "image/png" in iopub_msg["content"]["data"]:
+                        output = iopub_msg["content"]["data"]["image/png"]
+                        all_output.append(("execute_result_png", output))
+                    if "image/jpeg" in iopub_msg["content"]["data"]:
+                        output = iopub_msg["content"]["data"]["image/jpeg"]
+                        all_output.append(("execute_result_jpeg", output))
+            elif iopub_msg["msg_type"] == "display_data":
+                if "data" in iopub_msg["content"]:
+                    if "text/plain" in iopub_msg["content"]["data"]:
+                        output = iopub_msg["content"]["data"]["text/plain"]
+                        all_output.append(("display_text", output))
+                    if "text/html" in iopub_msg["content"]["data"]:
+                        output = iopub_msg["content"]["data"]["text/html"]
+                        all_output.append(("display_html", output))
+                    if "image/png" in iopub_msg["content"]["data"]:
+                        output = iopub_msg["content"]["data"]["image/png"]
+                        all_output.append(("display_png", output))
+                    if "image/jpeg" in iopub_msg["content"]["data"]:
+                        output = iopub_msg["content"]["data"]["image/jpeg"]
+                        all_output.append(("display_jpeg", output))
+            elif iopub_msg["msg_type"] == "error":
+                # TODO: 正确返回格式
+                if "traceback" in iopub_msg["content"]:
+                    output = "\n".join(iopub_msg["content"]["traceback"])
+                    cleaned_output = self.delete_color_control_char(output)
+                    all_output.append(("error", cleaned_output))
+        return all_output
+
+    async def get_created_images(self, section: str) -> list[str]:
+        """获取新创建的图片列表"""
+        current_images = set()
+        files = os.listdir(self.work_dir)
+        for file in files:
+            if file.endswith((".png", ".jpg", ".jpeg")):
+                current_images.add(file)
+
+        # 计算新增的图片
+        new_images = current_images - self.last_created_images
+
+        # 更新last_created_images为当前的图片集合
+        self.last_created_images = current_images
+
+        logger.info(f"新创建的图片列表: {new_images}")
+        return list(new_images)  # 最后转换为list返回
+
+    async def cleanup(self):
+        # 关闭内核
+        self.kc.shutdown()
+        logger.info("关闭内核")
+        self.km.shutdown_kernel()
+
+    def send_interrupt_signal(self):
+        self.interrupt_signal = True
+
+    def restart_jupyter_kernel(self):
+        """Restart the Jupyter kernel and recreate the work directory."""
+        self.kc.shutdown()
+        self.km, self.kc = jupyter_client.manager.start_new_kernel(
+            kernel_name="python3"
+        )
+        self.interrupt_signal = False
+        self._create_work_dir()
+
+    def _create_work_dir(self):
+        """Ensure the working directory exists after a restart."""
+        os.makedirs(self.work_dir, exist_ok=True)
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tools\notebook_serializer.py 的内容:
+================================================================================
+import nbformat
+from nbformat import v4 as nbf
+import ansi2html
+import os
+
+
+class NotebookSerializer:
+    def __init__(self, work_dir=None, notebook_name="notebook.ipynb"):
+        self.nb = nbf.new_notebook()
+        self.notebook_path = None
+        self.initialized = True
+        self.segmentation_output_content = {}  # 保存coder_agent 在 jupyter 中执行的 output 结果内容
+        # {
+        #     "eda": {
+        #     }
+        # }
+        self.current_segmentation: str = ""
+
+        self.init_notebook(work_dir, notebook_name)
+
+    def init_notebook(self, work_dir=None, notebook_name="notebook.ipynb"):
+        """初始化notebook路径
+
+        Args:
+            work_dir (str): jupyter工作目录路径
+            notebook_name (str): notebook文件名,默认为notebook.ipynb
+        """
+        if work_dir:
+            # 确保使用jupyter工作目录
+            base, ext = os.path.splitext(notebook_name)
+            if ext.lower() != ".ipynb":
+                notebook_name += ".ipynb"
+
+            # 在jupyter工作目录下创建notebook文件
+            self.notebook_path = os.path.join(work_dir, notebook_name)
+
+            # if os.path.exists(self.notebook_path):
+            #     raise FileExistsError(
+            #         f"文件 {self.notebook_path} 已存在。请选择其他文件名。"
+            #     )
+
+    def ansi_to_html(self, ansi_text):
+        converter = ansi2html.Ansi2HTMLConverter()
+        html_text = converter.convert(ansi_text)
+        return html_text
+
+    def write_to_notebook(self):
+        if self.notebook_path:
+            with open(self.notebook_path, "w", encoding="utf-8") as f:
+                f.write(nbformat.writes(self.nb))
+
+    def add_code_cell_to_notebook(self, code):
+        code_cell = nbf.new_code_cell(source=code)
+        self.nb["cells"].append(code_cell)
+        self.write_to_notebook()
+
+    def add_code_cell_output_to_notebook(self, output):
+        """添加代码单元格输出
+
+        Args:
+            output: 代码输出内容
+        """
+        html_content = self.ansi_to_html(output)
+        if self.current_segmentation:
+            # 确保键存在
+            if self.current_segmentation not in self.segmentation_output_content:
+                self.segmentation_output_content[self.current_segmentation] = ""
+            self.segmentation_output_content[self.current_segmentation] += html_content
+
+        cell_output = nbf.new_output(
+            output_type="display_data", data={"text/html": html_content}
+        )
+        self.nb["cells"][-1]["outputs"].append(cell_output)
+        self.write_to_notebook()
+
+    def add_code_cell_error_to_notebook(self, error):
+        nbf_error_output = nbf.new_output(
+            output_type="error",
+            ename="Error",
+            evalue="Error message",
+            traceback=[error],
+        )
+        self.nb["cells"][-1]["outputs"].append(nbf_error_output)
+        self.write_to_notebook()
+
+    def add_image_to_notebook(self, image, mime_type):
+        image_output = nbf.new_output(
+            output_type="display_data", data={mime_type: image}
+        )
+        self.nb["cells"][-1]["outputs"].append(image_output)
+        self.write_to_notebook()
+
+    def add_markdown_to_notebook(self, content, title=None):
+        if title:
+            content = "##### " + title + ":\n" + content
+        markdown_cell = nbf.new_markdown_cell(content)
+        self.nb["cells"].append(markdown_cell)
+        self.write_to_notebook()
+
+    def add_markdown_segmentation_to_notebook(self, content, segmentation):
+        """添加markdown分段并初始化对应的output内容存储
+
+        Args:
+            content: markdown内容
+            segmentation: 分段名称
+        """
+        self.current_segmentation = segmentation
+        # 初始化该分段的output内容
+        self.segmentation_output_content[segmentation] = ""
+        self.add_markdown_to_notebook(content, segmentation)
+
+    def get_notebook_output_content(self, segmentation):
+        return self.segmentation_output_content[segmentation]
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tools\openalex_scholar.py 的内容:
+================================================================================
+import requests
+from typing import List, Dict, Any
+from app.services.redis_manager import redis_manager
+from app.schemas.response import ScholarMessage
+
+
+class OpenAlexScholar:
+    def __init__(self, task_id: str, email: str = None):
+        """Initialize OpenAlex client.
+
+        Args:
+            email: Optional email for better API service
+        """
+        self.base_url = "https://api.openalex.org"
+        self.email = email
+        self.task_id = task_id
+
+    def _get_request_url(self, endpoint: str) -> str:
+        """Construct request URL with email parameter if provided."""
+        if endpoint.startswith("/"):
+            endpoint = endpoint[1:]
+        return f"{self.base_url}/{endpoint}"
+
+    def _get_abstract_from_index(self, abstract_inverted_index: Dict) -> str:
+        """从abstract_inverted_index中重建摘要文本
+
+        Args:
+            abstract_inverted_index: OpenAlex API返回的倒排索引
+
+        Returns:
+            重建的摘要文本
+        """
+        if not abstract_inverted_index:
+            return ""
+
+        # 创建一个足够大的空列表来存放所有单词
+        max_position = 0
+        for positions in abstract_inverted_index.values():
+            if positions and max(positions) > max_position:
+                max_position = max(positions)
+
+        words = [""] * (max_position + 1)
+
+        # 在正确的位置填入单词
+        for word, positions in abstract_inverted_index.items():
+            for position in positions:
+                words[position] = word
+
+        # 拼接单词形成文本
+        return " ".join(words).strip()
+
+    async def search_papers(self, query: str, limit: int = 8) -> List[Dict[str, Any]]:
+        """Search for papers using OpenAlex API.
+
+        Args:
+            query: Search query string
+            limit: Maximum number of results to return
+
+        Returns:
+            List of papers with their details
+        """
+        # 构建基础 URL
+        base_url = self._get_request_url("works")
+
+        # 设置请求参数，根据API支持的字段进行选择
+        params = {
+            "search": query,
+            "per_page": limit,
+            "select": "id,title,display_name,authorships,cited_by_count,doi,publication_year,biblio,abstract_inverted_index",
+        }
+
+        # 添加邮箱参数到请求URL
+        if self.email:
+            params["mailto"] = self.email
+        else:
+            raise ValueError("配置OpenAlex邮箱获取访问文献权利")
+
+        # 设置请求头，包含User-Agent和邮箱信息
+        headers = {
+            "User-Agent": f"OpenAlexScholar/1.0 (mailto:{self.email})"
+            if self.email
+            else "OpenAlexScholar/1.0"
+        }
+
+        # 让 requests 处理参数编码和 URL 构建
+        try:
+            print(f"请求 URL: {base_url} 参数: {params}")
+            response = requests.get(base_url, params=params, headers=headers)
+            print(f"响应状态: {response.status_code}")
+
+            response.raise_for_status()
+            results = response.json()
+        except requests.exceptions.HTTPError as e:
+            print(f"HTTP 错误: {e}")
+            if response.status_code == 403:
+                print(
+                    "提示: 403错误通常意味着您需要提供有效的邮箱地址或者遵循礼貌池（polite pool）规则"
+                )
+            if hasattr(response, "text"):
+                print(f"响应内容: {response.text}")
+            raise
+        except Exception as e:
+            print(f"请求出错: {e}")
+            raise
+
+        papers = []
+        paper_titles = []  # 用于存储论文标题
+        for work in results.get("results", []):
+            # 从倒排索引中获取摘要
+            abstract = self._get_abstract_from_index(
+                work.get("abstract_inverted_index", {})
+            )
+
+            # 获取作者信息
+            authors = []
+            for authorship in work.get("authorships", []):
+                author = authorship.get("author", {})
+                if author:
+                    author_info = {
+                        "name": author.get("display_name"),
+                        "position": authorship.get("author_position"),
+                        "institution": authorship.get("institutions", [{}])[0].get(
+                            "display_name"
+                        )
+                        if authorship.get("institutions")
+                        else None,
+                    }
+                    authors.append(author_info)
+
+            # 获取引用格式信息
+            biblio = work.get("biblio", {})
+            citation = {
+                "volume": biblio.get("volume"),
+                "issue": biblio.get("issue"),
+                "first_page": biblio.get("first_page"),
+                "last_page": biblio.get("last_page"),
+            }
+
+            paper = {
+                "title": work.get("display_name") or work.get("title", ""),
+                "abstract": abstract,
+                "authors": authors,
+                "citations_count": work.get("cited_by_count"),
+                "doi": work.get("doi"),
+                "publication_year": work.get("publication_year"),
+                "citation_info": citation,
+                # 构建引用格式
+                "citation_format": self._format_citation(work),
+            }
+            papers.append(paper)
+            paper_titles.append(paper["title"])  # 添加标题到列表
+
+        await redis_manager.publish_message(
+            self.task_id,
+            ScholarMessage(
+                input={"query": query},
+                output=paper_titles,  # 只发送论文标题列表
+            ),
+        )
+
+        return papers
+
+    def papers_to_str(self, papers: List[Dict[str, Any]]) -> str:
+        """将文献列表转换为字符串"""
+        result = ""
+        for paper in papers:
+            result += "\n" + "=" * 80
+            result += f"\n标题: {paper['title']}"
+            result += f"\n摘要: {paper['abstract']}"
+            result += "\n作者:"
+            for author in paper["authors"]:
+                result += f"- {author['name']}"
+            result += f"\n引用次数: {paper['citations_count']}"
+            result += f"\n发表年份: {paper['publication_year']}"
+            result += f"\n引用格式:\n{paper['citation_format']}"
+            result += "=" * 80
+        return result
+
+    def _format_citation(self, work: Dict[str, Any]) -> str:
+        """Format citation in a readable format."""
+        # 获取所有作者
+        authors = [
+            authorship.get("author", {}).get("display_name")
+            for authorship in work.get("authorships", [])
+            if authorship.get("author")
+        ]
+
+        # 格式化作者列表
+        if len(authors) > 3:
+            authors_str = f"{authors[0]} et al."
+        else:
+            authors_str = ", ".join(authors)
+
+        # 获取标题
+        title = work.get("display_name") or work.get("title", "")
+
+        # 获取年份
+        year = work.get("publication_year", "")
+
+        # 获取DOI
+        doi = work.get("doi", "")
+
+        # 构建引用格式
+        citation = f"{authors_str} ({year}). {title}."
+        if doi:
+            citation += f" DOI: {doi}"
+
+        return citation
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\tools\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\utils\cli.py 的内容:
+================================================================================
+from textwrap import dedent
+
+def center_cli_str(text: str, width: int | None = None):
+    import shutil
+
+    width = width or shutil.get_terminal_size().columns
+    lines = text.split("\n")
+    max_line_len = max(len(line) for line in lines)
+    return "\n".join(
+        (line + " " * (max_line_len - len(line))).center(width) for line in lines
+    )
+
+
+def get_ascii_banner(center: bool = True) -> str:
+    text = dedent(
+        r"""
+        ===============================================================================
+         __  __       _   _     __  __           _      _                          _   
+        |  \/  |     | | | |   |  \/  |         | |    | |   /\                   | |  
+        | \  / | __ _| |_| |__ | \  / | ___   __| | ___| |  /  \   __ _  ___ _ __ | |_ 
+        | |\/| |/ _` | __| '_ \| |\/| |/ _ \ / _` |/ _ \ | / /\ \ / _` |/ _ \ '_ \| __|
+        | |  | | (_| | |_| | | | |  | | (_) | (_| |  __/ |/ ____ \ (_| |  __/ | | | |_ 
+        |_|  |_|\__,_|\__|_| |_|_|  |_|\___/ \__,_|\___|_/_/    \_\__, |\___|_| |_|\__|
+                                                                    __/ |               
+                                                                |___/                
+        ===============================================================================
+        """,
+    ).strip()
+    if center:
+        return center_cli_str(text)
+    else:
+        return text
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\utils\common_utils.py 的内容:
+================================================================================
+import os
+import datetime
+import hashlib
+import tomllib
+from app.schemas.enums import CompTemplate
+from app.utils.log_util import logger
+import re
+import pypandoc
+from app.config.setting import settings
+from icecream import ic
+
+
+def create_task_id() -> str:
+    """生成任务ID"""
+    # 生成时间戳和随机hash
+    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    random_hash = hashlib.md5(str(datetime.datetime.now()).encode()).hexdigest()[:8]
+    return f"{timestamp}-{random_hash}"
+
+
+def create_work_dir(task_id: str) -> str:
+    # 设置主工作目录和子目录
+    work_dir = os.path.join("project", "work_dir", task_id)
+
+    try:
+        # 创建目录，如果目录已存在也不会报错
+        os.makedirs(work_dir, exist_ok=True)
+        return work_dir
+    except Exception as e:
+        # 捕获并记录创建目录时的异常
+        logger.error(f"创建工作目录失败: {str(e)}")
+        raise
+
+
+def get_work_dir(task_id: str) -> str:
+    work_dir = os.path.join("project", "work_dir", task_id)
+    if os.path.exists(work_dir):
+        return work_dir
+    else:
+        logger.error(f"工作目录不存在: {work_dir}")
+        raise FileNotFoundError(f"工作目录不存在: {work_dir}")
+
+
+#  TODO: 是不是应该将 Prompt 写成一个 class
+def get_config_template(comp_template: CompTemplate = CompTemplate.CHINA) -> dict:
+    if comp_template == CompTemplate.CHINA:
+        return load_toml(os.path.join("app", "config", "md_template.toml"))
+
+
+def load_toml(path: str) -> dict:
+    with open(path, "rb") as f:
+        return tomllib.load(f)
+
+
+def load_markdown(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
+def get_current_files(folder_path: str, type: str = "all") -> list[str]:
+    files = os.listdir(folder_path)
+    if type == "all":
+        return files
+    elif type == "md":
+        return [file for file in files if file.endswith(".md")]
+    elif type == "ipynb":
+        return [file for file in files if file.endswith(".ipynb")]
+    elif type == "data":
+        return [
+            file for file in files if file.endswith(".xlsx") or file.endswith(".csv")
+        ]
+    elif type == "image":
+        return [
+            file for file in files if file.endswith(".png") or file.endswith(".jpg")
+        ]
+
+
+# 判断content是否包含图片 xx.png,对其处理为    ![filename](http://localhost:8000/static/20250428-200915-ebc154d4/filename.jpg)
+def transform_link(task_id: str, content: str):
+    content = re.sub(
+        r"!\[(.*?)\]\((.*?\.(?:png|jpg|jpeg|gif|bmp|webp))\)",
+        lambda match: f"![{match.group(1)}]({settings.SERVER_HOST}/static/{task_id}/{match.group(2)})",
+        content,
+    )
+    return content
+
+
+# TODO: fix 公式显示
+def md_2_docx(task_id: str):
+    work_dir = get_work_dir(task_id)
+    md_path = os.path.join(work_dir, "res.md")
+    docx_path = os.path.join(work_dir, "res.docx")
+
+    extra_args = [
+        "--resource-path",
+        str(work_dir),
+        "--mathml",  # MathML 格式公式
+        "--standalone",
+    ]
+
+    pypandoc.convert_file(
+        source_file=md_path,
+        to="docx",
+        outputfile=docx_path,
+        format="markdown+tex_math_dollars",
+        extra_args=extra_args,
+    )
+    print(f"转换完成: {docx_path}")
+    logger.info(f"转换完成: {docx_path}")
+
+
+def split_footnotes(text: str) -> tuple[str, list[tuple[str, str]]]:
+    main_text = re.sub(
+        r"\n\[\^\d+\]:.*?(?=\n\[\^|\n\n|\Z)", "", text, flags=re.DOTALL
+    ).strip()
+
+    # 匹配脚注定义
+    footnotes = re.findall(r"\[\^(\d+)\]:\s*(.+?)(?=\n\[\^|\n\n|\Z)", text, re.DOTALL)
+    logger.info(f"main_text:{main_text} \n footnotes:{footnotes}")
+    return main_text, footnotes
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\utils\data_recorder.py 的内容:
+================================================================================
+import json
+import os
+from app.utils.log_util import logger
+from typing import Any, Dict
+
+
+# TODO: 记录数据
+# data analysis : save all data and result
+# agent-histroy, token usgae, , cost , workflow cost , res
+class DataRecorder:
+    def __init__(self, log_work_dir: str = ""):
+        self.total_cost = 0.0
+        self.agents_chat_history = {}
+        # {"agent_name": [{}, {}, ...]
+        #
+        # }
+        self.chat_completion = {}
+        # {"agent_name": [ChatCompletion, ChatCompletion, ...]
+        #
+        # }
+        self.log_work_dir = log_work_dir
+        self.token_usage = {}
+
+        self.initialized = True
+
+    def print_summary(self):
+        """打印统计摘要"""
+        logger.info("\n=== Token Usage and Cost Summary ===")
+
+        # 创建表格数据
+        headers = ["Agent", "Chats", "Prompt", "Completion", "Total", "Cost ($)"]
+        rows = []
+
+        for agent_name, usage in self.token_usage.items():
+            rows.append(
+                [
+                    agent_name,
+                    usage["chat_count"],
+                    usage["prompt_tokens"],
+                    usage["completion_tokens"],
+                    usage["total_tokens"],
+                    f"{usage['cost']:.4f}",
+                ]
+            )
+
+        # 添加总计行
+        total_chats = sum(usage["chat_count"] for usage in self.token_usage.values())
+        total_prompt = sum(
+            usage["prompt_tokens"] for usage in self.token_usage.values()
+        )
+        total_completion = sum(
+            usage["completion_tokens"] for usage in self.token_usage.values()
+        )
+        total_tokens = sum(usage["total_tokens"] for usage in self.token_usage.values())
+
+        rows.append(
+            [
+                "TOTAL",
+                total_chats,
+                total_prompt,
+                total_completion,
+                total_tokens,
+                f"{self.total_cost:.4f}",
+            ]
+        )
+
+        # 使用 RichPrinter 打印表格
+        from utils.RichPrinter import RichPrinter
+
+        RichPrinter.table(
+            headers=headers,
+            rows=rows,
+            title="Token Usage and Cost Summary",
+            column_styles=["cyan", "magenta", "blue", "blue", "blue", "green"],
+        )
+
+    def write_to_json(self, to_save: dict, file_name: str):
+        if self.log_work_dir:
+            json_path = os.path.join(self.log_work_dir, file_name)
+            try:
+                with open(json_path, "w", encoding="utf-8") as f:
+                    json.dump(to_save, f, ensure_ascii=False, indent=4)
+            except Exception as e:
+                logger.error(f"写入json文件失败: {e}")
+
+    def append_chat_history(self, msg: dict, agent_name: str) -> None:
+        """添加聊天历史记录"""
+        if agent_name not in self.agents_chat_history:
+            self.agents_chat_history[agent_name] = []
+        self.agents_chat_history[agent_name].append(msg)
+        self.write_to_json(self.agents_chat_history, "chat_history.json")
+
+    def chat_completion_to_dict(self, completion: Any) -> Dict:
+        """将 ChatCompletion 对象转换为可序列化的字典"""
+        return {
+            "id": completion.id,
+            "choices": [
+                {
+                    "index": choice.index,
+                    "message": {
+                        "role": choice.message.role,
+                        "content": choice.message.content,
+                        "tool_calls": [
+                            {
+                                "id": tool_call.id,
+                                "type": tool_call.type,
+                                "function": {
+                                    "name": tool_call.function.name,
+                                    "arguments": tool_call.function.arguments,
+                                },
+                            }
+                            for tool_call in (choice.message.tool_calls or [])
+                        ]
+                        if hasattr(choice.message, "tool_calls")
+                        else None,
+                    },
+                    "finish_reason": choice.finish_reason,
+                }
+                for choice in completion.choices
+            ],
+            "created": completion.created,
+            "model": completion.model,
+            "usage": {
+                "completion_tokens": completion.usage.completion_tokens,
+                "prompt_tokens": completion.usage.prompt_tokens,
+                "total_tokens": completion.usage.total_tokens,
+            }
+            if hasattr(completion, "usage")
+            else None,
+            "system_fingerprint": completion.system_fingerprint
+            if hasattr(completion, "system_fingerprint")
+            else None,
+        }
+
+    def append_chat_completion(self, completion: Any, agent_name: str) -> None:
+        """添加聊天完成记录"""
+        if agent_name not in self.chat_completion:
+            self.chat_completion[agent_name] = []
+
+        # 将 ChatCompletion 对象转换为可序列化的字典
+        completion_dict = self.chat_completion_to_dict(completion)
+        self.chat_completion[agent_name].append(completion_dict)
+
+        # 更新 token 使用统计
+        self.update_token_usage(completion, agent_name)
+
+        # 写入 JSON 文件
+        self.write_to_json(self.chat_completion, "chat_completion.json")
+
+    def update_token_usage(self, completion: Any, agent_name: str) -> None:
+        """更新 token 使用统计和费用
+        Args:
+            completion: ChatCompletion 对象
+            agent_name: 代理名称
+        """
+        if not hasattr(completion, "usage"):
+            return
+
+        if agent_name not in self.token_usage:
+            self.token_usage[agent_name] = {
+                "completion_tokens": 0,
+                "prompt_tokens": 0,
+                "total_tokens": 0,
+                "chat_count": 0,
+                "cost": 0.0,  # 添加费用字段
+            }
+
+        usage = completion.usage
+        model = completion.model
+
+        # 更新 token 统计
+        self.token_usage[agent_name]["completion_tokens"] += usage.completion_tokens
+        self.token_usage[agent_name]["prompt_tokens"] += usage.prompt_tokens
+        self.token_usage[agent_name]["total_tokens"] += usage.total_tokens
+        self.token_usage[agent_name]["chat_count"] += 1
+
+        # 计算本次请求的费用
+        cost = self.calculate_cost(model, usage.prompt_tokens, usage.completion_tokens)
+        self.token_usage[agent_name]["cost"] += cost
+        self.total_cost += cost  # 更新总费用
+
+        # 写入 JSON 文件
+        self.write_to_json(self.token_usage, "token_usage.json")
+
+    def calculate_cost(
+        self, model: str, prompt_tokens: int, completion_tokens: int
+    ) -> float:
+        """计算API调用费用
+        Args:
+            model: 模型名称
+            prompt_tokens: 输入token数
+            completion_tokens: 输出token数
+        Returns:
+            float: 费用（rmb）
+        """
+        # 定义模型价格（每1000个token的价格，单位：rmb）
+        model_prices = {
+            "gpt-4-turbo-preview": {"prompt": 0.01, "completion": 0.03},
+            "gpt-4": {"prompt": 0.03, "completion": 0.06},
+            "gpt-3.5-turbo": {"prompt": 0.0005, "completion": 0.0015},
+            "qwen-max-latest": {"prompt": 0.0024, "completion": 0.0096},  # 示例价格
+        }
+
+        # 获取模型价格，如果模型不在列表中使用默认价格
+        model_price = model_prices.get(
+            model,
+            {"prompt": 0.0001, "completion": 0.0001},  # 默认价格
+        )
+
+        # 计算费用（将token数转换为千分比）
+        prompt_cost = (prompt_tokens / 1000.0) * model_price["prompt"]
+        completion_cost = (completion_tokens / 1000.0) * model_price["completion"]
+
+        return prompt_cost + completion_cost
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\utils\log_util.py 的内容:
+================================================================================
+import os
+import sys
+import time
+from loguru import logger as _logger
+
+
+class LoggerInitializer:
+    def __init__(self):
+        self.log_path = os.path.join(os.getcwd(), "logs")
+        self.__ensure_log_directory_exists()
+        self.log_path_error = os.path.join(
+            self.log_path, f"{time.strftime('%Y-%m-%d')}_error.log"
+        )
+
+    def __ensure_log_directory_exists(self):
+        """
+        确保日志目录存在，如果不存在则创建
+        """
+        if not os.path.exists(self.log_path):
+            os.mkdir(self.log_path)
+
+    @staticmethod
+    def __filter(log: dict):
+        """
+        自定义日志过滤器，添加trace_id
+        """
+        return log
+
+    def init_log(self):
+        """
+        初始化日志配置
+        """
+        # 自定义日志格式
+        format_str = (
+            "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+            "<level>{level: <8}</level> | "
+            "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+            "<level>{message}</level>"
+        )
+        _logger.remove()
+        # 移除后重新添加sys.stderr, 目的: 控制台输出与文件日志内容和结构一致
+        _logger.add(sys.stderr, filter=self.__filter, format=format_str, enqueue=True)
+        _logger.add(
+            self.log_path_error,
+            filter=self.__filter,
+            format=format_str,
+            rotation="50MB",
+            encoding="utf-8",
+            enqueue=True,
+            compression="zip",
+        )
+
+        return _logger
+
+
+# 初始化日志处理器
+log_initializer = LoggerInitializer()
+logger = log_initializer.init_log()
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\utils\RichPrinter.py 的内容:
+================================================================================
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from typing import Optional, List, Any, Dict
+from rich import print as rprint
+from app.utils.log_util import logger
+
+
+class RichPrinter:
+    # 类属性：全局样式配置
+    _styles = {
+        "success": {"emoji": "✅", "color": "green", "prefix": "成功"},
+        "error": {"emoji": "❌", "color": "red", "prefix": "错误"},
+        "warning": {"emoji": "⚠️", "color": "yellow", "prefix": "警告"},
+        "info": {"emoji": "ℹ️", "color": "blue", "prefix": "信息"},
+        "debug": {"emoji": "🐞", "color": "magenta", "prefix": "调试"},
+    }
+
+    # 共享的 Console 实例（线程安全）
+    _console = Console()
+
+    @classmethod
+    def _format_message(
+        cls,
+        message: str,
+        style_type: str,
+        color: Optional[str] = None,
+        emoji: Optional[str] = None,
+        prefix: Optional[str] = None,
+    ) -> Text:
+        """格式化消息为统一样式"""
+        style = cls._styles.get(style_type, {})
+        emoji = emoji or style.get("emoji", "")
+        color = color or style.get("color", "white")
+        prefix = prefix or style.get("prefix", "")
+
+        formatted = Text()
+        if emoji:
+            formatted.append(f"{emoji} ", style="bold")
+        if prefix:
+            formatted.append(f"{prefix}: ", style=f"bold {color}")
+        formatted.append(message, style=color)
+        return formatted
+
+    @classmethod
+    def success(cls, message: str, **kwargs):
+        cls._print_panel(message, style_type="success", **kwargs)
+
+    @classmethod
+    def error(cls, message: str, **kwargs):
+        cls._print_panel(message, style_type="error", **kwargs)
+
+    @classmethod
+    def warning(cls, message: str, **kwargs):
+        cls._print_panel(message, style_type="warning", **kwargs)
+
+    @staticmethod
+    def print_agent_msg(message: str, agent_name: str):
+        logger.info(f"{agent_name}: {message}")
+        if agent_name == "CoderAgent":
+            rprint(
+                f"[bold purple on green]{agent_name}[/bold purple on green]: {message}"
+            )
+        elif agent_name == "WriterAgent":
+            rprint(
+                f"[bold purple on yellow]{agent_name}[/bold purple on yellow]: {message}"
+            )
+        elif agent_name == "test_agent":
+            rprint(f"[bold white on blue]{agent_name}[/bold white on blue]: {message}")
+        else:
+            rprint(f"[bold white]{agent_name}[/bold white]: {message}")
+
+    @classmethod
+    def _print_panel(
+        cls,
+        message: str,
+        style_type: str,
+        title: Optional[str] = None,
+        color: Optional[str] = None,
+        emoji: Optional[str] = None,
+        prefix: Optional[str] = None,
+        panel_kwargs: Optional[Dict] = None,
+    ):
+        """通用带面板样式的打印方法"""
+        text = cls._format_message(message, style_type, color, emoji, prefix)
+        default_panel_args = {
+            "title": title or style_type.upper(),
+            "border_style": color or cls._styles[style_type]["color"],
+            "padding": (1, 4),
+        }
+        panel_args = {**default_panel_args, **(panel_kwargs or {})}
+        cls._console.print(Panel.fit(text, **panel_args))
+
+    @classmethod
+    def table(
+        cls,
+        headers: List[str],
+        rows: List[List[Any]],
+        title: str = "数据表格",
+        column_styles: Optional[List[str]] = None,
+    ):
+        """快速打印表格"""
+        table = Table(title=title, show_header=True, header_style="bold cyan")
+        column_styles = column_styles or ["magenta"] * len(headers)
+
+        for header, style in zip(headers, column_styles):
+            table.add_column(header, style=style)
+
+        for row in rows:
+            table.add_row(*[str(item) for item in row])
+
+        cls._console.print(table)
+
+    @classmethod
+    def workflow_start(cls):
+        """打印工作流开始信息"""
+        cls._console.print()  # 添加前置换行
+        formatted = Text()
+        formatted.append("🚀 ", style="bold")
+        formatted.append("开始执行工作流", style="bold blue")
+        cls._console.print(Panel.fit(formatted, border_style="blue", padding=(1, 4)))
+        logger.info("\n=======================开始执行工作流=======================\n")
+
+    @classmethod
+    def workflow_end(cls):
+        """打印工作流结束信息"""
+        cls._console.print()  # 添加前置换行
+        formatted = Text()
+        formatted.append("✨ ", style="bold")
+        formatted.append("工作流执行完成", style="bold green")
+        cls._console.print(Panel.fit(formatted, border_style="green", padding=(1, 4)))
+        logger.info("\n=======================工作流执行完成=======================\n")
+
+    @classmethod
+    def agent_start(cls, agent_name: str):
+        """打印 Agent 开始信息"""
+        cls._console.print()  # 添加前置换行
+        formatted = Text()
+        formatted.append("🤖 ", style="bold")
+        formatted.append(f"Agent: {agent_name} ", style="bold cyan")
+        formatted.append("开始执行", style="bold blue")
+        cls._console.print(Panel.fit(formatted, border_style="blue", padding=(1, 4)))
+        logger.info(f"\n================Agent: {agent_name}开始=================\n")
+
+    @classmethod
+    def agent_end(cls, agent_name: str):
+        """打印 Agent 结束信息"""
+        cls._console.print()  # 添加前置换行
+        formatted = Text()
+        formatted.append("✨ ", style="bold")
+        formatted.append(f"Agent: {agent_name} ", style="bold cyan")
+        formatted.append("执行完成", style="bold green")
+        cls._console.print(Panel.fit(formatted, border_style="green", padding=(1, 4)))
+        logger.info(f"\n================Agent: {agent_name}结束==================\n")
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\utils\track.py 的内容:
+================================================================================
+from litellm.integrations.custom_logger import CustomLogger
+import litellm
+
+
+class AgentMetrics(CustomLogger):
+    #### ASYNC ####
+
+    async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):
+        try:
+            # response_cost = kwargs.get("response_cost", 0)
+            # print("streaming response_cost", response_cost)
+            print("agent_name", kwargs["litellm_params"]["metadata"]["agent_name"])
+        except:
+            pass
+
+    async def async_log_failure_event(self, kwargs, response_obj, start_time, end_time):
+        print(f"On Async Failure")
+
+
+# 全局指标收集器实例
+agent_metrics = AgentMetrics()
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\app\utils\__init__.py 的内容:
+================================================================================
+
+
+================================================================================
+E:\repo1\MCM\mcmaa\math_model_agent\project\work_dir\.gitkeep 的内容:
+================================================================================
+
+

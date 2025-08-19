@@ -204,7 +204,6 @@ class Screen(ttk.Frame):
         )
 
 
-
 class App:
     """应用主体"""
 
@@ -233,7 +232,6 @@ class App:
                     root.iconphoto(True, ttk.PhotoImage(file=resource_path("mcmaa.png")))
         except Exception as e:
             logging.info(f"图标加载失败: {e}")
-
 
         # ========== 尺寸 ==========
         min_height = 960

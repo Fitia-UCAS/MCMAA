@@ -29,12 +29,13 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import ssl
 import threading
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional, List
+from typing import Any, Callable, Dict, Optional, List, Union
 from urllib.parse import urlparse, urlunparse
 
 import requests  # HTTP
@@ -186,11 +187,67 @@ class MathModelAgentClient:
         except Exception:
             return {"ok": True, "text": resp.text}
 
-    def submit_modeling(self, payload: Dict[str, Any], path: str = "/api/modeling/submit") -> Dict[str, Any]:
+    def submit_modeling(
+        self,
+        payload: Dict[str, Any],
+        file_paths: Optional[Dict[str, Union[str, List[str]]]] = None,
+        path: str = "/modeling",
+    ) -> Dict[str, Any]:
         """
-        提交建模任务（薄封装）。默认路由为占位名，请按后端实际路径替换。
+        提交建模任务到 MathModelAgent:
+        - 路由：POST /modeling
+        - 表单：ques_all, comp_template, format_output, language
+        - 文件：files（可多个）
         """
-        return self.post(path, payload)
+        if not self.base_url:
+            raise RuntimeError("base_url is not set")
+        url = f"{self.base_url}{path}"
+
+        # 直接从 UI 下拉获取，保证合法
+        data = {
+            "ques_all": payload.get("ques_all") or payload.get("problem_text") or "",
+            "comp_template": payload.get("comp_template") or "CHINA",
+            "format_output": payload.get("format_output") or "Markdown",
+            "language": payload.get("language") or "zh",
+        }
+
+        files = []
+        if file_paths:
+            for field, p_or_list in file_paths.items():
+                if isinstance(p_or_list, list):
+                    for p in p_or_list:
+                        files.append((field, (os.path.basename(p), open(p, "rb"))))
+                else:
+                    p = p_or_list
+                    files.append((field, (os.path.basename(p), open(p, "rb"))))
+
+        proxies = {"http": self.proxy, "https": self.proxy} if self.proxy else None
+        resp = requests.post(
+            url,
+            data=data,
+            files=files or None,
+            headers=self.base_headers,
+            timeout=self.http_timeout,
+            proxies=proxies,
+        )
+
+        try:
+            resp.raise_for_status()
+        except requests.HTTPError as e:
+            detail = ""
+            try:
+                detail = resp.text
+            except Exception:
+                pass
+            raise requests.HTTPError(f"{e} :: {detail}") from None
+        finally:
+            for _, f in files:
+                try:
+                    f[1].close()
+                except Exception:
+                    pass
+
+        return resp.json()
 
     # ======================= WebSocket 能力 =======================
     def connect_ws(self, path: str = "/ws", block: bool = False) -> None:
