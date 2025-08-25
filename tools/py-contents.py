@@ -115,7 +115,7 @@ if __name__ == "__main__":
         print("未选择目录，程序退出。")
         sys.exit(0)
 
-    output_directory = "./utils/"
+    output_directory = "./tools/"
     output_file_name = "py-contents.txt"
 
     write_py_contents_to_file(scan_directory, output_directory, output_file_name, IGNORE_FOLDERS)
