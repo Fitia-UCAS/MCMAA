@@ -11,6 +11,7 @@ import tkinter.messagebox as messagebox
 
 # 第三方库
 import ttkbootstrap as ttk
+
 from tkinterdnd2 import TkinterDnD, DND_FILES
 
 from view.config import DATA_CONFIG, SCREEN_CONFIG
