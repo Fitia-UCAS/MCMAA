@@ -17,8 +17,7 @@ IGNORE_FOLDERS = [".git", "__pycache__", "ai-aid-mcmaa", ".venv", "env", "venv"]
 
 # 要排除的文件
 IGNORE_FILES = [
-    "contents.py",
-    "contents.txt",
+    "py_contents.py",
     "__init__.py",
 ]
 
@@ -116,6 +115,6 @@ if __name__ == "__main__":
         sys.exit(0)
 
     output_directory = "./tools/"
-    output_file_name = "py-contents.txt"
+    output_file_name = "py_contents.txt"
 
     write_py_contents_to_file(scan_directory, output_directory, output_file_name, IGNORE_FOLDERS)
