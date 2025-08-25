@@ -49,13 +49,9 @@ IGNORE_EXTENSIONS = [
     ".pyz",
     ".exe",
     ".html",
-    ".yaml",
-    ".json",
-    ".lock",
-    ".cls",
-    ".tex",
-    ".template",
-    ".txt",
+    # ".cls",
+    # ".tex",
+    # ".txt",
 ]
 
 # 定义需要忽略的文件
@@ -74,7 +70,7 @@ IGNORE_FILES = [
 ]
 
 # 排除的文件夹列表
-IGNORE_FOLDERS = [".git", "__pycache__", "other_version"]
+IGNORE_FOLDERS = [".git", "__pycache__", "ai-aid-mcmaa"]
 
 
 def generate_directory_structure(startpath, indent="", IGNORE_FOLDERS=None):
@@ -199,7 +195,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # 设置输出路径和文件名
-    output_directory = "./utils/"
+    output_directory = "./mcmaa_tk/utils/"
     output_file_name = "contents.txt"
 
     # 将目录内容写入文件
