@@ -31,7 +31,9 @@ except Exception:
 # ========== 日志 ==========
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-_handler = RotatingFileHandler("app.log", mode="a", maxBytes=2 * 1024 * 1024, backupCount=3, encoding="utf-8")
+os.makedirs("logs", exist_ok=True)  # 确保 logs 目录存在
+log_path = os.path.join("logs", "app.log")
+_handler = RotatingFileHandler(log_path, mode="a", maxBytes=2 * 1024 * 1024, backupCount=3, encoding="utf-8")
 _formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 _handler.setFormatter(_formatter)
 logger.handlers = [_handler]
