@@ -87,7 +87,7 @@ ASCII_MCMAA = r"""
 |   : '  |/     '   | '/  :|   : '  |/     |  :  :       |  :  :         
 ;   | |`-'      |   :    / ;   | |`-'      |  | ,'       |  | ,'         
 |   ;/           \   \ .'  |   ;/          `--''         `--''           
-'---'             `---`    '---'                                         
+'---'             `---`    '---'                                          
 """
 
 
@@ -114,6 +114,8 @@ class Splash(Toplevel):
 
 
 # ========== 主屏 ==========
+
+
 class Screen(ttk.Frame):
     """唯一主界面：写作工作台"""
 
@@ -244,9 +246,9 @@ class App:
         screen_height = root.winfo_screenheight()
         screen_width = root.winfo_screenwidth()
 
-        # 建议默认窗口为屏幕高的 75%，并按 4:3 比例
-        default_height = int(screen_height * 0.75)
-        default_width = int(default_height * 4 / 3)
+        # 调整为屏幕宽度的 80% 作为窗口宽度
+        default_width = int(screen_width * 0.8)
+        default_height = int(default_width * 3 / 4)  # 维持 4:3 宽高比
 
         # 如果屏幕太小，就退回到屏幕实际大小
         if screen_height < min_height or screen_width < min_width:
