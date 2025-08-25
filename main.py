@@ -239,7 +239,7 @@ class App:
             logging.info(f"图标加载失败: {e}")
 
         # ========== 尺寸 ==========
-        min_height = 960
+        min_height = 600
         min_width = int(min_height * 4 / 3)
         root.minsize(min_width, min_height)
 
@@ -247,7 +247,7 @@ class App:
         screen_width = root.winfo_screenwidth()
 
         # 调整为屏幕宽度的 80% 作为窗口宽度
-        default_width = int(screen_width * 0.8)
+        default_width = int(screen_width * 0.65)
         default_height = int(default_width * 3 / 4)  # 维持 4:3 宽高比
 
         # 如果屏幕太小，就退回到屏幕实际大小
