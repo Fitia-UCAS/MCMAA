@@ -88,86 +88,154 @@
 我的内容架构：
 <-----我的内容架构----->
 """
-    \subsection{问题二模型的建立与求解}
-        \begin{figure}[H]
-            \centering
-            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
-            \caption{XXXXX}
-        \end{figure}
-        \subsubsection{XXXXX模型}
-            \numtitle{XXXXX}
-            \numtitle{XXXXX}
+\subsection{问题二模型的建立与求解}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+        \caption{XXXXX}
+    \end{figure}
+    \subsubsection{XXXXX模型}
+        \numtitle{XXXXX}
+        \numtitle{XXXXX}
+            \circtitle{XXXXX}
+                \begin{figure}[H]
+                    \centering
+                    \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                    \caption{XXXXX}
+                \end{figure}
+            \circtitle{XXXXX}
+            \circtitle{XXXXX}
+            \circtitle{XXXXX}
+            \circtitle{XXXXX}
+            \circtitle{XXXXX}
+        \numtitle{XXXXX}
+
+        综上所述，给出模型如下(下面模型/公式仅仅是结构示例，需要根据问题具体写出模型)：
+
+        版本 A：外层大括号（统一包裹）
+
+        \begin{equation}
+        \left\{
+        \begin{aligned}
+        & Z = \max \sum_{i=1}^n v_i x_i \\
+        & \text{s.t. } \sum_{i=1}^n c_i x_i \leq C \\
+        & \sum_{j=1}^m x_{ij} = 1, \quad \forall i \\
+        & x_{ij} \in \{0,1\}, \quad \forall i,j \\
+        & y_t = \alpha y_{t-1} + \beta x_t + \epsilon_t \\
+        & \frac{dX}{dt} = f(X,t), \quad X(0) = X_0 \\
+        & L(\theta) = \sum_{i=1}^n (y_i - \hat{y}_i)^2 + \lambda \|\theta\|_1 \\
+        & P(E) = 1 - e^{-\lambda t} \\
+        & m = \frac{\Delta U}{\Delta C} \\
+        & u_{t+1} = u_t + \Delta t \cdot f(u_t,t)
+        \end{aligned}
+        \right.
+        \end{equation}
+
+        版本 B：外层 + 内层（嵌套动力学模型）
+
+        \begin{equation}
+        \left\{
+        \begin{aligned}
+        & Z = \max \sum_{i=1}^n v_i x_i \\
+        & \text{s.t. } \sum_{i=1}^n c_i x_i \leq C \\
+        & \sum_{j=1}^m x_{ij} = 1, \quad \forall i \\
+        & x_{ij} \in \{0,1\}, \quad \forall i,j \\
+        & y_t = \alpha y_{t-1} + \beta x_t + \epsilon_t \\
+        & \left\{
+        \begin{aligned}
+        & \frac{dX}{dt} = f(X,t), \\
+        & X(0) = X_0
+        \end{aligned}
+        \right. \\
+        & L(\theta) = \sum_{i=1}^n (y_i - \hat{y}_i)^2 + \lambda \|\theta\|_1 \\
+        & P(E) = 1 - e^{-\lambda t} \\
+        & m = \frac{\Delta U}{\Delta C}
+        \end{aligned}
+        \right.
+        \end{equation}
+
+        版本 C：多处嵌套（优化组 + 动力学 + 统计组）
+
+        \begin{equation}
+        \left\{
+        \begin{aligned}
+        & \left\{
+        \begin{aligned}
+        & Z = \max \sum_{i=1}^n v_i x_i \\
+        & \text{s.t. } \sum_{i=1}^n c_i x_i \leq C \\
+        & \sum_{j=1}^m x_{ij} = 1, \quad \forall i \\
+        & x_{ij} \in \{0,1\}, \quad \forall i,j
+        \end{aligned}
+        \right. \\
+        & y_t = \alpha y_{t-1} + \beta x_t + \epsilon_t \\
+        & y_{t+1} = \phi y_t + \eta_t \\
+        & \left\{
+        \begin{aligned}
+        & \frac{dX}{dt} = f(X,t), \\
+        & X(0) = X_0
+        \end{aligned}
+        \right. \\
+        & L(\theta) = \sum_{i=1}^n (y_i - \hat{y}_i)^2 + \lambda \|\theta\|_1 \\
+        & R^2 = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2} \\
+        & P(E) = 1 - e^{-\lambda t} \\
+        & E[X] = \sum_{i=1}^n x_i p_i, \quad Var(X) = E[X^2] - (E[X])^2 \\
+        & m = \frac{\Delta U}{\Delta C}, \quad H(p) = -\sum_i p_i \log p_i
+        \end{aligned}
+        \right.
+        \end{equation}
+
+    \subsubsection{模型的求解}
+        \numtitle{XXXXX}
+
+        \numtitle{XXXXX}
+            \begin{longtable}{p{80pt}<{\centering}|p{80pt}<{\centering}|p{80pt}<{\centering}|p{80pt}<{\centering}|p{80pt}<{\centering}}
+                \caption{XXXXX}
+                ...
+            \end{longtable}
+            \begin{longtable}{p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{100pt}<{\centering}}
+                \caption{XXXXX}
+                ...
+            \end{longtable}
+            \begin{longtable}{p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{80pt}<{\centering}}
+                \caption{XXXXX}
+                ...
+            \end{longtable}
+            \plaintitle{XXXXX}
                 \circtitle{XXXXX}
                     \begin{figure}[H]
                         \centering
-                        \includegraphics[width=\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                        \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/XXXXX.pdf}
                         \caption{XXXXX}
                     \end{figure}
                 \circtitle{XXXXX}
+                    \begin{figure}[H]
+                        \centering
+                        \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                        \caption{XXXXX}
+                    \end{figure}
                 \circtitle{XXXXX}
+                    \begin{figure}[H]
+                        \centering
+                        \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                        \caption{XXXXX}
+                    \end{figure}
+                    \begin{figure}[H]
+                        \centering
+                        \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                        \caption{XXXXX}
+                    \end{figure}
                 \circtitle{XXXXX}
-                \circtitle{XXXXX}
-                \circtitle{XXXXX}
-            \numtitle{XXXXX}
-        \subsubsection{模型的求解}
-            \numtitle{XXXXX}
-                \begin{algorithmsteps}{XXXXX算法步骤}
-                    \addstep{...}{...}
-                    \addstep{...}{...}
-                    \addstep{...}{...}
-                    \addstep{...}{...}
-                    \addstep{...}{...}
-                    ...
-                \end{algorithmsteps}
-            \numtitle{XXXXX}
-                \begin{longtable}{p{80pt}<{\centering}|p{80pt}<{\centering}|p{80pt}<{\centering}|p{80pt}<{\centering}|p{80pt}<{\centering}}
-                    \caption{XXXXX}
-                    ...
-                \end{longtable}
-                \begin{longtable}{p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{100pt}<{\centering}}
-                    \caption{XXXXX}
-                    ...
-                \end{longtable}
-                \begin{longtable}{p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{60pt}<{\centering}|p{80pt}<{\centering}}
-                    \caption{XXXXX}
-                    ...
-                \end{longtable}
-                \plaintitle{XXXXX}
-                    \circtitle{XXXXX}
-                        \begin{figure}[H]
-                            \centering
-                            \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/XXXXX.pdf}
-                            \caption{XXXXX}
-                        \end{figure}
-                    \circtitle{XXXXX}
-                        \begin{figure}[H]
-                            \centering
-                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
-                            \caption{XXXXX}
-                        \end{figure}
-                    \circtitle{XXXXX}
-                        \begin{figure}[H]
-                            \centering
-                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
-                            \caption{XXXXX}
-                        \end{figure}
-                        \begin{figure}[H]
-                            \centering
-                            \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/XXXXX.pdf}
-                            \caption{XXXXX}
-                        \end{figure}
-                    \circtitle{XXXXX}
-                        \begin{figure}[H]
-                            \centering
-                            \includegraphics[width=0.85\textwidth,keepaspectratio]{figures/XXXXX.pdf}
-                            \caption{XXXXX}
-                        \end{figure}
-        \subsubsection{XXXXX}
-            \begin{figure}[H]
-                \centering
-                \includegraphics[width=0.60\textwidth,keepaspectratio]{figures/XXXXX.pdf}
-                \caption{XXXXX}
-            \end{figure}
+                    \begin{figure}[H]
+                        \centering
+                        \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+                        \caption{XXXXX}
+                    \end{figure}
+    \subsubsection{XXXXX}
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.95\textwidth,keepaspectratio]{figures/XXXXX.pdf}
+            \caption{XXXXX}
+        \end{figure}
 """
 <-----我的内容架构----->
 
